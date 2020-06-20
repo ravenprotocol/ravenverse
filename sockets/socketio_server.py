@@ -43,11 +43,11 @@ async def receive_op(sid):
     client_found = search_client()
     op_found = search_pending_op()
 
-    print("Op:", op_found.id, )
-    print("Client:", client_found.id, client_found.client_id)
-
     if op_found is None and client_found is not None:
         return
+
+    print("Op:", op_found.id, )
+    print("Client:", client_found.id, client_found.client_id)
 
     # Create payload
     inputs = json.loads(op_found.inputs)
