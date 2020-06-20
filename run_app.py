@@ -103,6 +103,7 @@ if __name__ == '__main__':
         print("8. Exponential")
         print("9. Transpose")
         print("10. Natural Log")
+        print("11. Quit")
 
         print("\n")
 
@@ -158,7 +159,8 @@ if __name__ == '__main__':
                             op_type=OpTypes.BINARY.value)
 
             op_base.get_result()
-
+        elif operator_number == 11:
+            break
         else:
             operand1 = input("\nEnter the value(Scalar, Array or Matrix): ")
 
