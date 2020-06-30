@@ -1,6 +1,7 @@
-##Raven Open-source
+## Raven Distribution Framework
+https://www.ravenprotocol.com/
 
-####Instructions
+#### Installation Instructions
 
 1. Install dependencies - pip3 install -r requirements.txt
 2. Setup and clean - python3 setup_n_clean.py
@@ -36,3 +37,14 @@ Remove an image
 Enter into the container
 
     sudo docker exec -it raven_server bash
+
+#### How to contribute:
+
+Step 1: Fork
+
+Step 2: Write your code
+
+Step 3: Create a pull request
+
+#### License
+[MIT License](https://github.com/ravenprotocol/raven-distribution-framework/blob/master/LICENSE)
