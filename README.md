@@ -5,6 +5,7 @@ https://www.ravenprotocol.com/
 1. Allow users to run a local instance of the Raven Server and Raven Client that can communicate with each other.
 2. Test how simple computations are stored, passed, and processed between the Server to the Client.
 3. Provide the foundation to allow developers to plug in their own libraries or algorithms to train using the Raven Distribution Framework.
+4. Find bugs and security issues in the code base.
 
 #### Installation Instructions
 
