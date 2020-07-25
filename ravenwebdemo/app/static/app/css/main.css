@@ -1,3 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 body{
-    font-family: 'Nanum Gothic', sans-serif;
+    font-family: 'Roboto', sans-serif;
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+	font-size: 25px;
+	border: 2px solid black;
+	padding: 20px;
+
+}
+
+.container {
+	padding: 0;
+	border: 1px solid black;
+}
+
+.navButtons {
+	display: flex;
+	justify-content: center;
+	padding: 10px;
+	margin-top: 1%;
+}
+
+.navBtn {
+	background-color: white;
+	border: 2px solid #027bff;
+	color: black;
+	padding: 8px 24px;
+	border-left-color: #027bff;
+	border-right-color: #027bff;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	transition: 0.2s;
+}
+
+.navBtn:hover, .active {
+	border: 2px solid #027bff;
+	border-left-color: #027bff;
+	border-right-color: #027bff;
+	background-color: #027bff;
+	color: white;
+}
+
+.showContainer {
+	display: block;
+}
+
+.selectionContainer {
+	display: flex;
+	justify-content: center;
+	margin-top: 1%;
+	margin-bottom: 5%;
+}
+
+.contentContainer {
+	border: 1px solid grey;
+	padding: 1.5% 3%;
+}
+
+#coreContainer {
+	width: 60%;
+	display: flex;
+	flex-direction: row;
+}
+
+#coreDropdown, #input1, #input2 {
+	margin: 20px;
+}
+
+.inputStyle {
+	width: 200px;
+}
+
+#linearContainer {
+	width: 60%;
+	display: flex;
+	flex-direction: row;
+}
+
+#selectDatasetContainer {
+	font-size: 18px;
+	margin: 20px;
+}
+
+#calcuateCoreBtn {
+	background-color: #3FC47C;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+}
+
+#chooseFile {
+	font-size: 14px;
+}
+
+.fileUploadBtn {
+	background-color: #3FC47C;
+	margin-top: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	border: none;
+}
+
+#calcuateLinearBtn {
+	background-color: #3FC47C;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	border: none;
+	margin-left: 20px;
+	margin-bottom: 20px;
+}
+
+.featureTargetCol {
+	margin: 20px;
+}
+
+#logisticContainer {
+	width: 60%;
+	display: flex;
+	flex-direction: row;	
 }
