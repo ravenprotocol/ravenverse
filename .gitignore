@@ -1,3 +1,8 @@
 raven_db.db
 files
 database
+migrations
+__pycache__
+.idea
+logs.out
+db.sqlite3

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
-import ravenwebdemo.app.constants as constants
+import app.constants as constants
 
 
 class Graph(models.Model):

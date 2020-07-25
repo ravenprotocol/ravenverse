@@ -37,7 +37,9 @@ class DataManager(object):
         Method to save data in a pickle file
         """
         file_path = os.path.join(settings.DATA_FILES_PATH, "data_{}.pkl".format(data_id))
+
         if not os.path.exists(file_path):
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
             with open(file_path, "wb") as f:
                 pickle.dump(data, f)
 
