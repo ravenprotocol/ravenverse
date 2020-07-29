@@ -1,5 +1,7 @@
 import datetime
 import json
+import logging
+import logging.handlers
 import pickle
 
 import numpy as np
@@ -7,8 +9,18 @@ import socketio
 from aiohttp import web
 
 # creates a new Async Socket IO Server
-from database.db_manager import DBManager, Client, Op, Data, OpStatus
-from utils.data_utils import DataManager
+from common.db_manager import DBManager, Client, Op, Data, OpStatus
+from common.data_manager import DataManager
+from .constants import RAVSOCK_LOG_FILE
+
+# Set up a specific logger with our desired output level
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+# Add the log message handler to the logger
+handler = logging.handlers.RotatingFileHandler(RAVSOCK_LOG_FILE)
+
+logger.addHandler(handler)
 
 sio = socketio.AsyncServer(cors_allowed_origins="*")
 

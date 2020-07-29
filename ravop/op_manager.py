@@ -3,9 +3,9 @@ import logging
 import logging.handlers
 import pickle
 
-from database.db_manager import DBManager, Op, NodeTypes, Operators, OpTypes, OpStatus, Data
-from settings import LOG_FILE
-from utils.data_utils import DataManager
+from common.db_manager import DBManager, Op, NodeTypes, Operators, OpTypes, OpStatus, Data
+from .constants import RAVOP_LOG_FILE
+from common.data_manager import DataManager
 
 
 class OpManager(object):
@@ -15,12 +15,11 @@ class OpManager(object):
         self.logger.setLevel(logging.DEBUG)
 
         # Add the log message handler to the logger
-        handler = logging.handlers.RotatingFileHandler(
-            LOG_FILE)
+        handler = logging.handlers.RotatingFileHandler(RAVOP_LOG_FILE)
 
         self.logger.addHandler(handler)
 
-        # Create database client
+        # Create common client
         self.db = DBManager()
         self.data_manager = DataManager(self.db)
 
@@ -44,7 +43,7 @@ class OpManager(object):
 
     def create_data_ops(self, graph_id, data_list):
         """
-        Create data in database and ops in database for all data
+        Create data in common and ops in common for all data
         """
         ops = dict()
         for data_dict in data_list:
@@ -70,7 +69,7 @@ class OpManager(object):
                                )
 
         self.logger.debug("Op created:{}".format(op.id))
-        # Return database op
+        # Return common op
         return op
 
     def get_op_outputs(self, op_id):

@@ -1,80 +1,10 @@
 import json
-import logging
-import logging.handlers
 
-from database.db_manager import DBManager, Graph, Op, NodeTypes, Operators, OpTypes
-from database.db_utils import create_graph
-from op_manager import OpManager
-from sockets.socket_client import SocketClient
-from settings import LOG_FILE
 import numpy as np
 
-
-class OpBase(object):
-    def __init__(self, graph_id=None, socket_client=None):
-        # Create database client
-        self.db = DBManager()
-
-        self.db.create_tables()
-
-        self.op_manager = OpManager()
-
-        self.socket_client = socket_client
-
-        # Create a graph in database
-        if graph_id is None:
-            self.graph = create_graph(self.db)
-        else:
-            self.graph = self.db.session.query(Graph).get(graph_id)
-
-            if self.graph is None:
-                self.graph = create_graph(self.db)
-
-        # Set up a specific logger with our desired output level
-        self.logger = logging.getLogger(OpBase.__class__.__name__)
-        self.logger.setLevel(logging.DEBUG)
-
-        # Add the log message handler to the logger
-        handler = logging.handlers.RotatingFileHandler(
-            LOG_FILE)
-
-        self.logger.addHandler(handler)
-
-        self.output_op_id = None
-        self.op_status = "not started"
-
-    def compute(self, data_list, operator, op_type):
-        print("Computing...")
-
-        # create ops for data
-        data_ops = self.op_manager.create_data_ops(graph_id=self.graph.id, data_list=data_list)
-
-        inputs = []
-        for key, data_op in data_ops.items():
-            inputs.append(data_op.id)
-
-        output_op = self.op_manager.create_op(graph_id=self.graph.id, name="ass", inputs=inputs, outputs=[],
-                                                   op_type=op_type,
-                                                   node_type=NodeTypes.MIDDLE.value, operator=operator)
-
-        self.socket_client.emit("update_server", data=None, namespace="/ravop")
-
-        self.output_op_id = output_op.id
-
-        self.op_status = "computing"
-
-        while self.op_status != "computed":
-            self.op_status = self.db.get_op_status(self.output_op_id)
-
-    def get_result(self):
-        if self.db.get_op_status(self.output_op_id) == "computing":
-            print("Computing...")
-            return None
-        else:
-            status = self.db.get_op_status(self.output_op_id)
-            result = self.op_manager.get_op_outputs(self.output_op_id)
-            print("Result:", result)
-            return result
+from common.db_manager import Operators, OpTypes
+from ravop.op_base import OpBase
+from ravop.socket_client import SocketClient
 
 
 def get_operator_name(operator_number):

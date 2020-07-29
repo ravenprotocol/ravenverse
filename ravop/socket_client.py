@@ -1,6 +1,6 @@
 import socketio
 
-from settings import RAVSOCK_SERVER_URL
+from .constants import RAVSOCK_SERVER_URL
 
 
 class RavOPNamespace(socketio.ClientNamespace):

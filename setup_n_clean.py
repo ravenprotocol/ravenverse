@@ -1,6 +1,5 @@
 import glob
 import os
-from database.db_manager import DBManager
 
 
 def clean():
@@ -8,14 +7,14 @@ def clean():
         if os.path.exists(file_path):
             os.remove(file_path)
 
-    # Remove db
-    if os.path.exists("raven_db.db"):
-        os.remove("raven_db.db")
+    if os.path.exists("ravop_log.log"):
+        os.remove("ravop_log.log")
 
-    if os.path.exists("logs.out"):
-        os.remove("logs.out")
+    if os.path.exists("ravsock_log.log"):
+        os.remove("ravsock_log.log")
 
-    DBManager().create_tables()
+    if not os.path.exists("files"):
+        os.makedirs("files")
 
 
 if __name__ == '__main__':

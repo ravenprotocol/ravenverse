@@ -159,3 +159,10 @@ class DBManager(object):
 
     def get_op_status(self, op_id):
         return self.session.query(Op).get(op_id).status
+
+
+def create_graph(db):
+    # Create a graph
+    graph = Graph()
+    graph = db.add(graph)
+    return graph
