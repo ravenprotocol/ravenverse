@@ -37,7 +37,7 @@ data_manager = DataManager(db)
 # we can define aiohttp endpoints just as we normally
 # would with no change
 async def index(request):
-    with open('../index.html') as f:
+    with open('../ravclient/index.html') as f:
         return web.Response(text=f.read(), content_type='text/html')
 
 
