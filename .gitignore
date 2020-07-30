@@ -1,6 +1,5 @@
 raven_db.db
 files
-common
 migrations
 __pycache__
 .idea
