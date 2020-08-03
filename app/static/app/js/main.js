@@ -1,7 +1,7 @@
 $(document).ready(function () {
-	$("#linear").addClass('active');
+	$("#core").addClass('active');
 	setDisplayNone();
-	$("#linearContainer").css("display", "block");
+	$("#coreContainer").css("display", "block");
 });
 
 function removeClasses() {

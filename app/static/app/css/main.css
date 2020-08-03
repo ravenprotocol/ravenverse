@@ -1,21 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 body{
-    font-family: 'Roboto', sans-serif;
+    font-family: Arial;
 }
 
 .header {
 	display: flex;
 	justify-content: center;
-	font-size: 25px;
-	border: 2px solid black;
+	font-size: 30px;
+	font-weight: 700;
+	background: #64B6AC;
 	padding: 20px;
-
+	color: white;
 }
 
 .container {
 	padding: 0;
-	border: 1px solid black;
+	min-width: 100%;
+	min-height: 100vh;
+	background: #DAFFEF;
 }
 
 .navButtons {
@@ -27,24 +30,26 @@ body{
 
 .navBtn {
 	background-color: white;
-	border: 2px solid #027bff;
+	border: 2px solid #64B6AC;
 	color: black;
 	padding: 8px 24px;
-	border-left-color: #027bff;
-	border-right-color: #027bff;
+	border-left-color: #64B6AC;
+	border-right-color: #64B6AC;
 	text-align: center;
 	text-decoration: none;
 	display: inline-block;
 	font-size: 16px;
 	transition: 0.2s;
+	font-weight: 500;
 }
 
 .navBtn:hover, .active {
-	border: 2px solid #027bff;
-	border-left-color: #027bff;
-	border-right-color: #027bff;
-	background-color: #027bff;
+	border: 2px solid #64B6AC;
+	border-left-color: #64B6AC;
+	border-right-color: #64B6AC;
+	background-color: #64B6AC;
 	color: white;
+	font-weight: 500;
 }
 
 .showContainer {
@@ -59,8 +64,9 @@ body{
 }
 
 .contentContainer {
-	border: 1px solid grey;
+	border: 3px solid #64B6AC;
 	padding: 1.5% 3%;
+	border-radius: 7px;
 }
 
 #coreContainer {
@@ -89,7 +95,7 @@ body{
 }
 
 #calcuateCoreBtn {
-	background-color: #3FC47C;
+	background-color: #5D737E;
 	color: white;
 	padding: 5px 18px;
 	text-align: center;
@@ -104,7 +110,7 @@ body{
 }
 
 .fileUploadBtn {
-	background-color: #3FC47C;
+	background-color: #5D737E;
 	margin-top: 5px;
 	color: white;
 	padding: 5px 18px;
@@ -116,7 +122,7 @@ body{
 }
 
 #calcuateLinearBtn {
-	background-color: #3FC47C;
+	background-color: #5D737E;
 	color: white;
 	padding: 5px 18px;
 	text-align: center;
