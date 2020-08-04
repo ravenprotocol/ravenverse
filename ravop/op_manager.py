@@ -10,6 +10,14 @@ from common.data_manager import DataManager
 
 class OpManager(object):
     def __init__(self):
+        # Create common client
+        self.db = DBManager()
+        self.data_manager = DataManager(self.db)
+
+        self.logger = None
+        self.__setup_logger()
+
+    def __setup_logger(self):
         # Set up a specific logger with our desired output level
         self.logger = logging.getLogger(OpManager.__class__.__name__)
         self.logger.setLevel(logging.DEBUG)
@@ -18,10 +26,6 @@ class OpManager(object):
         handler = logging.handlers.RotatingFileHandler(RAVOP_LOG_FILE)
 
         self.logger.addHandler(handler)
-
-        # Create common client
-        self.db = DBManager()
-        self.data_manager = DataManager(self.db)
 
     def print_ops(self, graph_id):
         self.logger.debug("\nOps")
