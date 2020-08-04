@@ -55,7 +55,7 @@ async def receive_op(sid):
     client_found = search_client()
     op_found = search_pending_op()
 
-    if op_found is None and client_found is not None:
+    if op_found is None and client_found is None:
         return
 
     print("Op:", op_found.id, )
@@ -136,13 +136,17 @@ async def connect(sid, environ):
     elif 'ravjs' in environ['QUERY_STRING']:
         client_type = "ravjs"
 
-    client = Client()
-    client.client_id = sid
-    client.connected_at = datetime.datetime.now()
-    client.status = "connected"
-    client.type = client_type
-    db.session.add(client)
-    db.session.commit()
+    try:
+        client = Client()
+        client.client_id = sid
+        client.connected_at = datetime.datetime.now()
+        client.status = "connected"
+        client.type = client_type
+        db.session.add(client)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        raise
 
     op_found = search_pending_op()
 
