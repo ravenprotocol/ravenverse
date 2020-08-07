@@ -1,7 +1,11 @@
 $(document).ready(function () {
 	$("#core").addClass('active');
 	setDisplayNone();
-	$("#coreContainer").css("display", "block");
+	$("#coreContainer").css("display", "flex");
+
+	$("input[id=chooseFile]").change(function() {
+		$(".uploadFileLabel").text($(this).val());
+	});
 });
 
 function removeClasses() {
@@ -20,19 +24,19 @@ $("#core").click(function () {
 	removeClasses();
 	setDisplayNone();
 	$("#core").addClass('active');
-	$("#coreContainer").css("display", "block");
+	$("#coreContainer").css("display", "flex");
 });
 
 $("#linear").click(function () {
 	removeClasses();
 	setDisplayNone();
 	$("#linear").addClass('active');
-	$("#linearContainer").css("display", "block");
+	$("#linearContainer").css("display", "flex");
 });
 
 $("#logistic").click(function () {
 	removeClasses();
 	setDisplayNone();
 	$("#logistic").addClass('active');
-	$("#logisticContainer").css("display", "block");
+	$("#logisticContainer").css("display", "flex");
 });

@@ -7,97 +7,109 @@
     	<div class="header">
     		Raven Distribution Framework
     	</div>
-    	<div class="navButtons">
-			<button class="navBtn" id="core">Core</button>
-			<button class="navBtn" id="linear">Linear Regression</button>
-			<button class="navBtn" id="logistic">Logistic Regression</button>
-    	</div>
-    	<div class="selectionContainer">
-    		<div class="contentContainer" id="coreContainer">
-    			<div id="coreDropdown">
-    				<select name="coreDropdown">
-	    				<option value="select">Select Operation</option>
-	    				<option value="+">Addition</option>
-	    				<option value="-">Subtraction</option>
-	    				<option value="/">Division</option>
-	    				<option value="*">Multiplication</option>
-	    			</select>
-    			</div>
+        <div class="cardContainer">
+        	<div class="navButtons">
+    			<button class="navBtn" id="core">CORE</button>
+    			<button class="navBtn" id="linear">LINEAR REGRESSION</button>
+    			<button class="navBtn" id="logistic">LOGISTIC REGRESSION</button>
+        	</div>
+        	<div class="selectionContainer">
+        		<div class="contentContainer" id="coreContainer">
+        			<div id="coreDropdown">
+        				<select name="coreDropdown" class="coreDropdown">
+    	    				<option value="select">Select Operation</option>
+    	    				<option value="+">Addition</option>
+    	    				<option value="-">Subtraction</option>
+    	    				<option value="/">Division</option>
+    	    				<option value="*">Multiplication</option>
+    	    			</select>
+        			</div>
 
-    			<div id="input1">
-	    			<input class="inputStyle" type="text" name="input1" placeholder="Input 1">
-	    		</div>
+        			<div id="input1">
+    	    			<input class="inputStyle" type="text" name="input1" placeholder="Input 1">
+    	    		</div>
 
-	    		<div id="input2">
-    				<input class="inputStyle" type="text" name="input2" placeholder="Input 2">
-    			</div>
+    	    		<div id="input2">
+        				<input class="inputStyle" type="text" name="input2" placeholder="Input 2">
+        			</div>
 
-    			<div id="input2">
-    				<button id="calcuateCoreBtn">Calculate</button>
-    			</div>
-    		</div>
+        			<div id="input2">
+        				<button id="calcuateCoreBtn">Calculate</button>
+        			</div>
+        		</div>
 
-    		<div class="contentContainer" id="linearContainer">
-    				<div id="selectDatasetContainer">
-    					Select a dataset<br>
+        		<div class="contentContainer" id="linearContainer">
+        				<div id="selectDatasetContainer">
+        					Select a dataset<br>
 
-    					<input type="radio" name="datasetSelect" value="iris">
-						<label for="iris">Iris</label><br>
+        					<input type="radio" name="datasetSelect" value="iris">
+    						<label for="iris">Iris</label><br>
 
-						<input type="radio" name="datasetSelect" value="boston">
-						<label for="boston">Boston House Price</label><br>
+    						<input type="radio" name="datasetSelect" value="boston">
+    						<label for="boston">Boston House Price</label><br>
 
-						<input type="radio" name="datasetSelect" value="upload">
-						<label for="upload">Upload</label><br>
+    						<input type="radio" name="datasetSelect" value="upload">
+    						<label for="upload">Upload</label><br>
 
-						<form enctype="multipart/form-data">
-							<input id="chooseFile" name="file" type="file" /><br>
-							<input class="fileUploadBtn" type="button" value="Upload" />
-						</form>
-    				</div>
+    						<form enctype="multipart/form-data" class="uploadFileForm">
+                                <label for="chooseFile" class="uploadFileLabel">Choose File</label>
+    							<input id="chooseFile" name="file" type="file" />
+    							<input class="fileUploadBtn" type="button" value="Upload" />
+    						</form>
+        				</div>
 
-    				<div class="featureTargetCol">
-    					<div>Features:&emsp;<input type="text" name="features" placeholder="Enter the features"></div>
-    				</div>
+        				<div class="featureTargetCol">
+        					<span class="inputTitle">Features</span><br />
+                            <input type="text" name="features" placeholder="Enter the features" class="featureTargetColInput">
+        				</div>
 
-    				<div class="featureTargetCol">
-    					<div>Target Column:&emsp;<input type="text" name="features" placeholder="Enter the target column"></div>
-    				</div>
+        				<div class="featureTargetCol">
+        					<span class="inputTitle">Target Column</span><br />
+                            <input type="text" name="features" placeholder="Enter the target column" class="featureTargetColInput">
+        				</div>
 
-    				<button id="calcuateLinearBtn">Train</button>
-    		</div>
+        				<span style="width: 45%">
+                            <button id="calcuateLinearBtn">Train</button>
+                        </span>
+        		</div>
 
-    		<div class="contentContainer" id="logisticContainer">
-    			<div id="selectDatasetContainer">
-    					Select a dataset<br>
+        		<div class="contentContainer" id="logisticContainer">
+        			<div id="selectDatasetContainer">
+        					Select a dataset<br>
 
-    					<input type="radio" name="datasetSelect" value="iris">
-						<label for="iris">Iris</label><br>
+        					<input type="radio" name="datasetSelect" value="iris">
+    						<label for="iris">Iris</label><br>
 
-						<input type="radio" name="datasetSelect" value="boston">
-						<label for="boston">Boston House Price</label><br>
+    						<input type="radio" name="datasetSelect" value="boston">
+    						<label for="boston">Boston House Price</label><br>
 
-						<input type="radio" name="datasetSelect" value="upload">
-						<label for="upload">Upload</label><br>
+    						<input type="radio" name="datasetSelect" value="upload">
+    						<label for="upload">Upload</label><br>
 
-						<form enctype="multipart/form-data">
-							<input id="chooseFile" name="file" type="file" /><br>
-							<input class="fileUploadBtn" type="button" value="Upload" />
-						</form>
-    				</div>
+    						<form enctype="multipart/form-data" class="uploadFileForm">
+                                <label for="chooseFile" class="uploadFileLabel">Choose File</label>
+    							<input id="chooseFile" name="file" type="file" /><br>
+    							<input class="fileUploadBtn" type="button" value="Upload" />
+    						</form>
+        				</div>
 
-    				<div class="featureTargetCol">
-    					<div>Features:&emsp;<input type="text" name="features" placeholder="Enter the features"></div>
-    				</div>
+        				<div class="featureTargetCol">
+                            <span class="inputTitle">Features</span><br />
+                            <input type="text" name="features" placeholder="Enter the features" class="featureTargetColInput">
+                        </div>
 
-    				<div class="featureTargetCol">
-    					<div>Target Column:&emsp;<input type="text" name="features" placeholder="Enter the target column"></div>
-    				</div>
+                        <div class="featureTargetCol">
+                            <span class="inputTitle">Target Column</span><br />
+                            <input type="text" name="features" placeholder="Enter the target column" class="featureTargetColInput">
+                        </div>
 
-    				<button id="calcuateLinearBtn">Train</button>
+                        <span style="width: 45%">
+                            <button id="calcuateLinearBtn">Train</button>
+                        </span>
 
-    		</div>
-    	</div>
+        		</div>
+        	</div>
+        </div>
     </div>
 {% endblock %}
 
