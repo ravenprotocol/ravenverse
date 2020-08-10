@@ -1,6 +1,5 @@
 raven_db.db
 files
-migrations
 __pycache__
 .idea
 logs.out

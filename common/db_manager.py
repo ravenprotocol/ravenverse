@@ -1,10 +1,15 @@
 import datetime
+import json
+import os
 from enum import Enum
 
+import numpy as np
 import sqlalchemy as db
 from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
+
+from common.utils import delete_data_file, save_data_to_file
 
 Base = declarative_base()
 
@@ -45,6 +50,9 @@ class Graph(Base):
     __tablename__ = 'graph'
     id = Column(Integer, primary_key=True)
     ops = relationship("Op", backref="graph")
+
+    # Status of this graph 1.active 2.inactive
+    status = Column(String(10), default="active")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -147,6 +155,12 @@ class DBManager(object):
         self.session.commit()
         return op
 
+    def get_op(self, op_id):
+        """
+        Get an existing op
+        """
+        return self.session.query(Op).get(op_id)
+
     def create_data(self, **kwargs):
         data = Data()
 
@@ -157,12 +171,63 @@ class DBManager(object):
         self.session.commit()
         return data
 
+    def get_data(self, data_id):
+        """
+        Get an existing data
+        """
+        return self.session.query(Data).get(data_id)
+
+    def create_data_complete(self, data, data_type):
+        # print("Creating data:", data)
+
+        if isinstance(data, (np.ndarray, np.generic)):
+            if data.ndim == 1:
+                data = data[..., np.newaxis]
+
+        d = self.create_data(type=data_type)
+
+        # Save file
+        file_path = save_data_to_file(d.id, data)
+
+        # Update file path
+        self.update(d, file_path=file_path)
+
+        return d
+
     def get_op_status(self, op_id):
         return self.session.query(Op).get(op_id).status
 
+    def get_graph(self, graph_id):
+        """
+        Get an existing graph
+        """
+        return self.session.query(Graph).get(graph_id)
 
-def create_graph(db):
-    # Create a graph
-    graph = Graph()
-    graph = db.add(graph)
-    return graph
+    def create_graph(self):
+        """
+        Create a new graph
+        """
+        graph = Graph()
+        self.session.add(graph)
+        self.session.commit()
+        return graph
+
+    def get_graph_ops(self, graph_id):
+        return self.session.query(Op).filter(Op.graph_id == graph_id).all()
+
+    def delete_graph_ops(self, graph_id):
+        ops = self.get_graph_ops(graph_id=graph_id)
+
+        for op in ops:
+            data_ids = json.loads(op.outputs)
+            if data_ids is not None:
+                for data_id in data_ids:
+                    data = self.session.query(Data).get(data_id)
+                    # Delete data file
+                    delete_data_file(data)
+                    # Delete data object
+                    self.delete(data)
+
+            # Delete op object
+            self.delete(op)
+

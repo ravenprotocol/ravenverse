@@ -5,13 +5,16 @@ from .constants import RAVSOCK_SERVER_URL
 
 class RavOPNamespace(socketio.ClientNamespace):
     def on_connect(self):
-        print('Connected to the server')
+        # print('Connected to the server')
+        pass
 
     def on_disconnect(self):
-        print('Disconnected from the server')
+        # print('Disconnected from the server')
+        pass
 
     def on_message(self, data):
-        print('Message received:', data)
+        # print('Message received:', data)
+        pass
 
     def on_result(self, data):
         print(data)
@@ -27,3 +30,6 @@ class SocketClient(object):
         self.client.connect(RAVSOCK_SERVER_URL+"?client_name=ravop")
 
         return self.client
+
+    def disconnect(self):
+        self.client.disconnect()

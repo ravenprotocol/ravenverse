@@ -10,7 +10,6 @@ from aiohttp import web
 
 # creates a new Async Socket IO Server
 from common.db_manager import DBManager, Client, Op, Data, OpStatus
-from common.data_manager import DataManager
 from .constants import RAVSOCK_LOG_FILE
 
 # Set up a specific logger with our desired output level
@@ -31,8 +30,6 @@ app = web.Application()
 sio.attach(app)
 
 db = DBManager()
-data_manager = DataManager(db)
-
 
 # we can define aiohttp endpoints just as we normally
 # would with no change
@@ -82,7 +79,7 @@ async def receive_result(sid, message):
     print(op_id, type(data['result']), data['operator'], data['result'])
 
     op = db.session.query(Op).get(op_id)
-    data = data_manager.create_data(data=np.array(data['result']), data_type="ndarray")
+    data = db.create_data_complete(data=np.array(data['result']), data_type="ndarray")
     db.update(op, outputs=json.dumps([data.id]), status=OpStatus.COMPUTED.value)
 
     """
@@ -128,7 +125,7 @@ async def receive_result(sid, message):
 
 @sio.event
 async def connect(sid, environ):
-    print("Connected:", sid, environ)
+    logger.debug("Connected:{} {}".format(sid, environ))
 
     client_type = None
     if 'ravop' in environ['QUERY_STRING']:
@@ -165,7 +162,7 @@ async def connect(sid, environ):
 
 @sio.event
 async def disconnect(sid):
-    print("Disconnected:", sid)
+    logger.debug("Disconnected:{}".format(sid))
 
     client = db.session.query(Client).filter(Client.client_id == sid).first()
     if client is not None:

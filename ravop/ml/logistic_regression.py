@@ -4,8 +4,8 @@ import logging.handlers
 
 import numpy as np
 
-from common.db_manager import Op, NodeTypes, Data, OpTypes, Operators, OpStatus, DBManager, Graph, create_graph
-from ravop.op_manager import OpManager
+from common.db_manager import Op, NodeTypes, Data, OpTypes, Operators, OpStatus, DBManager, Graph
+from ravop.graph_manager import GraphManager
 from ..constants import RAVOP_LOG_FILE
 
 
@@ -13,16 +13,7 @@ class LogisticRegression(object):
     def __init__(self, graph_id=None):
         # Create database client
         self.db = DBManager()
-        self.op_manager = OpManager()
-
-        # Create a graph in database
-        if graph_id is None:
-            self.graph = create_graph(self.db)
-        else:
-            self.graph = self.db.session.query(Graph).get(graph_id)
-
-            if self.graph is None:
-                self.graph = create_graph(self.db)
+        self.graph_manager = GraphManager(graph_id=graph_id)
 
         # Hyper-parameters
         self.iterations = 1
@@ -41,7 +32,7 @@ class LogisticRegression(object):
         self.logger.setLevel(logging.DEBUG)
 
         # Add the log message handler to the logger
-        handler = logging.handlers.RotatingFileHandler('{}.out'.format(RAVOP_LOG_FILE))
+        handler = logging.handlers.RotatingFileHandler(RAVOP_LOG_FILE)
 
         self.logger.addHandler(handler)
 

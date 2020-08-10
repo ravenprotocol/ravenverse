@@ -5,21 +5,34 @@ import pickle
 
 from common.db_manager import DBManager, Op, NodeTypes, Operators, OpTypes, OpStatus, Data
 from .constants import RAVOP_LOG_FILE
-from common.data_manager import DataManager
 
 
-class OpManager(object):
-    def __init__(self):
+class GraphManager(object):
+    def __init__(self, graph_id=None):
+        self.graph_id = graph_id
+
         # Create common client
         self.db = DBManager()
-        self.data_manager = DataManager(self.db)
 
         self.logger = None
         self.__setup_logger()
 
+        self.graph = None
+        self.__create_or_get_graph()
+
+    def __create_or_get_graph(self):
+        # Create or get a graph in database
+        if self.graph_id is None:
+            self.graph = self.db.create_graph()
+        else:
+            self.graph = self.db.get_graph(self.graph_id)
+
+            if self.graph is None:
+                self.graph = self.db.create_graph()
+
     def __setup_logger(self):
         # Set up a specific logger with our desired output level
-        self.logger = logging.getLogger(OpManager.__class__.__name__)
+        self.logger = logging.getLogger(GraphManager.__class__.__name__)
         self.logger.setLevel(logging.DEBUG)
 
         # Add the log message handler to the logger
@@ -27,9 +40,12 @@ class OpManager(object):
 
         self.logger.addHandler(handler)
 
-    def print_ops(self, graph_id):
+    def clear_graph(self):
+        self.db.delete_graph_ops(self.graph_id)
+
+    def print_ops(self):
         self.logger.debug("\nOps")
-        ops = self.db.session.query(Op).filter(Op.graph_id == graph_id).all()
+        ops = self.db.get_graph_ops(graph_id=self.graph_id)
         for op in ops:
             self.logger.debug("Values - Name:{}, Op Id:{}, Inputs:{}, Outputs:{}, Status:{}, Node Type:{}, Op Type:{}, "
                               "Operator:{}".format(op.name, op.id, op.inputs, op.outputs, op.status,
@@ -39,7 +55,7 @@ class OpManager(object):
         """
         Save data and create an op for it
         """
-        data = self.data_manager.create_data(data=data_value, data_type=data_type)
+        data = self.db.create_data_complete(data=data_value, data_type=data_type)
         op = self.create_op(graph_id=graph_id, name=data_name, node_type=NodeTypes.INPUT.value, inputs=None, outputs=[data.id],
                             op_type=OpTypes.UNARY.value, operator=Operators.LINEAR.value,
                             status=OpStatus.COMPUTED.value)
@@ -77,8 +93,8 @@ class OpManager(object):
         return op
 
     def get_op_outputs(self, op_id):
-        data_id = json.loads(self.db.session.query(Op).get(op_id).outputs)[0]
-        data = self.db.session.query(Data).get(data_id)
+        data_id = json.loads(self.db.get_op(op_id).outputs)[0]
+        data = self.db.get_data(data_id=data_id)
         file_path = data.file_path
 
         # print("File path:", file_path)

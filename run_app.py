@@ -3,7 +3,7 @@ import json
 import numpy as np
 
 from common.db_manager import Operators, OpTypes
-from ravop.op_base import OpBase
+from ravop.ml.core import Core
 from ravop.socket_client import SocketClient
 
 
@@ -13,11 +13,10 @@ def get_operator_name(operator_number):
 
 
 if __name__ == '__main__':
-    socket_client = SocketClient().connect()
 
     i = 0
     while True:
-        op_base = OpBase(graph_id=i, socket_client=socket_client)
+        core = Core(graph_id=i)
         i += 1
 
         # Create a graph here
@@ -85,10 +84,10 @@ if __name__ == '__main__':
             data_list = [{"name": "x", "data": operand1, "type": operand_type},
                          {"name": "y", "data": operand2, "type": operand_type}]
 
-            op_base.compute(data_list=data_list, operator=get_operator_name(operator_number),
+            core.compute(data_list=data_list, operator=get_operator_name(operator_number),
                             op_type=OpTypes.BINARY.value)
 
-            op_base.get_result()
+            core.get_result()
         elif operator_number == 11:
             break
         else:
@@ -111,7 +110,7 @@ if __name__ == '__main__':
             # Create a operation
             data_list = [{"name": "x", "data": operand1, "type": operand_type}]
 
-            op_base.compute(data_list=data_list, operator=get_operator_name(operator_number),
+            core.compute(data_list=data_list, operator=get_operator_name(operator_number),
                             op_type=OpTypes.UNARY.value)
 
-            op_base.get_result()
+            core.get_result()

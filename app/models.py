@@ -8,6 +8,9 @@ class Graph(models.Model):
     class Meta:
         db_table = 'graph'
 
+    statuses = [("active", "Active"),
+                ("inactive", "Inactive")]
+    status = models.CharField(max_length=10, default="active", choices=statuses)
     created_at = models.DateTimeField(default=timezone.now)
 
 
