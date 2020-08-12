@@ -9,6 +9,8 @@ import socketio
 from aiohttp import web
 
 # creates a new Async Socket IO Server
+from sqlalchemy import desc
+
 from common.db_manager import DBManager, Client, Op, Data, OpStatus
 from .constants import RAVSOCK_LOG_FILE
 
@@ -21,7 +23,7 @@ handler = logging.handlers.RotatingFileHandler(RAVSOCK_LOG_FILE)
 
 logger.addHandler(handler)
 
-sio = socketio.AsyncServer(cors_allowed_origins="*")
+sio = socketio.AsyncServer(cors_allowed_origins="*", async_mode='aiohttp', async_handlers=True)
 
 # Creates a new Aiohttp Web Application
 app = web.Application()
@@ -52,7 +54,7 @@ async def receive_op(sid):
     client_found = search_client()
     op_found = search_pending_op()
 
-    if op_found is None and client_found is None:
+    if op_found is None or client_found is None:
         return
 
     print("Op:", op_found.id, )
@@ -65,7 +67,22 @@ async def receive_op(sid):
 
     await sio.emit("op", payload, namespace="/ravjs", room=client_found.client_id)
 
-    db.update(op_found, status=OpStatus.COMPUTING.value)
+    # db.update(op_found, client_id=client_found.client_id, status=OpStatus.COMPUTING.value)
+
+
+@sio.on('acknowledge', namespace="/ravjs")
+async def acknowledge(sid, message):
+    print("Op received", sid)
+
+    data = json.loads(message)
+    op_id = data['op_id']
+    print("Op id", op_id)
+    op_found = db.session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid)
+
+    # Update op status to computing
+    if op_found is not None:
+        print("Updating op status")
+        db.update(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
 
 
 @sio.on('result', namespace="/ravjs")
@@ -97,7 +114,7 @@ async def receive_result(sid, message):
 
     await sio.emit("op", payload, namespace="/ravjs", room=sid)
 
-    db.update(op_found, client=sid, status=OpStatus.COMPUTING.value)
+    # db.update(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
 
     # # Save results
     # # If compute completed
@@ -145,9 +162,16 @@ async def connect(sid, environ):
         db.session.rollback()
         raise
 
-    op_found = search_pending_op()
 
-    if op_found is None:
+@sio.on('ask_op', namespace="/ravjs")
+async def ask_op(sid, message):
+    print("get_op", message)
+
+    op_found = search_pending_op()
+    client_found = search_client()
+
+    if op_found is None or client_found is None:
+        print("Op or client not found")
         return
 
     # Create payload
@@ -155,9 +179,10 @@ async def connect(sid, environ):
 
     payload = create_payload(op_found.id, inputs, op_found.op_type, op_found.operator)
 
-    await sio.emit("op", payload, namespace="/ravjs", room=sid)
+    print("Emitting op")
+    print("sid", client_found.client_id, payload)
 
-    db.update(op_found, client=sid, status=OpStatus.COMPUTING.value)
+    await sio.emit("op", payload, namespace="/ravjs", room=client_found.client_id)
 
 
 @sio.event
@@ -166,15 +191,23 @@ async def disconnect(sid):
 
     client = db.session.query(Client).filter(Client.client_id == sid).first()
     if client is not None:
-        client.status = "disconnected"
-        client.disconnected_at = datetime.datetime.now()
+        db.update(client, status="disconnected", disconnected_at = datetime.datetime.now())
+
+        if client.type == "ravjs":
+            # Get ops which were assigned to this
+            ops = db.session.query(Op).filter(Op.status == "computing").filter(Op.client_id == sid).all()
+
+            # Set those ops to pending
+            for op in ops:
+                db.update(op, client_id=None, status=OpStatus.PENDING.value)
 
 
 def search_pending_op():
     """
     Search for an op which is pending
     """
-    ops = db.session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None).all()
+    ops = db.session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
+    #.order_by(desc(Op.created_at))
 
     print("Ops:", ops)
     op_found = None
@@ -195,6 +228,7 @@ def search_pending_op():
 
 def search_client():
     clients = db.session.query(Client).filter(Client.status == "connected", Client.type == "ravjs")
+    # .order_by(desc(Client.created_at))
 
     client_found = None
     for client in clients:
@@ -237,6 +271,10 @@ def create_payload(op_id1, inputs, op_type, operator):
     payload['operator'] = operator
 
     return json.dumps(payload)
+
+
+async def schedule_ops():
+    print("ehlo")
 
 
 # We bind our aiohttp endpoint to our app router

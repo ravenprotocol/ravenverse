@@ -20,9 +20,16 @@
 
     socket.on('op', function(d){
         console.log(d);
-
         var data = JSON.parse(d);
         console.log(data);
+
+        //Acknowledge op
+        socket.emit("acknowledge", JSON.stringify({
+            "op_id": data.op_id,
+            "message": "Op received"
+        }));
+
+        // Perform
         let operation_type = data ["op_type"];
         let operator = data ["operator"];
         if(operation_type && operator) {
@@ -32,6 +39,10 @@
 
     socket.on('connect', function(d){
         console.log("connected");
+
+        socket.emit("ask_op", JSON.stringify({
+            "message": "Send me an aop"
+        }))
     });
 
     /* Socket connection and operations */
@@ -195,7 +206,12 @@
                 break;
         }
     }
-    //
+
+    $(window).bind('beforeunload', function(){
+        socket.disconnect();
+        return 'Are you sure you want to leave?';
+    });
+
     // function guidGenerator() {
     //     let S4 = function () {
     //         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
