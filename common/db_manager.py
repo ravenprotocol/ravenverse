@@ -115,7 +115,7 @@ class Op(Base):
 
 class DBManager(object):
     def __init__(self):
-        self.engine = db.create_engine('sqlite:///raven_db.db')
+        self.engine = db.create_engine('mysql://root:password@localhost/ravenwebdemo')
         self.connection = self.engine.connect()
 
         Base.metadata.bind = self.engine
