@@ -54,6 +54,7 @@ class Core(object):
         self.op_status = "computing"
 
         while self.op_status != "computed":
+            self.db = DBManager()
             self.op_status = self.db.get_op_status(self.output_op_id)
 
     def get_result(self):

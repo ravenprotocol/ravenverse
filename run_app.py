@@ -14,7 +14,7 @@ def get_operator_name(operator_number):
 
 if __name__ == '__main__':
 
-    i = 0
+    i = 1
     while True:
         core = Core(graph_id=i)
         i += 1

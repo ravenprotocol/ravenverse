@@ -93,6 +93,7 @@ class GraphManager(object):
         return op
 
     def get_op_outputs(self, op_id):
+        self.db = DBManager()
         data_id = json.loads(self.db.get_op(op_id).outputs)[0]
         data = self.db.get_data(data_id=data_id)
         file_path = data.file_path
