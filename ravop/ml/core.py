@@ -53,11 +53,15 @@ class Core(object):
 
         self.op_status = "computing"
 
-        while self.op_status != "computed":
-            self.db = DBManager()
-            self.op_status = self.db.get_op_status(self.output_op_id)
+        # while self.op_status != "computed":
+        #     self.db = DBManager()
+        #     self.op_status = self.db.get_op_status(self.output_op_id)
+        return self.output_op_id
 
-    def get_result(self):
+    def get_result(self, custom_id=None):
+        if custom_id:
+            self.output_op_id = custom_id
+
         if self.db.get_op_status(self.output_op_id) == "computing":
             print("Computing...")
             return None
