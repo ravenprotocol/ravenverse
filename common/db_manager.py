@@ -115,7 +115,11 @@ class Op(Base):
 
 class DBManager(object):
     def __init__(self):
-        self.engine = db.create_engine('mysql://root:password@localhost/ravenwebdemo')
+        self.engine = db.create_engine('mysql://{}:{}@localhost/ravenwebdemo'.format(
+                os.environ.get('MYSQL_USER'),
+                os.environ.get('MYSQL_PASSWORD')
+            )
+        )
         self.connection = self.engine.connect()
 
         Base.metadata.bind = self.engine
