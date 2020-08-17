@@ -1,13 +1,12 @@
 import app.models as models
 from app.utils import evaluate
 
-from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import render
 
 from ravop.ml.core import Core
-from ravop.socket_client import SocketClient
 
 
 def home(request):
@@ -21,7 +20,6 @@ class Compute(APIView):
             data2 = request.data['data2']
             type1 = request.data['type1']
             type2 = request.data['type2']
-
         except Exception:
             return Response(data='Required parameters missing', status=400)
 
@@ -30,15 +28,30 @@ class Compute(APIView):
                      {"name": "y", "data": data2, "type": type2}]
 
         output_id = core.compute(data_list=data_list, operator='addition', op_type='binary')
-        return Response('output_id: {}'.format(output_id))
+        response = dict()
+        response.update({'op_id', output_id})
+        return Response(data=response)
 
 
 class Result(APIView):
     def get(self, request, op_id):
-        op_object = models.Op.objects.get(pk=op_id)
-        if op_object.status == 'Computing' or op_object.status == 'Pending':
-            return Response(op_object.status)
+        response = dict()
+        response.update({'status': None})
+        response.update({'result': None})
 
-        op_base = Core(graph_id=1)
+        try:
+            op_object = models.Op.objects.get(pk=op_id)
+        except ObjectDoesNotExist as e:
+            op_object = None
+
+        if op_object is None:
+            return Response(data=response, status=404, exception=ObjectDoesNotExist)
+
+        response.update({'status': op_object.status})
+        if op_object.status == 'computing' or op_object.status == 'pending':
+            return Response(data=response, status=204)
+
         result = evaluate.get_result(op_object)
-        return Response('Result: {}'.format(result))
+        response.update({'result': result})
+
+        return Response(data=response)

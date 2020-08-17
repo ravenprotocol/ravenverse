@@ -101,7 +101,7 @@ class GraphManager(object):
         # print("File path:", file_path)
 
         with open(file_path, "rb") as f:
-            a = pickle.load(f)
+            a = json.load(f)
             # print("Data:", a, type(a), data.type)
 
             if data.type == "integer":

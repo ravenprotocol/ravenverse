@@ -1,6 +1,6 @@
 import app.models as models
+import numpy as np
 import json
-import pickle
 
 
 def get_result(op_object):
@@ -10,9 +10,8 @@ def get_result(op_object):
     file_path = data.file_path
 
     with open(file_path, "rb") as f:
-        a = pickle.load(f)
+        a = json.load(f)
 
-        if data.type == "ndarray":
-            return a.tolist()
-        else:
-            return a
+        if isinstance(a, np.ndarray):
+            a = a.tolist()
+        return a

@@ -253,7 +253,7 @@ def create_payload(op_id1, inputs, op_type, operator):
         file_path = data.file_path
         print(file_path)
         with open(file_path, "rb") as f:
-            a = pickle.load(f)
+            a = json.load(f)
             print("Data:", a, type(a), data.type)
             if data.type == "integer":
                 values.append(a)
