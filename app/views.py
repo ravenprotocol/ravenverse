@@ -29,7 +29,7 @@ class Compute(APIView):
 
         output_id = core.compute(data_list=data_list, operator='addition', op_type='binary')
         response = dict()
-        response.update({'op_id', output_id})
+        response.update({'op_id': output_id})
         return Response(data=response)
 
 
@@ -49,7 +49,7 @@ class Result(APIView):
 
         response.update({'status': op_object.status})
         if op_object.status == 'computing' or op_object.status == 'pending':
-            return Response(data=response, status=204)
+            return Response(data=response)
 
         result = evaluate.get_result(op_object)
         response.update({'result': result})

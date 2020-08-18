@@ -91,7 +91,7 @@ body{
 	width: 100%;
 }
 
-#coreDropdown, #input1, #input2 {
+#coreDropdown, #input1Container, #input2Container, #calcuateCoreContainer {
 	margin: 12px;
 }
 
@@ -123,6 +123,20 @@ body{
 }
 
 #calcuateCoreBtn {
+	background-color: #46BAAE;
+	width: 244px;
+	height: 34px;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+}
+
+#calcuateCoreResult {
 	background-color: #46BAAE;
 	width: 244px;
 	height: 34px;
