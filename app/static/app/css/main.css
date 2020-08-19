@@ -91,13 +91,33 @@ body{
 	width: 100%;
 }
 
-#coreDropdown, #input1Container, #input2Container, #calcuateCoreContainer {
+#coreDropdown, #input1Container, #input2Container {
 	margin: 12px;
+}
+
+#input2:disabled {
+	background: #dddddd;
+	cursor: not-allowed;
+}
+
+#calcuateCoreContainer {
+	margin: 12px;
+	display: flex;
+	flex-direction: column;
 }
 
 .coreDropdown {
 	background: #EBEBEB;
 	width: 244px;
+	border: 1px solid #C3C3C3;
+	height: 34px;
+	border-radius: 5px;
+	padding-left: 5px;
+}
+
+.inputDropdown {
+	background: #EBEBEB;
+	width: 150px;
 	border: 1px solid #C3C3C3;
 	height: 34px;
 	border-radius: 5px;
@@ -148,6 +168,7 @@ body{
 	display: inline-block;
 	font-size: 16px;
 	border: none;
+	margin-top: 12px;
 }
 
 .uploadFileForm {

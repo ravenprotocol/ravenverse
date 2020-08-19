@@ -18,19 +18,37 @@
         			<div id="coreDropdown">
         				<select name="coreDropdown" class="coreDropdown">
     	    				<option value="select">Select Operation</option>
-    	    				<option value="+">Addition</option>
-    	    				<option value="-">Subtraction</option>
-    	    				<option value="/">Division</option>
-    	    				<option value="*">Multiplication</option>
+                            <!-- <option value="1">Matrix Multiplication</option> -->
+    	    				<option value="2">Addition</option>
+    	    				<option value="3">Subtraction</option>
+                            <option value="4">Element Wise Multiplication</option>
+    	    				<option value="5">Division</option>
+    	    				<option value="6">Linear</option>
+                            <option value="7">Negation</option>
+                            <option value="8">Exponential</option>
+                            <option value="9">Transpose</option>
+                            <option value="10">Natural Log</option>
     	    			</select>
         			</div>
 
         			<div id="input1Container">
     	    			<input id="input1" class="inputStyle" type="text" name="input1" placeholder="Input 1">
+
+                        <select name="input1Dropdown" class="inputDropdown">
+                            <option value="select">Select Operation</option>
+                            <option value="scalar">Scalar</option>
+                            <option value="matrix">Matrix</option>
+                        </select>
     	    		</div>
 
     	    		<div id="input2Container">
         				<input id="input2" class="inputStyle" type="text" name="input2" placeholder="Input 2">
+
+                        <select id="input2Dropdown" name="input2Dropdown" class="inputDropdown">
+                            <option value="select">Select Operation</option>
+                            <option value="scalar">Scalar</option>
+                            <option value="matrix">Matrix</option>
+                        </select>
         			</div>
 
         			<div id="calcuateCoreContainer">
