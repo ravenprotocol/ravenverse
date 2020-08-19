@@ -258,6 +258,7 @@ def create_payload(op_id1, inputs, op_type, operator):
             if data.type == "integer":
                 values.append(a)
             elif data.type == "ndarray":
+                a = np.array(a)
                 print(type(a))
                 values.append(a.tolist())
             else:

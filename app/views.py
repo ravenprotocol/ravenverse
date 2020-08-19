@@ -1,4 +1,5 @@
 import app.models as models
+import app.constants as constants
 from app.utils import evaluate
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -7,10 +8,34 @@ from rest_framework.response import Response
 from django.shortcuts import render
 
 from ravop.ml.core import Core
+import json
+import numpy as np
 
 
 def home(request):
     return render(request, "home.html")
+
+
+def get_operator_name(operator_number):
+    operators = [e.value for e in constants.Operators]
+    return operators[operator_number - 1]
+
+
+def parse_data(data):
+    if not data:
+        return data, None
+    try:
+        return int(data), 'integer'
+    except ValueError:
+        try:
+            return float(data), 'double'
+        except ValueError:
+            try:
+                data = json.loads(data)
+                data = np.array(data)
+                return data, 'ndarray'
+            except ValueError:
+                return 'invalid_data', ''
 
 
 class Compute(APIView):
@@ -18,16 +43,28 @@ class Compute(APIView):
         try:
             data1 = request.data['data1']
             data2 = request.data['data2']
-            type1 = request.data['type1']
-            type2 = request.data['type2']
+            operator_number = request.data['operation']
         except Exception:
             return Response(data='Required parameters missing', status=400)
 
-        core = Core(graph_id=1)
-        data_list = [{"name": "x", "data": data1, "type": type1},
-                     {"name": "y", "data": data2, "type": type2}]
+        data1, type1 = parse_data(data1)
+        data2, type2 = parse_data(data2)
 
-        output_id = core.compute(data_list=data_list, operator='addition', op_type='binary')
+        if data1 == 'invalid_data' or data2 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        if operator_number <= 5:
+            data_list = [{"name": "x", "data": data1, "type": type1},
+                         {"name": "y", "data": data2, "type": type2}]
+            op_type = 'binary'
+
+        else:
+            data_list = [{"name": "x", "data": data1, "type": type1}]
+            op_type = 'unary'
+
+        core = Core(graph_id=1)
+        output_id = core.compute(data_list=data_list, operator=get_operator_name(operator_number), op_type=op_type)
+
         response = dict()
         response.update({'op_id': output_id})
         return Response(data=response)
