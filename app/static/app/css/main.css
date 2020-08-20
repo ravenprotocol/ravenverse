@@ -171,6 +171,21 @@ body{
 	margin-top: 12px;
 }
 
+.errorBox {
+	background-color: #E71D36;
+	width: 244px;
+	height: auto;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	margin-top: 12px;
+}
+
 .uploadFileForm {
 	display: flex;
 	justify-content: space-between;

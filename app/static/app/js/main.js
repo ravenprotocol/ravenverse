@@ -6,6 +6,11 @@ $(document).ready(function () {
 	$("input[id=chooseFile]").change(function() {
 		$(".uploadFileLabel").text($(this).val());
 	});
+
+	// let arr = [[1, 2], [3, 4]];
+	// let newElement = `<div id="errorBox" class="errorBox"></div>`;
+	// $("#calcuateCoreContainer").append(newElement);
+	// $("#errorBox").text(JSON.stringify(arr));
 });
 
 function removeClasses() {
@@ -50,6 +55,8 @@ $("select[name='coreDropdown']").change(function() {
 		$("#input2").prop("disabled", false);
 		$("#input2Dropdown").prop("disabled", false);
 	}
+
+	$("#errorBox").remove();
 })
 
 function pollResult(opId, timer) {
@@ -60,7 +67,7 @@ function pollResult(opId, timer) {
 			if(res.status == "computed") {
 				let newElement = `<div id="calcuateCoreResult"></div>`;
 				$("#calcuateCoreContainer").append(newElement);
-				$("#calcuateCoreResult").text(`Result: ${res.result}`);
+				$("#calcuateCoreResult").text(`Result: ${JSON.stringify(res.result)}`);
 				$("#calcuateCoreBtn").text("Calculate");
 				clearInterval(timer);
 			}
@@ -81,7 +88,7 @@ function createRequestObj() {
 	else {
 		obj["data2"] = $("#input2").val();
 
-		if($("select[name='input1Dropdown']").val() === "matrix" && $("select[name='input2Dropdown']").val() === "matrix") {
+		if($("select[name='input1Dropdown']").val() === "matrix" && $("select[name='input2Dropdown']").val() === "matrix" && obj.operation == 4) {
 			obj.operation = 1;
 		}
 	}
@@ -89,22 +96,117 @@ function createRequestObj() {
 	return obj;
 }
 
+function checkInputs() {
+	let check = "";
+	
+	if(($("select[name='coreDropdown']").val() == "select")) {
+		check = "select";
+	}
+	if(($("#input1").val() == "")) {
+		check = "input1";
+	}
+	if(($("#input2").val() == "") && $("select[name='coreDropdown']").val() < 6) {
+		check = "input2";
+	}
+	if(($("select[name='input1Dropdown']").val() == "select")) {
+		check = "input1Dropdown";
+	}
+	if(($("select[name='input2Dropdown']").val() == "select")) {
+		check = "input2Dropdown";
+	}
+
+	return check;
+}
+
+function checkInput(num) {
+	let newElement = `<div id="errorBox${num}" class="errorBox"></div>`;
+	$("#calcuateCoreContainer").append(newElement);
+	$(`#errorBox${num}`).text(`Input ${num} cannot be empty`);
+}
+
+$("#input1").on('input', function() {
+	if($(this).val() == "") {
+		checkInput(1);
+	}
+	else {
+		$("#errorBox1").remove();
+	}
+});
+
+$("#input2").on('input', function() {
+	if($(this).val() == "") {
+		checkInput(2);
+	}
+	else {
+		$("#errorBox2").remove();
+	}
+});
+
+$("#input1Dropdown").change(function() {
+	$("#errorBoxInput1Dropdown").remove();
+});
+
+$("#input2Dropdown").change(function() {
+	$("#errorBoxInput2Dropdown").remove();
+});
+
 
 $("#calcuateCoreBtn").click(function () {
-	let obj = createRequestObj();
+	let check = checkInputs();
+	$("#errorBox").remove();
 
-	console.log(obj);
-	$.ajax({
-		url: "http://127.0.0.1:8000/app/compute/",
-		type: "POST",
-		data: JSON.stringify(obj),
-		contentType: "application/json",
-		success: function(result) {
-			$("#calcuateCoreBtn").text("Calculating");
-			$("#calcuateCoreResult").remove();
-			let timer = setInterval(function() {
-				pollResult(result.op_id, timer);
-			}, 5000);
+	if(check != "") {
+		let newElement;
+		switch(check) {
+			case "select":
+				newElement = `<div id="errorBox" class="errorBox"></div>`;
+				$("#calcuateCoreContainer").append(newElement);
+				$("#errorBox").text(`Select an operation`);
+				break;
+			case "input1":
+				checkInput(1);
+				break;
+			case "input2":
+				checkInput(2);
+				break;
+			case "input1Dropdown":
+				newElement = `<div id="errorBoxInput1Dropdown" class="errorBox"></div>`;
+				$("#calcuateCoreContainer").append(newElement);
+				$("#errorBoxInput1Dropdown").text(`Data Type cannot be empty`);
+				break;
+			case "input2Dropdown":
+				newElement = `<div id="errorBoxInput2Dropdown" class="errorBox"></div>`;
+				$("#calcuateCoreContainer").append(newElement);
+				$("#errorBoxInput2Dropdown").text(`Data Type cannot be empty`);
+				break;
+			default:
+				null;
 		}
-	});
+	}
+	else {
+		let obj = createRequestObj();
+		$("#errorBoxInput1Dropdown").remove();
+		$("#errorBoxInput2Dropdown").remove();
+		
+		$.ajax({
+			url: "http://127.0.0.1:8000/app/compute/",
+			type: "POST",
+			data: JSON.stringify(obj),
+			contentType: "application/json",
+			success: function(result) {
+				$("#calcuateCoreBtn").text("Calculating");
+				$("#calcuateCoreBtn").prop("disabled", true);
+				$("#calcuateCoreResult").remove();
+				let timer = setInterval(function() {
+					pollResult(result.op_id, timer);
+				}, 5000);
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr, status, error);
+				let newElement = `<div id="errorBox" class="errorBox"></div>`;
+				$("#calcuateCoreContainer").append(newElement);
+				$("#errorBox").text(`${xhr.responseText}`);
+			}
+		});
+	}
 });
