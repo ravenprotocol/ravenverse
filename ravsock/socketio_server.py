@@ -13,6 +13,7 @@ from sqlalchemy import desc
 
 from common.db_manager import DBManager, Client, Op, Data, OpStatus
 from .constants import RAVSOCK_LOG_FILE
+from ravop.core import Op as RavOp, Data as RavData
 
 # Set up a specific logger with our desired output level
 logger = logging.getLogger(__name__)
@@ -31,7 +32,9 @@ app = web.Application()
 # Binds our Socket.IO server to our Web App instance
 sio.attach(app)
 
-db = DBManager()
+db = DBManager.Instance()
+print(db)
+
 
 # we can define aiohttp endpoints just as we normally
 # would with no change
@@ -77,13 +80,15 @@ async def acknowledge(sid, message):
     data = json.loads(message)
     op_id = data['op_id']
     print("Op id", op_id)
-    op_found = db.session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid)
+    session = db.create_session()
+    op_found = session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid).first()
 
     # Update op status to computing
     if op_found is not None:
         print("Updating op status")
-        db.update(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
+        db.update_op(op_found.id, client_id=sid, status=OpStatus.COMPUTING.value)
 
+    session.close()
 
 @sio.on('result', namespace="/ravjs")
 async def receive_result(sid, message):
@@ -95,9 +100,13 @@ async def receive_result(sid, message):
 
     print(op_id, type(data['result']), data['operator'], data['result'])
 
-    op = db.session.query(Op).get(op_id)
-    data = db.create_data_complete(data=np.array(data['result']), data_type="ndarray")
-    db.update(op, outputs=json.dumps([data.id]), status=OpStatus.COMPUTED.value)
+    op = RavOp(id=op_id)
+    data = RavData(value=np.array(data['result']), dtype="ndarray")
+
+    # op = db.session.query(Op).get(op_id)
+    # data = db.create_data_complete(data=np.array(data['result']), data_type="ndarray")
+
+    db.update_op(op.id, outputs=json.dumps([data.id]), status=OpStatus.COMPUTED.value)
 
     """
     Send a pending op
@@ -150,16 +159,19 @@ async def connect(sid, environ):
     elif 'ravjs' in environ['QUERY_STRING']:
         client_type = "ravjs"
 
+    session = db.create_session()
+
     try:
         client = Client()
         client.client_id = sid
         client.connected_at = datetime.datetime.now()
         client.status = "connected"
         client.type = client_type
-        db.session.add(client)
-        db.session.commit()
+        session.add(client)
+        session.commit()
     except:
-        db.session.rollback()
+        session.rollback()
+        session.close()
         raise
 
 
@@ -189,24 +201,27 @@ async def ask_op(sid, message):
 async def disconnect(sid):
     logger.debug("Disconnected:{}".format(sid))
 
-    client = db.session.query(Client).filter(Client.client_id == sid).first()
+    session = db.create_session()
+    client = session.query(Client).filter(Client.client_id == sid).first()
     if client is not None:
         db.update(client, status="disconnected", disconnected_at = datetime.datetime.now())
 
         if client.type == "ravjs":
             # Get ops which were assigned to this
-            ops = db.session.query(Op).filter(Op.status == "computing").filter(Op.client_id == sid).all()
+            ops = session.query(Op).filter(Op.status == "computing").filter(Op.client_id == sid).all()
 
             # Set those ops to pending
             for op in ops:
                 db.update(op, client_id=None, status=OpStatus.PENDING.value)
 
+    session.close()
 
 def search_pending_op():
     """
     Search for an op which is pending
     """
-    ops = db.session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
+    session = db.create_session()
+    ops = session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
     #.order_by(desc(Op.created_at))
 
     print("Ops:", ops)
@@ -216,27 +231,30 @@ def search_pending_op():
 
         not_computed = []
         for op_id in inputs:
-            if db.session.query(Op).get(op_id).status != "computed":
+            if session.query(Op).get(op_id).status != "computed":
                 not_computed.append(op_id)
 
         if len(not_computed) == 0:
             op_found = op
             break
 
+    session.close()
     return op_found
 
 
 def search_client():
-    clients = db.session.query(Client).filter(Client.status == "connected", Client.type == "ravjs")
+    session = db.create_session()
+    clients = session.query(Client).filter(Client.status == "connected", Client.type == "ravjs")
     # .order_by(desc(Client.created_at))
 
     client_found = None
     for client in clients:
-        op = db.session.query(Op).filter(Op.status == "computing", Op.client_id == client.id).first()
+        op = session.query(Op).filter(Op.status == "computing", Op.client_id == client.id).first()
         if op is None:
             client_found = client
             break
 
+    session.close()
     return client_found
 
 
@@ -247,23 +265,33 @@ def create_payload(op_id1, inputs, op_type, operator):
     values = []
 
     for op_id in inputs:
-        data_id = json.loads(db.session.query(Op).get(op_id).outputs)[0]
-        print("Data id:", op_id, data_id)
-        data = db.session.query(Data).get(data_id)
-        file_path = data.file_path
-        print(file_path)
-        with open(file_path, "rb") as f:
-            a = json.load(f)
-            print("Data:", a, type(a), data.type)
-            if data.type == "integer":
-                values.append(a)
-            elif data.type == "ndarray":
-                a = np.array(a)
-                print(type(a))
-                values.append(a.tolist())
-            else:
-                print("Value:", a)
-                values.append(a)
+        op = RavOp(id=op_id)
+        if op.output_dtype == "ndarray":
+            values.append(op.output.tolist())
+        else:
+            values.append(op.output)
+
+        # data_id = json.loads(db.session.query(Op).get(op_id).outputs)[0]
+        # print("Data id:", op_id, data_id)
+        # data = db.session.query(Data).get(data_id)
+        # file_path = data.file_path
+        # print(file_path)
+        #
+        # if data.type == "ndarray":
+        #
+        #
+        # with open(file_path, "rb") as f:
+        #     a = json.load(f)
+        #     print("Data:", a, type(a), data.type)
+        #     if data.type == "integer":
+        #         values.append(a)
+        #     elif data.type == "ndarray":
+        #         a = np.array(a)
+        #         print(type(a))
+        #         values.append(a.tolist())
+        #     else:
+        #         print("Value:", a)
+        #         values.append(a)
 
     payload = dict()
     payload['op_id'] = op_id1

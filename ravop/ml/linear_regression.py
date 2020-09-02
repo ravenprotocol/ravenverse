@@ -97,3 +97,29 @@ class LinearRegression(object):
 
         self.ops["y_pred"] = y_pred_op
         return y_pred_op
+
+    def __create_cost_ops(self, y_pred_op, y_op):
+        y_pred_minus_y_op = self.graph_manager.create_op(self.graph_id, name="y_pred_minus_y",
+                                                         node_type=NodeTypes.MIDDLE.value,
+                                                         inputs=[y_pred_op.id, y_op.id],
+                                                         outputs=None, op_type=OpTypes.BINARY.value,
+                                                         operator=Operators.SUBTRACTION.value)
+        self.ops["y_pred_minus_y_op"] = y_pred_minus_y_op
+
+        a2 = self.graph_manager.create_op(self.graph_id, name="a2",
+                                          node_type=NodeTypes.MIDDLE.value,
+                                          inputs=[y_pred_minus_y_op.id, y_pred_minus_y_op.id],
+                                          outputs=None, op_type=OpTypes.BINARY.value,
+                                          operator=Operators.ELEMENT_WISE_MULTIPLICATION.value)
+        self.ops["a2"] = a2
+
+        a3 = self.graph_manager.create_op(self.graph_id, name="a3",
+                                          node_type=NodeTypes.MIDDLE.value,
+                                          inputs=[a2.id],
+                                          outputs=None, op_type=OpTypes.UNARY.value,
+                                          operator=Operators.MATRIX_SUM.value)
+        self.ops["a3"] = a3
+
+        # a4 = None
+        #
+        # return (1 / (2 * n_samples)) * np.sum((h - y) ** 2)

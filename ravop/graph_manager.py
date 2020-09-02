@@ -56,7 +56,8 @@ class GraphManager(object):
         Save data and create an op for it
         """
         data = self.db.create_data_complete(data=data_value, data_type=data_type)
-        op = self.create_op(graph_id=graph_id, name=data_name, node_type=NodeTypes.INPUT.value, inputs=None, outputs=[data.id],
+        op = self.create_op(graph_id=graph_id, name=data_name, node_type=NodeTypes.INPUT.value,
+                            inputs=None, outputs=[data.id],
                             op_type=OpTypes.UNARY.value, operator=Operators.LINEAR.value,
                             status=OpStatus.COMPUTED.value)
         return op
@@ -94,6 +95,8 @@ class GraphManager(object):
 
     def get_op_outputs(self, op_id):
         self.db = DBManager()
+        print(op_id)
+        print(self.db.get_op(op_id).outputs, self.db.get_op(op_id).status)
         data_id = json.loads(self.db.get_op(op_id).outputs)[0]
         data = self.db.get_data(data_id=data_id)
         file_path = data.file_path

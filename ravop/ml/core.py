@@ -66,6 +66,7 @@ class Core(object):
             print("Computing...")
             return None
         else:
+            print("Result...")
             status = self.db.get_op_status(self.output_op_id)
             result = self.graph_manager.get_op_outputs(self.output_op_id)
             print("Result:{}".format(result))
