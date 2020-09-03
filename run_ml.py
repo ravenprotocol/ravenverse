@@ -1,6 +1,6 @@
 from sklearn.datasets import load_boston
 
-from ravop.core import Scalar
+from ravop.core import Scalar, Tensor
 from ravop.ml import LinearRegression
 from ravop.socket_client import SocketClient
 
@@ -48,7 +48,15 @@ if __name__ == '__main__':
     #
     # print(c.output)
 
-    X, y = load_boston(return_X_y=True)
+    # from ravop import globals as g
+    # from common import db
+    #
+    # db.deactivate_all_graphs()
+    # db.disconnect_all_clients()
+    # exit()
+
+    # X, y = load_boston(return_X_y=True)
+    X, y = [[2, 3, 4], [4, 5, 6]], [2, 3]
 
     lr = LinearRegression()
     cost, weights = lr.train(X=X, y=y, iter=10)

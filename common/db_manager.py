@@ -354,3 +354,25 @@ class DBManager(object):
             setattr(client, key, value)
         self.session.commit()
         return client
+
+    def deactivate_all_graphs(self):
+        for graph in self.session.query(Graph).all():
+            graph.status = "inactive"
+
+        self.session.commit()
+
+    def deactivate_graph(self, graph_id):
+        graph = self.get_graph(graph_id=graph_id)
+        graph.status = "inactive"
+        self.session.commit()
+
+    def disconnect_all_clients(self):
+        for cliet in self.session.query(Client).all():
+            cliet.status = "disconnected"
+
+        self.session.commit()
+
+    def disconnect_client(self, client_id):
+        client = self.get_client(graph_id=client_id)
+        client.status = "disconnected"
+        self.session.commit()

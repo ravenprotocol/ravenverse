@@ -13,7 +13,7 @@ from sqlalchemy import desc
 
 from common import db
 
-from common.db_manager import Client, Op, Data, OpStatus
+from common.db_manager import Client, Op, Data, OpStatus, Graph
 from .constants import RAVSOCK_LOG_FILE
 from ravop.core import Op as RavOp, Data as RavData
 
@@ -88,6 +88,7 @@ async def acknowledge(sid, message):
         db.update_op(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
 
     session.close()
+
 
 @sio.on('result', namespace="/ravjs")
 async def receive_result(sid, message):
@@ -215,36 +216,42 @@ async def disconnect(sid):
 
     session.close()
 
+
 def search_pending_op():
     """
     Search for an op which is pending
     """
-    session = db.create_session()
-    ops = session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
-    #.order_by(desc(Op.created_at))
+    graphs = db.session.query(Graph).filter(Graph.status=="active")
+    graph_id = None
+    for graph in graphs:
+        graph_id = graph.id
+        break
 
-    print("Ops:", ops)
-    op_found = None
-    for op in ops:
-        inputs = json.loads(op.inputs)
+    if graph_id is not None:
+        ops = db.session.query(Op).filter(Op.graph_id==graph_id).filter(Op.status == "pending").filter(Op.client_id == None)
+        #.order_by(desc(Op.created_at))
 
-        not_computed = []
-        for op_id in inputs:
-            if session.query(Op).get(op_id).status != "computed":
-                not_computed.append(op_id)
+        print("Ops:", ops)
+        op_found = None
+        for op in ops:
+            inputs = json.loads(op.inputs)
 
-        if len(not_computed) == 0:
-            op_found = op
-            break
+            not_computed = []
+            for op_id in inputs:
+                if db.session.query(Op).get(op_id).status != "computed":
+                    not_computed.append(op_id)
 
-    session.close()
-    return op_found
+            if len(not_computed) == 0:
+                op_found = op
+                break
+
+        return op_found
+    return None
 
 
 def search_client():
     session = db.create_session()
-    clients = session.query(Client).filter(Client.status == "connected", Client.type == "ravjs")
-    # .order_by(desc(Client.created_at))
+    clients = session.query(Client).filter(Client.status == "connected", Client.type == "ravjs").order_by(desc(Client.created_at))
 
     client_found = None
     for client in clients:
