@@ -1,13 +1,10 @@
 import json
-import logging
-import logging.handlers
 import os
 
 import numpy as np
 
 from common.constants import DATA_FILES_PATH
 from common.db_manager import NodeTypes, OpTypes, Operators, DBManager, OpStatus
-from ravop.constants import RAVOP_LOG_FILE
 
 """
 Op Class to create and get op
@@ -383,90 +380,3 @@ class Graph(object):
 
     def __str__(self):
         return "Graph:\nId:{}\nStatus:{}\n".format(self.id, self.status)
-
-
-class LinearRegression(object):
-    def __init__(self, **kwargs):
-        self.db = DBManager.Instance()
-
-        self.__setup_logger()
-
-        # If graph id is provided, fetch the old graph
-        graph_id = kwargs.get("graph_id", None)
-        if graph_id is not None:
-            self.graph = Graph(id=graph_id)
-        else:
-            self.graph = Graph()
-
-    def __setup_logger(self):
-        # Set up a specific logger with our desired output level
-        self.logger = logging.getLogger(LinearRegression.__class__.__name__)
-        self.logger.setLevel(logging.DEBUG)
-
-        # Add the log message handler to the logger
-        handler = logging.handlers.RotatingFileHandler(RAVOP_LOG_FILE)
-
-        self.logger.addHandler(handler)
-
-    def train(self, X, y):
-        self.graph.clean()
-
-        X = Tensor(X, name="X", graph_id=self.graph.id)
-        y = Tensor(y, name="y", graph_id=self.graph.id)
-
-        size = X.shape[1]
-
-        weights = Tensor(np.random.uniform(0, 1, size).reshape((size, 1)), name="weights", graph_id=self.graph.id)
-
-        o = X.matmul(weights, name="y_pred", graph_id=self.graph.id)
-
-        status = self.db.get_op_status(o.id)
-        while status == "pending" or status == "computing":
-            status = self.db.get_op_status(o.id)
-            if status == "computed":
-                print("Computed")
-                print(o.output)
-
-    def print_ops(self):
-        ops = self.db.get_graph_ops(self.graph.id)
-        ops = [Op(id=op.id) for op in ops]
-
-        for op in ops:
-            print(op)
-
-    def __str__(self):
-        return "LinearRegression:Graph Id:{}\n".format(self.graph.id)
-
-
-if __name__ == '__main__':
-    # db = DBManager()
-    # b = Scalar(3, db=db)
-    # c = Scalar(20, db=db)
-    # d = b.add(c)
-    #
-    # status = d.status
-    # while status == "pending" or status == "computing":
-    #     db2 = DBManager()
-    #     status = d.status
-    #     if status == "computed":
-    #         print(d.output)
-    #     db2.session.close()
-
-    # g = Graph(id=1)
-    # print(g)
-    # db = DBManager.Instance()
-    # db.create_tables()
-
-    # d = Data(value=2, dtype="int")
-    # print(d, d.value, type(d.value))
-    #
-    # t = Tensor(value=[[2, 3, 4]])
-    # print(t.output, t.dtype, t.shape)
-
-    # s1 = DBManager.Instance()
-    # print(s1)
-    
-    lr = LinearRegression()
-    lr.train(X=[[2, 3, 4], [3, 4, 5]], y=[0, 1])
-
-    lr.print_ops()

@@ -204,6 +204,19 @@
                     "op_id": payload.op_id
                 }));
                 break;
+
+            case "matrix_sum":
+                x = tf.tensor(payload.values[0]);
+                result = x.sum()
+                console.log("Computing matrix_sum");
+                socket.emit("result", JSON.stringify({
+                    'op_type': payload.op_type,
+                    'result': result.arraySync(),
+                    'values':payload.values,
+                    'operator': payload.operator,
+                    "op_id": payload.op_id
+                }));
+                break;
         }
     }
 

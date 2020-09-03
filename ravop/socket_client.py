@@ -1,6 +1,6 @@
 import socketio
 
-from .constants import RAVSOCK_SERVER_URL
+from . import globals as g
 
 
 class RavOPNamespace(socketio.ClientNamespace):
@@ -27,7 +27,7 @@ class SocketClient(object):
     def connect(self):
         self.client = socketio.Client()
         self.client.register_namespace(RavOPNamespace('/ravop'))
-        self.client.connect(RAVSOCK_SERVER_URL+"?client_name=ravop")
+        self.client.connect(g.ravsock_server_url+"?client_name=ravop")
 
         return self.client
 

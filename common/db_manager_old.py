@@ -149,9 +149,6 @@ class DBManager(object):
 
         Base.metadata.bind = self.engine
 
-        DBSession = sessionmaker(bind=self.engine)
-        self.session = DBSession()
-
     def create_session(self):
         """
         Create a new session
@@ -162,28 +159,37 @@ class DBManager(object):
     def create_tables(self):
         Base.metadata.create_all(self.engine)
 
-    def refresh(self, obj):
+    def refresh(self, session, obj):
         """
         Refresh an object
         """
-        self.session.refresh(obj)
-        return obj
+        session.refresh(obj)
 
     def get(self, name, id):
+        session = self.create_session()
+
         if name == "op":
-            obj = self.session.query(Op).get(id)
+            obj = session.query(Op).get(id)
         elif name == "data":
-            obj = self.session.query(Data).get(id)
+            obj = session.query(Data).get(id)
         elif name == "graph":
-            obj = self.session.query(Graph).get(id)
+            obj = session.query(Graph).get(id)
         elif name == "client":
-            obj = self.session.query(Client).get(id)
+            obj = session.query(Client).get(id)
         else:
             obj = None
 
-        return obj
+        if obj is None:
+            session.close()
+            return None
+
+        obj_dict = obj.__dict__
+        session.close()
+        return obj_dict
 
     def add(self, name, **kwargs):
+        session = self.create_session()
+
         if name == "op":
             obj = Op()
         elif name == "data":
@@ -197,82 +203,131 @@ class DBManager(object):
 
         for key, value in kwargs.items():
             setattr(obj, key, value)
-        self.session.add(obj)
-        self.session.commit()
+        session.add(obj)
+        session.commit()
 
-        return obj
+        id = obj.id
+        session.close()
+        return id
 
     def update(self, name, id, **kwargs):
+        session = self.create_session()
+
         if name == "op":
-            obj = self.session.query(Op).get(id)
+            obj = session.query(Op).get(id)
         elif name == "data":
-            obj = self.session.query(Data).get(id)
+            obj = session.query(Data).get(id)
         elif name == "graph":
-            obj = self.session.query(Graph).get(id)
+            obj = session.query(Graph).get(id)
         elif name == "client":
-            obj = self.session.query(Client).get(id)
+            obj = session.query(Client).get(id)
         else:
             obj = None
 
-        for key, value in kwargs.items():
-            setattr(obj, key, value)
-        self.session.commit()
-        return obj
+        if obj is not None:
+            for key, value in kwargs.items():
+                setattr(obj, key, value)
+            session.commit()
+        else:
+            raise Exception("Invalid id")
+        session.close()
 
-    def delete(self, obj):
-        self.session.delete(obj)
-        self.session.commit()
+    def delete(self, name, id):
+        session = self.create_session()
+
+        if name == "op":
+            obj = session.query(Op).get(id)
+        elif name == "data":
+            obj = session.query(Data).get(id)
+        elif name == "graph":
+            obj = session.query(Graph).get(id)
+        elif name == "client":
+            obj = session.query(Client).get(id)
+        else:
+            obj = None
+
+        if obj is not None:
+            session.delete(obj)
+            session.commit()
+
+        session.close()
 
     def create_op(self, **kwargs):
+        session = self.create_session()
         op = Op()
 
         for key, value in kwargs.items():
             setattr(op, key, value)
 
-        self.session.add(op)
-        self.session.commit()
-        return op
+        session.add(op)
+        session.commit()
+        id = op.id
+        session.close()
+        return id
 
     def get_op(self, op_id):
         """
         Get an existing op
         """
-        return self.session.query(Op).get(op_id)
+        session = self.create_session()
+        op = session.query(Op).get(op_id)
+        if op is None:
+            session.close()
+            return None
 
-    def update_op(self, op, **kwargs):
+        op_dict = op.__dict__
+        session.close()
+        return op_dict
+
+    def update_op(self, op_id, **kwargs):
+        session = self.create_session()
+        obj = session.query(Op).get(op_id)
+
         for key, value in kwargs.items():
-            setattr(op, key, value)
+            setattr(obj, key, value)
 
-        self.session.commit()
-        return op
+        session.commit()
+        session.close()
 
     def create_data(self, **kwargs):
+        session = self.create_session()
         data = Data()
 
         for key, value in kwargs.items():
             setattr(data, key, value)
 
-        self.session.add(data)
-        self.session.commit()
-        return data
+        session.add(data)
+        session.commit()
+        id = data.id
+        session.close()
+        return id
 
     def get_data(self, data_id):
         """
         Get an existing data
         """
-        return self.session.query(Data).get(data_id)
+        session = self.create_session()
+        data = session.query(Data).get(data_id)
+        data_dict = data.__dict__
+        session.close()
+        return data_dict
 
-    def update_data(self, data, **kwargs):
+    def update_data(self, data_id, **kwargs):
+        session = self.create_session()
+        obj = session.query(Data).get(data_id)
+
         for key, value in kwargs.items():
-            setattr(data, key, value)
+            setattr(obj, key, value)
 
-        self.session.commit()
-        return data
+        session.commit()
+        session.close()
 
     def delete_data(self, data_id):
-        data = self.session.query(Data).get(data_id)
-        self.session.delete(data)
-        self.session.commit()
+        session = self.create_session()
+        data = session.query(Data).get(data_id)
+        session.delete(data)
+        session.commit()
+        session.close()
 
     def create_data_complete(self, data, data_type):
         # print("Creating data:", data)
@@ -292,29 +347,42 @@ class DBManager(object):
         return d
 
     def get_op_status(self, op_id):
-        status = self.session.query(Op).get(op_id).status
+        session = self.create_session()
+        status = session.query(Op).get(op_id).status
+        session.close()
         return status
 
     def get_graph(self, graph_id):
         """
         Get an existing graph
         """
-        return self.session.query(Graph).get(graph_id)
+        session = self.create_session()
+        graph = session.query(Graph).get(graph_id)
+        graph_dict = graph.__dict__
+        session.close()
+        return graph_dict
 
     def create_graph(self):
         """
         Create a new graph
         """
+        session = self.create_session()
         graph = Graph()
-        self.session.add(graph)
-        self.session.commit()
-        return graph
+        session.add(graph)
+        session.commit()
+        id = graph.id
+        session.close()
+        return id
 
     def get_graph_ops(self, graph_id):
-        return self.session.query(Op).filter(Op.graph_id == graph_id).all()
+        session = self.create_session()
+        ops = session.query(Op).filter(Op.graph_id == graph_id).all()
+        session.close()
+        return ops
 
     def delete_graph_ops(self, graph_id):
         print("Deleting graph ops")
+        session = self.create_session()
         ops = self.get_graph_ops(graph_id=graph_id)
 
         for op in ops:
@@ -333,24 +401,34 @@ class DBManager(object):
             # Delete op object
             self.delete(op)
 
+        session.close()
+
     def create_client(self, **kwargs):
+        session = self.create_session()
         obj = Client()
 
         for key, value in kwargs.items():
             setattr(obj, key, value)
 
-        self.session.add(obj)
-        self.session.commit()
+        session.add(obj)
+        session.commit()
         return obj
 
     def get_client(self, client_id):
         """
         Get an existing data
         """
-        return self.session.query(Client).get(client_id)
+        session = self.create_session()
+        obj = session.query(Client).get(client_id)
+        session.close()
+        return obj
 
-    def update_client(self, client, **kwargs):
+    def update_client(self, client_id, **kwargs):
+        session = self.create_session()
+        obj = session.query(Client).get(client_id)
+
         for key, value in kwargs.items():
-            setattr(client, key, value)
-        self.session.commit()
-        return client
+            setattr(obj, key, value)
+
+        session.commit()
+        session.close()

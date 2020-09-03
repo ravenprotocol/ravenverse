@@ -11,7 +11,9 @@ from aiohttp import web
 # creates a new Async Socket IO Server
 from sqlalchemy import desc
 
-from common.db_manager import DBManager, Client, Op, Data, OpStatus
+from common import db
+
+from common.db_manager import Client, Op, Data, OpStatus
 from .constants import RAVSOCK_LOG_FILE
 from ravop.core import Op as RavOp, Data as RavData
 
@@ -31,9 +33,6 @@ app = web.Application()
 
 # Binds our Socket.IO server to our Web App instance
 sio.attach(app)
-
-db = DBManager.Instance()
-print(db)
 
 
 # we can define aiohttp endpoints just as we normally
@@ -86,7 +85,7 @@ async def acknowledge(sid, message):
     # Update op status to computing
     if op_found is not None:
         print("Updating op status")
-        db.update_op(op_found.id, client_id=sid, status=OpStatus.COMPUTING.value)
+        db.update_op(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
 
     session.close()
 
@@ -105,8 +104,8 @@ async def receive_result(sid, message):
 
     # op = db.session.query(Op).get(op_id)
     # data = db.create_data_complete(data=np.array(data['result']), data_type="ndarray")
-
-    db.update_op(op.id, outputs=json.dumps([data.id]), status=OpStatus.COMPUTED.value)
+    print(json.dumps([data.id]))
+    db.update_op(op._op_db, outputs=json.dumps([data.id]), status=OpStatus.COMPUTED.value)
 
     """
     Send a pending op
@@ -204,7 +203,7 @@ async def disconnect(sid):
     session = db.create_session()
     client = session.query(Client).filter(Client.client_id == sid).first()
     if client is not None:
-        db.update(client, status="disconnected", disconnected_at = datetime.datetime.now())
+        db.update_client(client, status="disconnected", disconnected_at = datetime.datetime.now())
 
         if client.type == "ravjs":
             # Get ops which were assigned to this
@@ -212,7 +211,7 @@ async def disconnect(sid):
 
             # Set those ops to pending
             for op in ops:
-                db.update(op, client_id=None, status=OpStatus.PENDING.value)
+                db.update_op(op, client_id=None, status=OpStatus.PENDING.value)
 
     session.close()
 

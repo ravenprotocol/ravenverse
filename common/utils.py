@@ -27,7 +27,7 @@ def load_data_from_file():
     pass
 
 
-def delete_data_file(data):
-    file_path = os.path.join(DATA_FILES_PATH, "data_{}.json".format(data.id))
+def delete_data_file(data_id):
+    file_path = os.path.join(DATA_FILES_PATH, "data_{}.json".format(data_id))
     if os.path.exists(file_path):
         os.remove(file_path)
