@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container">
+    	<div class="header">
+    		Raven Distribution Framework
+    	</div>
+        <div class="cardContainer">
+        	<div class="navButtons">
+    			<button class="navBtn" id="core">CORE</button>
+    			<button class="navBtn" id="linear">LINEAR REGRESSION</button>
+    			<button class="navBtn" id="logistic">LOGISTIC REGRESSION</button>
+        	</div>
+        	<div class="selectionContainer">
+        		<div class="contentContainer" id="coreContainer">
+        			<div id="coreDropdown">
+        				<select name="coreDropdown" class="coreDropdown">
+    	    				<option value="select">Select Operation</option>
+                            <!-- <option value="1">Matrix Multiplication</option> -->
+    	    				<option value="2">Addition</option>
+    	    				<option value="3">Subtraction</option>
+                            <option value="4">Multiplication</option>
+    	    				<option value="5">Division</option>
+    	    				<option value="6">Linear</option>
+                            <option value="7">Negation</option>
+                            <option value="8">Exponential</option>
+                            <option value="9">Transpose</option>
+                            <option value="10">Natural Log</option>
+    	    			</select>
+        			</div>
+
+        			<div id="input1Container">
+    	    			<input id="input1" class="inputStyle" type="text" name="input1" placeholder="Input 1">
+
+                        <select name="input1Dropdown" class="inputDropdown">
+                            <option value="select">Select data type</option>
+                            <option value="scalar">Scalar</option>
+                            <option value="matrix">Matrix</option>
+                        </select>
+    	    		</div>
+
+    	    		<div id="input2Container">
+        				<input id="input2" class="inputStyle" type="text" name="input2" placeholder="Input 2">
+
+                        <select id="input2Dropdown" name="input2Dropdown" class="inputDropdown">
+                            <option value="select">Select data type</option>
+                            <option value="scalar">Scalar</option>
+                            <option value="matrix">Matrix</option>
+                        </select>
+        			</div>
+
+        			<div id="calcuateCoreContainer">
+        				<button id="calcuateCoreBtn">Calculate</button>
+        			</div>
+        		</div>
+
+        		<div class="contentContainer" id="linearContainer">
+        				<div id="selectDatasetContainer">
+        					Select a dataset<br>
+
+        					<input type="radio" name="datasetSelect" value="iris">
+    						<label for="iris">Iris</label><br>
+
+    						<input type="radio" name="datasetSelect" value="boston">
+    						<label for="boston">Boston House Price</label><br>
+
+    						<input type="radio" name="datasetSelect" value="upload">
+    						<label for="upload">Upload</label><br>
+
+    						<form enctype="multipart/form-data" class="uploadFileForm">
+                                <label for="chooseFile" class="uploadFileLabel">Choose File</label>
+    							<input id="chooseFile" name="file" type="file" />
+    							<input class="fileUploadBtn" type="button" value="Upload" />
+    						</form>
+        				</div>
+
+        				<div class="featureTargetCol">
+        					<span class="inputTitle">Features</span><br />
+                            <input type="text" name="features" placeholder="Enter the features" class="featureTargetColInput">
+        				</div>
+
+        				<div class="featureTargetCol">
+        					<span class="inputTitle">Target Column</span><br />
+                            <input type="text" name="features" placeholder="Enter the target column" class="featureTargetColInput">
+        				</div>
+
+        				<span style="width: 45%">
+                            <button id="calcuateLinearBtn">Train</button>
+                        </span>
+        		</div>
+
+        		<div class="contentContainer" id="logisticContainer">
+        			<div id="selectDatasetContainer">
+        					Select a dataset<br>
+
+        					<input type="radio" name="datasetSelect" value="iris">
+    						<label for="iris">Iris</label><br>
+
+    						<input type="radio" name="datasetSelect" value="boston">
+    						<label for="boston">Boston House Price</label><br>
+
+    						<input type="radio" name="datasetSelect" value="upload">
+    						<label for="upload">Upload</label><br>
+
+    						<form enctype="multipart/form-data" class="uploadFileForm">
+                                <label for="chooseFile" class="uploadFileLabel">Choose File</label>
+    							<input id="chooseFile" name="file" type="file" /><br>
+    							<input class="fileUploadBtn" type="button" value="Upload" />
+    						</form>
+        				</div>
+
+        				<div class="featureTargetCol">
+                            <span class="inputTitle">Features</span><br />
+                            <input type="text" name="features" placeholder="Enter the features" class="featureTargetColInput">
+                        </div>
+
+                        <div class="featureTargetCol">
+                            <span class="inputTitle">Target Column</span><br />
+                            <input type="text" name="features" placeholder="Enter the target column" class="featureTargetColInput">
+                        </div>
+
+                        <span style="width: 45%">
+                            <button id="calcuateLinearBtn">Train</button>
+                        </span>
+
+        		</div>
+        	</div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}

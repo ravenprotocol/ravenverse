@@ -1,0 +1,263 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body{
+    font-family: 'Roboto';
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+	font-size: 30px;
+	font-weight: 700;
+	padding: 20px;
+	color: #484848;
+}
+
+.container {
+	padding: 0;
+	min-width: 100%;
+	min-height: 100vh;
+	/* background: #DAFFEF; */
+}
+
+.cardContainer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.navButtons {
+	display: flex;
+	justify-content: center;
+	padding: 10px;
+	margin-top: 1%;
+	width: 50%;
+}
+
+.navBtn {
+	border: none;
+	background-color: #F6F6F6;
+	color: #484848;
+	padding: 8px 24px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	transition: 0.2s;
+	font-weight: 500;
+}
+
+.navBtn:hover, .active {
+	border: none;
+	background-color: #484848;
+	color: white;
+	font-weight: 500;
+}
+
+.showContainer {
+	display: block;
+}
+
+.selectionContainer {
+	display: flex;
+	justify-content: center;
+	padding-left: 10px;
+	padding-right: 10px;
+	width: 50%;
+}
+
+.contentContainer {
+	padding: 8% 3%;
+	background: rgba(252,252,252,0.52);
+	flex-direction: column;
+	align-items: center;
+}
+
+#core {
+	border-radius: 5px 0 0 5px;
+	width: 30%;
+}
+
+#linear {
+	width: 40%;
+}
+
+#logistic {
+	border-radius: 0 5px 5px 0;
+	width: 40%;
+}
+
+#coreContainer {
+	width: 100%;
+}
+
+#coreDropdown, #input1Container, #input2Container {
+	margin: 12px;
+}
+
+#input2:disabled {
+	background: #dddddd;
+	cursor: not-allowed;
+}
+
+#calcuateCoreContainer {
+	margin: 12px;
+	display: flex;
+	flex-direction: column;
+}
+
+.coreDropdown {
+	background: #EBEBEB;
+	width: 244px;
+	border: 1px solid #C3C3C3;
+	height: 34px;
+	border-radius: 5px;
+	padding-left: 5px;
+}
+
+.inputDropdown {
+	background: #EBEBEB;
+	width: 150px;
+	border: 1px solid #C3C3C3;
+	height: 34px;
+	border-radius: 5px;
+	padding-left: 5px;
+}
+
+.inputStyle {
+	width: 244px;
+	height: 34px;
+    border: 1px solid #C3C3C3;
+    background: #FAFAFA;
+    border-radius: 5px;
+    padding-left: 10px;
+}
+
+#linearContainer {
+	width: 100%;
+}
+
+#selectDatasetContainer {
+	font-size: 18px;
+	width: 42%;
+}
+
+#calcuateCoreBtn {
+	background-color: #46BAAE;
+	width: 244px;
+	height: 34px;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+}
+
+#calcuateCoreResult {
+	background-color: #46BAAE;
+	width: 244px;
+	height: 34px;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	margin-top: 12px;
+}
+
+.errorBox {
+	background-color: #E71D36;
+	width: 244px;
+	height: auto;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	margin-top: 12px;
+}
+
+.uploadFileForm {
+	display: flex;
+	justify-content: space-between;
+}
+
+#chooseFile {
+	opacity: 0;
+	position: absolute;
+	z-index: -1;
+}
+
+.uploadFileLabel {
+	cursor: pointer;
+	border: 1px solid #C3C3C3;
+	border-radius: 5px;
+	width: 143px;
+	font-size: 14px;
+	height: 34px;
+	display: flex;
+	align-items: center;
+	padding-left: 10px;
+	word-break: break-all;
+}
+
+.fileUploadBtn {
+	background-color: #484848;
+	width: 107px;
+	height: 34px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	border: none;
+	border-radius: 5px;
+	margin-left: 20px;
+}
+
+.inputTitle {
+	font-size: 12px;
+	color: #A29F9F;
+}
+
+#calcuateLinearBtn {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+.featureTargetCol {
+	margin: 5px;
+	width: 42%;
+}
+
+.featureTargetColInput {
+	width: 100%;
+	height: 34px;
+	padding-left: 10px;
+	border-radius: 5px;
+	border: 1px solid #C3C3C3;
+}
+
+#logisticContainer {
+	width: 100%;
+}
