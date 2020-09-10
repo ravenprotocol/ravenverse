@@ -53,13 +53,13 @@ class Op(object):
             outputs = json.dumps(outputs)
 
             op = db.create_op(name=kwargs.get("name", None),
-                                 graph_id=g.graph_id,
-                                 node_type=node_type,
-                                 inputs=inputs,
-                                 outputs=outputs,
-                                 op_type=op_type,
-                                 operator=operator,
-                                 status=status)
+                              graph_id=g.graph_id,
+                              node_type=node_type,
+                              inputs=inputs,
+                              outputs=outputs,
+                              op_type=op_type,
+                              operator=operator,
+                              status=status)
             return op
         else:
             raise Exception("Invalid parameters")
@@ -102,13 +102,13 @@ class Op(object):
             raise Exception("Null Op")
 
         op = db.create_op(name=kwargs.get('name', None),
-                             graph_id=g.graph_id,
-                             node_type=NodeTypes.MIDDLE.value,
-                             inputs=json.dumps([op1.id, op2.id]),
-                             outputs=json.dumps(None),
-                             op_type=OpTypes.BINARY.value,
-                             operator=operator,
-                             status=OpStatus.PENDING.value)
+                          graph_id=g.graph_id,
+                          node_type=NodeTypes.MIDDLE.value,
+                          inputs=json.dumps([op1.id, op2.id]),
+                          outputs=json.dumps(None),
+                          op_type=OpTypes.BINARY.value,
+                          operator=operator,
+                          status=OpStatus.PENDING.value)
         return Op(id=op.id)
 
     def __create_math_op2(self, op1, operator, **kwargs):
@@ -116,13 +116,13 @@ class Op(object):
             raise Exception("Null Op")
 
         op = db.create_op(name=kwargs.get('name', None),
-                             graph_id=g.graph_id,
-                             node_type=NodeTypes.MIDDLE.value,
-                             inputs=json.dumps([op1.id]),
-                             outputs=json.dumps(None),
-                             op_type=OpTypes.UNARY.value,
-                             operator=operator,
-                             status=OpStatus.PENDING.value)
+                          graph_id=g.graph_id,
+                          node_type=NodeTypes.MIDDLE.value,
+                          inputs=json.dumps([op1.id]),
+                          outputs=json.dumps(None),
+                          op_type=OpTypes.UNARY.value,
+                          operator=operator,
+                          status=OpStatus.PENDING.value)
         return Op(id=op.id)
 
     @property
@@ -155,9 +155,11 @@ class Op(object):
         return self._op_db.status
 
     def __str__(self):
-        return "Op:\nId:{}\nName:{}\nType:{}\nOperator:{}\nOutput:{}\nStatus:{}\n".format(self.id, self._op_db.name, self._op_db.op_type,
-                                                                                 self._op_db.operator, self.output,
-                                                                                 self.status)
+        return "Op:\nId:{}\nName:{}\nType:{}\nOperator:{}\nOutput:{}\nStatus:{}\n".format(self.id, self._op_db.name,
+                                                                                          self._op_db.op_type,
+                                                                                          self._op_db.operator,
+                                                                                          self.output,
+                                                                                          self.status)
 
 
 class Scalar(Op):
@@ -311,19 +313,29 @@ class Data(object):
 
 
 class Graph(object):
+    """A class to represent a graph object"""
+
     def __init__(self, id=None, **kwargs):
-        if id is None:
+        if id is None and g.graph_id is None:
             # Create a new graph
             self._graph_db = db.create_graph()
-        else:
+            g.graph_id = self._graph_db.id
+        elif id is not None:
+            # Get an existing graph
             self._graph_db = db.get_graph(graph_id=id)
+        elif g.graph_id is not None:
+            # Get an existing graph
+            self._graph_db = db.get_graph(graph_id=g.graph_id)
 
-            if self._graph_db is None:
-                raise Exception("Invalid graph id")
+        # Raise an exception if there is no graph created
+        if self._graph_db is None:
+            raise Exception("Invalid graph id")
 
+        # To store a list of all ops
         self.ops = list()
 
     def add(self, op):
+        """Add an op to the graph"""
         self.ops.append(op)
         op.add_to_graph(self._graph_db)
 
@@ -341,3 +353,82 @@ class Graph(object):
 
     def __str__(self):
         return "Graph:\nId:{}\nStatus:{}\n".format(self.id, self.status)
+
+
+"""
+Functional Interface
+"""
+
+
+def add(self, op, **kwargs):
+    return self.__create_math_op(self, op, Operators.ADDITION.value, **kwargs)
+
+
+def sub(self, op, **kwargs):
+    return self.__create_math_op(self, op, Operators.SUBTRACTION.value, **kwargs)
+
+
+def matmul(self, op, **kwargs):
+    return self.__create_math_op(self, op, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+
+
+def div(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.DIVISION.value, **kwargs)
+
+
+def elemul(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.ELEMENT_WISE_MULTIPLICATION.value, **kwargs)
+
+
+def neg(op, **kwargs):
+    return __create_math_op2(op, Operators.NEGATION.value, **kwargs)
+
+
+def exp(op, **kwargs):
+    return __create_math_op2(op, Operators.EXPONENTIAL.value, **kwargs)
+
+
+def trans(op, **kwargs):
+    return __create_math_op2(op, Operators.TRANSPOSE.value, **kwargs)
+
+
+def natlog(op, **kwargs):
+    return __create_math_op2(op, Operators.NATURAL_LOG.value, **kwargs)
+
+
+def matsum(op, **kwargs):
+    return __create_math_op2(op, Operators.MATRIX_SUM.value, **kwargs)
+
+
+def linear(op, **kwargs):
+    return __create_math_op2(op, Operators.LINEAR.value, **kwargs)
+
+
+def __create_math_op(op1, op2, operator, **kwargs):
+    if op1 is None or op2 is None:
+        raise Exception("Null Op")
+
+    op = db.create_op(name=kwargs.get('name', None),
+                      graph_id=g.graph_id,
+                      node_type=NodeTypes.MIDDLE.value,
+                      inputs=json.dumps([op1.id, op2.id]),
+                      outputs=json.dumps(None),
+                      op_type=OpTypes.BINARY.value,
+                      operator=operator,
+                      status=OpStatus.PENDING.value)
+    return Op(id=op.id)
+
+
+def __create_math_op2(op1, operator, **kwargs):
+    if op1 is None:
+        raise Exception("Null Op")
+
+    op = db.create_op(name=kwargs.get('name', None),
+                      graph_id=g.graph_id,
+                      node_type=NodeTypes.MIDDLE.value,
+                      inputs=json.dumps([op1.id]),
+                      outputs=json.dumps(None),
+                      op_type=OpTypes.UNARY.value,
+                      operator=operator,
+                      status=OpStatus.PENDING.value)
+    return Op(id=op.id)
