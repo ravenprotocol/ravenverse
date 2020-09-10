@@ -376,3 +376,11 @@ class DBManager(object):
         client = self.get_client(graph_id=client_id)
         client.status = "disconnected"
         self.session.commit()
+
+    def get_ops_by_name(self, op_name, graph_id=None):
+        if graph_id is not None:
+            ops = self.session.query(Op).filter(Op.graph_id == graph_id).filter(Op.name.contains(op_name)).all()
+        else:
+            ops = self.session.query(Op).filter(Op.name.contains(op_name)).all()
+
+        return ops

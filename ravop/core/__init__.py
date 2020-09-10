@@ -331,12 +331,8 @@ class Graph(object):
         if self._graph_db is None:
             raise Exception("Invalid graph id")
 
-        # To store a list of all ops
-        self.ops = list()
-
     def add(self, op):
         """Add an op to the graph"""
-        self.ops.append(op)
         op.add_to_graph(self._graph_db)
 
     @property
@@ -350,6 +346,20 @@ class Graph(object):
 
     def clean(self):
         db.delete_graph_ops(self._graph_db.id)
+
+    @property
+    def ops(self):
+        ops = db.get_graph_ops(self.id)
+        return [Op(id=op.id) for op in ops]
+
+    def print_ops(self):
+        """Print ops"""
+        for op in self.ops:
+            print(op)
+
+    def get_ops_by_name(self, op_name, graph_id=None):
+        ops = db.get_ops_by_name(op_name=op_name, graph_id=graph_id)
+        return [Op(id=op.id) for op in ops]
 
     def __str__(self):
         return "Graph:\nId:{}\nStatus:{}\n".format(self.id, self.status)
