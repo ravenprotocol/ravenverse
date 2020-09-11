@@ -370,16 +370,16 @@ Functional Interface
 """
 
 
-def add(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.ADDITION.value, **kwargs)
+def add(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.ADDITION.value, **kwargs)
 
 
-def sub(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.SUBTRACTION.value, **kwargs)
+def sub(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.SUBTRACTION.value, **kwargs)
 
 
-def matmul(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+def matmul(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
 
 
 def div(op1, op2, **kwargs):
