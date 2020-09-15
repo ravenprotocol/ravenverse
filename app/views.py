@@ -1,6 +1,6 @@
 import app.models as models
 import app.constants as constants
-from app.utils import evaluate
+from ravop.socket_client import SocketClient
 from app.utils import computations
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -9,6 +9,9 @@ from rest_framework.response import Response
 from django.shortcuts import render
 
 from ravop.core import Op, Scalar, Tensor
+from ravop.ml import LogisticRegression
+
+
 import json
 import numpy as np
 
@@ -92,5 +95,70 @@ class Result(APIView):
         if op_object.output_dtype == "ndarray":
             output = output.tolist()
             response.update({'result': output})
+
+        return Response(data=response)
+
+
+class ComputeLogisticRegression(APIView):
+    def post(self, request):
+        try:
+            data1 = request.data['data1']
+            data2 = request.data['data2']
+        except Exception:
+            return Response(data='Required parameters missing', status=400)
+
+        data1, type1 = parse_data(data1)
+        data2, type2 = parse_data(data2)
+
+        if data1 == 'invalid_data' or data2 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        lr = LogisticRegression()
+        lr.train(X=data1, y=data2, iter=100)
+
+        socket_client = SocketClient().connect()
+        socket_client.emit("update_server", data=None, namespace="/ravop")
+
+        return Response(data=lr.id)
+
+
+class StatusLogisticRegression(APIView):
+    def get(self, request, id):
+        try:
+            lr = LogisticRegression(id=id)
+        except Exception as e:
+            lr = None
+        if lr is None:
+            return Response(data='Object does not exist', status=404, exception=ObjectDoesNotExist)
+
+        return Response(data=lr.train_status())
+
+
+class PredictLogisticRegression(APIView):
+    def post(self, request, id):
+        response = dict()
+        response.update({'result': None})
+
+        try:
+            lr = LogisticRegression(id=id)
+        except Exception as e:
+            lr = None
+        if lr is None:
+            return Response(data='Object does not exist', status=404, exception=ObjectDoesNotExist)
+
+        try:
+            data1 = request.data['data1']
+        except Exception:
+            return Response(data='Required parameters missing', status=400)
+
+        data1, type1 = parse_data(data1)
+        if data1 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        result = lr.predict(data1)
+        if type(result) == 'integer':
+            response['result'] = result
+        else:
+            response['result'] = result.tolist()
 
         return Response(data=response)
