@@ -22,6 +22,7 @@ class Data(models.Model):
     data_types = [(entity.name, entity.value) for entity in constants.DataTypes]
 
     type = models.CharField(max_length=20, choices=data_types)
+    value = models.IntegerField(null=True)
     file_path = models.CharField(max_length=500, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 

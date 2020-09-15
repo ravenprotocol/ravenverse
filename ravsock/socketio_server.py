@@ -80,7 +80,11 @@ async def acknowledge(sid, message):
     op_id = data['op_id']
     print("Op id", op_id)
     session = db.create_session()
-    op_found = session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid).first()
+    try:
+        op_found = session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid).first()
+    except Exception:
+        op_found = None
+        session.rollback()
 
     # Update op status to computing
     if op_found is not None:
@@ -229,24 +233,26 @@ def search_pending_op():
 
     if graph_id is not None:
         ops = db.session.query(Op).filter(Op.graph_id==graph_id).filter(Op.status == "pending").filter(Op.client_id == None)
-        #.order_by(desc(Op.created_at))
+    else:
+        ops = db.session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
+    #.order_by(desc(Op.created_at))
 
-        print("Ops:", ops)
-        op_found = None
-        for op in ops:
-            inputs = json.loads(op.inputs)
+    print("Ops:", ops)
+    op_found = None
+    for op in ops:
+        inputs = json.loads(op.inputs)
 
-            not_computed = []
-            for op_id in inputs:
-                if db.session.query(Op).get(op_id).status != "computed":
-                    not_computed.append(op_id)
+        not_computed = []
+        for op_id in inputs:
+            if db.session.query(Op).get(op_id).status != "computed":
+                not_computed.append(op_id)
 
-            if len(not_computed) == 0:
-                op_found = op
-                break
+        if len(not_computed) == 0:
+            op_found = op
+            break
 
-        return op_found
-    return None
+    return op_found
+    # return None
 
 
 def search_client():
