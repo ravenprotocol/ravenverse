@@ -344,6 +344,37 @@ class Graph(object):
         self._graph_db = db.refresh(self._graph_db)
         return self._graph_db.status
 
+    @property
+    def progress(self):
+        """Get the progress"""
+        stats = self.get_op_stats()
+        progress = ((stats["computed_ops"]+stats["computing_ops"]+stats["failed_ops"])/stats["total_ops"])*100
+        return progress
+
+    def get_op_stats(self):
+        """Get stats of all ops"""
+        ops = db.get_graph_ops(graph_id=self.id)
+
+        pending_ops = 0
+        computed_ops = 0
+        computing_ops = 0
+        failed_ops = 0
+
+        for op in ops:
+            if op.status == "pending":
+                pending_ops += 1
+            elif op.status == "computed":
+                computed_ops += 1
+            elif op.status == "computing":
+                computing_ops += 1
+            elif op.status == "failed":
+                failed_ops += 1
+
+        total_ops = ops.count()
+        return {"total_ops": total_ops, "pending_ops": pending_ops,
+                "computing_ops": computing_ops, "computed_ops": computed_ops,
+                "failed_ops": failed_ops}
+
     def clean(self):
         db.delete_graph_ops(self._graph_db.id)
 
