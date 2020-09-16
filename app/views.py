@@ -11,7 +11,6 @@ from django.shortcuts import render
 from ravop.core import Op, Scalar, Tensor
 from ravop.ml import LogisticRegression
 
-
 import json
 import numpy as np
 
@@ -131,7 +130,15 @@ class StatusLogisticRegression(APIView):
         if lr is None:
             return Response(data='Object does not exist', status=404, exception=ObjectDoesNotExist)
 
-        return Response(data=lr.train_status())
+        response = lr.get_op_stats()
+        response.update(
+            {
+                'percentage':
+                    (response["computed_ops"] + response["computing_ops"] + response["failed_ops"]) /
+                    response["total_ops"] * 100
+            }
+        )
+        return Response(data=response)
 
 
 class PredictLogisticRegression(APIView):

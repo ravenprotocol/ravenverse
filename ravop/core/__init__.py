@@ -370,7 +370,7 @@ class Graph(object):
             elif op.status == "failed":
                 failed_ops += 1
 
-        total_ops = ops.count()
+        total_ops = len(ops)
         return {"total_ops": total_ops, "pending_ops": pending_ops,
                 "computing_ops": computing_ops, "computed_ops": computed_ops,
                 "failed_ops": failed_ops}
