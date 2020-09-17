@@ -118,11 +118,15 @@ class ComputeLogisticRegression(APIView):
         socket_client = SocketClient().connect()
         socket_client.emit("update_server", data=None, namespace="/ravop")
 
-        return Response(data=lr.id)
+        response = dict()
+        response.update({ 'id': lr.id })
+
+        return Response(data=response)
 
 
 class StatusLogisticRegression(APIView):
     def get(self, request, id):
+        print("Hey")
         try:
             lr = LogisticRegression(id=id)
         except Exception as e:
