@@ -114,8 +114,18 @@ class Op(Base):
     # 1. pending 2. computing 3. computed
     status = Column(String(10), default="pending")
 
-    # List of clients who are working on it
-    client_id = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class ClientOpMapping(Base):
+    __tablename__ = "client_op_mapping"
+    client_id = Column(Integer, ForeignKey('client.id'))
+    op_id = Column(Integer, ForeignKey('op.id'))
+    sent_time = Column(DateTime, default=None)
+    response_time = Column(DateTime, default=None)
+
+    # 1. computing 2. computed 3. failed
+    status = Column(String(10), default="computing")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
