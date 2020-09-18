@@ -79,19 +79,12 @@ async def acknowledge(sid, message):
     data = json.loads(message)
     op_id = data['op_id']
     print("Op id", op_id)
-    session = db.create_session()
-    try:
-        op_found = session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid).first()
-    except Exception:
-        op_found = None
-        session.rollback()
+    op_found = db.session.query(Op).filter(Op.id == op_id).filter(Op.client_id == sid).first()
 
     # Update op status to computing
     if op_found is not None:
         print("Updating op status")
         db.update_op(op_found, client_id=sid, status=OpStatus.COMPUTING.value)
-
-    session.close()
 
 
 @sio.on('result', namespace="/ravjs")
@@ -163,19 +156,16 @@ async def connect(sid, environ):
     elif 'ravjs' in environ['QUERY_STRING']:
         client_type = "ravjs"
 
-    session = db.create_session()
-
     try:
         client = Client()
         client.client_id = sid
         client.connected_at = datetime.datetime.now()
         client.status = "connected"
         client.type = client_type
-        session.add(client)
-        session.commit()
+        db.session.add(client)
+        db.session.commit()
     except:
-        session.rollback()
-        session.close()
+        db.session.rollback()
         raise
 
 
@@ -205,68 +195,62 @@ async def ask_op(sid, message):
 async def disconnect(sid):
     logger.debug("Disconnected:{}".format(sid))
 
-    session = db.create_session()
-    client = session.query(Client).filter(Client.client_id == sid).first()
+    client = db.session.query(Client).filter(Client.client_id == sid).first()
     if client is not None:
-        db.update_client(client, status="disconnected", disconnected_at = datetime.datetime.now())
+        db.update_client(client, status="disconnected", disconnected_at=datetime.datetime.now())
 
         if client.type == "ravjs":
             # Get ops which were assigned to this
-            ops = session.query(Op).filter(Op.status == "computing").filter(Op.client_id == sid).all()
+            ops = db.session.query(Op).filter(Op.status == "computing").filter(Op.client_id == sid).all()
 
             # Set those ops to pending
             for op in ops:
                 db.update_op(op, client_id=None, status=OpStatus.PENDING.value)
-
-    session.close()
 
 
 def search_pending_op():
     """
     Search for an op which is pending
     """
-    graphs = db.session.query(Graph).filter(Graph.status=="active")
+    graphs = db.session.query(Graph).filter(Graph.status == "active")
     graph_id = None
     for graph in graphs:
         graph_id = graph.id
         break
 
     if graph_id is not None:
-        ops = db.session.query(Op).filter(Op.graph_id==graph_id).filter(Op.status == "pending").filter(Op.client_id == None)
-    else:
-        ops = db.session.query(Op).filter(Op.status == "pending").filter(Op.client_id == None)
-    #.order_by(desc(Op.created_at))
+        ops = db.session.query(Op).filter(Op.graph_id == graph_id).filter(Op.status == "pending").filter(
+            Op.client_id is None)
+        # .order_by(desc(Op.created_at))
 
-    print("Ops:", ops)
-    op_found = None
-    for op in ops:
-        inputs = json.loads(op.inputs)
+        print("Ops:", ops)
+        op_found = None
+        for op in ops:
+            inputs = json.loads(op.inputs)
 
-        not_computed = []
-        for op_id in inputs:
-            if db.session.query(Op).get(op_id).status != "computed":
-                not_computed.append(op_id)
+            not_computed = []
+            for op_id in inputs:
+                if db.session.query(Op).get(op_id).status != "computed":
+                    not_computed.append(op_id)
 
-        if len(not_computed) == 0:
-            op_found = op
-            break
-
+            if len(not_computed) == 0:
+                op_found = op
+                break
     return op_found
     # return None
 
 
 def search_client():
-    session = db.create_session()
-    clients = session.query(Client).filter(Client.status == "connected", Client.type == "ravjs").order_by(desc(Client.created_at))
+    clients = db.session.query(Client).filter(Client.status == "connected", Client.type == "ravjs").order_by(
+        desc(Client.created_at))
 
     client_found = None
     for client in clients:
-        op = session.query(Op).filter(Op.status == "computing", Op.client_id == client.id).first()
+        op = db.session.query(Op).filter(Op.status == "computing", Op.client_id == client.id).first()
         if op is None:
             client_found = client
             break
 
-    session.close()
     return client_found
 
 
@@ -284,10 +268,10 @@ def create_payload(op_id1, inputs, op_type, operator):
             values.append(op.output)
 
         # data_id = json.loads(db.session.query(Op).get(op_id).outputs)[0]
-        # print("Data id:", op_id, data_id)
-        # data = db.session.query(Data).get(data_id)
-        # file_path = data.file_path
-        # print(file_path)
+        #         # print("Data id:", op_id, data_id)
+        #         # data = db.session.query(Data).get(data_id)
+        #         # file_path = data.file_path
+        #         # print(file_path)
         #
         # if data.type == "ndarray":
         #
