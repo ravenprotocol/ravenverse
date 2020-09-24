@@ -83,7 +83,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));                    
                 }
                 catch(error) {
@@ -92,7 +93,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }       
                 break;
@@ -108,7 +110,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -117,7 +120,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -133,7 +137,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -142,7 +147,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -158,7 +164,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -167,7 +174,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -182,7 +190,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -191,7 +200,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -206,7 +216,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -215,7 +226,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -230,7 +242,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -239,7 +252,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -255,7 +269,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -264,7 +279,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
 
                 }
@@ -281,7 +297,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -290,7 +307,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
 
                 }
@@ -303,7 +321,8 @@
                         'result': payload.values[0],
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -312,7 +331,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
@@ -327,7 +347,8 @@
                         'result': result.arraySync(),
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "success"
                     }));
                 }
                 catch(error) {
@@ -336,7 +357,8 @@
                         'result': error.message,
                         'values':payload.values,
                         'operator': payload.operator,
-                        "op_id": payload.op_id
+                        "op_id": payload.op_id,
+                        "status": "failure"
                     }));
                 }
                 break;
