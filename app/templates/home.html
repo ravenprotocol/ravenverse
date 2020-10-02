@@ -92,26 +92,33 @@
         		</div>
 
         		<div class="contentContainer" id="logisticContainer">
-        			<div id="selectDatasetContainer">
-        					Select a dataset<br>
 
-        					<input type="radio" name="datasetSelect" value="iris">
-    						<label for="iris">Iris</label><br>
+                    <div class="navButtonsLogistic">
+                        <button class="navBtnLogistic" id="datasetLogistic">Dataset</button>
+                        <button class="navBtnLogistic" id="inputLogistic">Input</button>
+                    </div>
 
-    						<input type="radio" name="datasetSelect" value="boston">
-    						<label for="boston">Boston House Price</label><br>
+                    <div id="datasetLogisticContainer">
+                        <div id="selectDatasetContainer">
+                            Select a dataset<br>
 
-    						<input type="radio" name="datasetSelect" value="upload">
-    						<label for="upload">Upload</label><br>
+                            <input type="radio" name="datasetSelect" value="iris">
+                            <label for="iris">Iris</label><br>
 
-    						<form enctype="multipart/form-data" class="uploadFileForm">
+                            <input type="radio" name="datasetSelect" value="boston">
+                            <label for="boston">Boston House Price</label><br>
+
+                            <input type="radio" name="datasetSelect" value="upload">
+                            <label for="upload">Upload</label><br>
+
+                            <form enctype="multipart/form-data" class="uploadFileForm">
                                 <label for="chooseFile" class="uploadFileLabel">Choose File</label>
-    							<input id="chooseFile" name="file" type="file" /><br>
-    							<input class="fileUploadBtn" type="button" value="Upload" />
-    						</form>
-        				</div>
+                                <input id="chooseFile" name="file" type="file" /><br>
+                                <input class="fileUploadBtn" type="button" value="Upload" />
+                            </form>
+                        </div>
 
-        				<div class="featureTargetCol">
+                        <div class="featureTargetCol">
                             <span class="inputTitle">Features</span><br />
                             <input type="text" name="features" placeholder="Enter the features" class="featureTargetColInput">
                         </div>
@@ -124,6 +131,48 @@
                         <span style="width: 45%">
                             <button id="calcuateLinearBtn">Train</button>
                         </span>
+                    </div>
+
+                    <div id="inputLogisticContainer">
+                        <div style="font-size: 20px">Train</div>
+                        <div class="inputLogisticInput">
+                            <span class="inputTitle">Input 1</span><br />
+                            <input type="text" name="features" placeholder="Enter matrix X" class="featureTargetColInput" id="inputLogisticInput1">
+                        </div>
+
+                        <div class="inputLogisticInput">
+                            <span class="inputTitle">Input 2</span><br />
+                            <input type="text" name="features" placeholder="Enter matrix Y" class="featureTargetColInput" id="inputLogisticInput2">
+                        </div>
+
+                        <div id="trainLogisticInputBtnContainer">
+                            <button id="trainLogisticInputBtn">Train</button>
+                        </div>
+
+                        <div id="trainigProgressBar">
+                        </div>
+
+                        <div style="font-size: 20px; margin-top: 20px">Predict</div>
+
+                        <div class="inputLogisticInput">
+                            <span class="inputTitle">Input</span><br />
+                            <input type="text" name="features" placeholder="Enter matrix" class="featureTargetColInput" id="predictLogisticInput">
+                        </div>
+
+                        <div id="predictLogisticInputBtnContainer">
+                            <button disabled id="predictLogisticInputBtn">Predict</button>
+                        </div>
+
+                        <pre id="outputPredictLogistic">
+                            
+                        </pre>
+
+                        <!-- <div style="font-size: 20px">Predict</div>
+                        <div class="inputLogisticInput">
+                            <span class="inputTitle">Input 1</span><br />
+                            <input type="text" name="features" placeholder="Enter matrix X" class="featureTargetColInput" id="inputLogisticInput1">
+                        </div> -->
+                    </div>
 
         		</div>
         	</div>

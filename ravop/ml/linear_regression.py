@@ -3,23 +3,15 @@ import logging.handlers
 
 import numpy as np
 
-from common import db
 from ravop import globals as g
-from ravop.core import Graph, Tensor, Scalar, Op
-from ravop.socket_client import SocketClient
+from ravop.core import Graph, Tensor, Scalar
 
 
-class LinearRegression(object):
-    def __init__(self, **kwargs):
+class LinearRegression(Graph):
+    def __init__(self, id=None, **kwargs):
+        super().__init__(id=id, **kwargs)
+
         self.__setup_logger()
-
-        # If graph id is provided, fetch the old graph
-        graph_id = g.graph_id
-        if graph_id is not None:
-            self.graph = Graph(id=graph_id)
-        else:
-            self.graph = Graph()
-            g.graph_id = self.graph.id
 
         # Define hyperparameters
         self.learning_rate = kwargs.get("learning_rate", None)
@@ -37,7 +29,7 @@ class LinearRegression(object):
         self.logger.addHandler(handler)
 
     def train(self, X, y, iter=10):
-        self.graph.clean()
+        self.clean()
 
         # Convert input values to RavOp tensors
         X = Tensor(X, name="X")
@@ -52,7 +44,7 @@ class LinearRegression(object):
         # 1. Predict
         y_pred = X.matmul(weights, name="y_pred")
 
-        # 2. Calculate cost
+        # 2. Compute cost
         cost = self.__compute_cost(y, y_pred, no_samples)
 
         # 3. Gradient descent - Update weight values
@@ -65,20 +57,35 @@ class LinearRegression(object):
 
         return cost, weights
 
+    def predict(self, x):
+        """Predict values"""
+        weights = self.weights
+
+        # Local predict
+        return np.matmul(x, weights)
+
     def __compute_cost(self, y, y_pred, no_samples, name="cost"):
-        # Calculate cost
+        """Cost function"""
         a = y_pred.sub(y)
         b = a.elemul(a).matsum()
         cost = Scalar(1).div(Scalar(2).elemul(no_samples)).elemul(b, name=name)
         return cost
 
-    def print_ops(self):
-        # Print ops
-        ops = db.get_graph_ops(self.graph.id)
-        ops = [Op(id=op.id) for op in ops]
+    @property
+    def weights(self):
+        """Retrieve weights"""
+        ops = self.get_ops_by_name(op_name="weight", graph_id=self.id)
+        if len(ops) == 0:
+            raise Exception("You need to train your model first")
 
-        for op in ops:
-            print(op)
+        # Get weights
+        weight_op = ops[-1]
+        if weight_op.status == "pending" or weight_op.status == "computing":
+            raise Exception("Please wait. Your model is getting trained")
+
+        weight = weight_op.output
+
+        return weight
 
     def __str__(self):
-        return "LinearRegression:Graph Id:{}\n".format(self.graph.id)
+        return "LinearRegression:Graph Id:{}\n".format(self.id)

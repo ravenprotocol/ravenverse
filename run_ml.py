@@ -1,3 +1,5 @@
+import time
+
 from sklearn.datasets import load_boston
 
 from ravop.core import Scalar, Tensor
@@ -37,9 +39,9 @@ if __name__ == '__main__':
     # from ravop import globals as g
     # g.graph_id = None
     #
-    a = Scalar(10)
-    b = Scalar(20)
-    c = a.elemul(b)
+    # a = Scalar(10)
+    # b = Scalar(20)
+    # c = a.elemul(b)
 
     # socket_client.emit("update_server", data=None, namespace="/ravop")
     #
@@ -55,18 +57,19 @@ if __name__ == '__main__':
     # db.disconnect_all_clients()
     # exit()
 
-    a = Tensor([[2, 3, 4, 5], [5, 4, 5, 6], [3, 4, 5, 1]])
-    b = Tensor([[1], [2], [3], [8]])
-    c = a.matmul(b)
+    # a = Tensor([[2, 3, 4, 5], [5, 4, 5, 6], [3, 4, 5, 1]])
+    # b = Tensor([[1], [2], [3], [8]])
+    # c = a.matmul(b)
 
     # X, y = load_boston(return_X_y=True)
     X, y = [[2, 3, 4], [4, 5, 6]], [2, 3]
 
+    print(time.time())
     lr = LinearRegression()
-    cost, weights = lr.train(X=X, y=y, iter=100)
+    cost, weights = lr.train(X=X, y=y, iter=10)
 
     socket_client = SocketClient().connect()
-    socket_client.emit("update_server", data=None, namespace="/ravop")
+    socket_client.emit("inform_server", data={"type": "graph"}, namespace="/ravop")
 
     print("Waiting for cost")
     while cost.status == "pending" or cost.status == "computing":
@@ -74,5 +77,5 @@ if __name__ == '__main__':
 
     print("Cost:{}".format(cost.output))
     print("Weights:{}".format(weights.output))
+    print(time.time())
 
-    weights = [[0.49137499], [0.03379097], [0.49315399]]

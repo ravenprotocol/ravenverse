@@ -1,13 +1,16 @@
 import app.models as models
 import app.constants as constants
-from app.utils import evaluate
+from ravop.socket_client import SocketClient
+from app.utils import computations
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.shortcuts import render
 
-from ravop.ml.core import Core
+from ravop.core import Op, Scalar, Tensor
+from ravop.ml import LogisticRegression
+
 import json
 import numpy as np
 
@@ -53,20 +56,20 @@ class Compute(APIView):
         if data1 == 'invalid_data' or data2 == 'invalid_data':
             return Response(data='Operands consist of invalid data', status=422)
 
-        if operator_number <= 5:
-            data_list = [{"name": "x", "data": data1, "type": type1},
-                         {"name": "y", "data": data2, "type": type2}]
-            op_type = 'binary'
+        if type1 in ["integer", "double"]:
+            data1 = Scalar(data1)
+        elif type1 == "ndarray":
+            data1 = Tensor(data1)
 
-        else:
-            data_list = [{"name": "x", "data": data1, "type": type1}]
-            op_type = 'unary'
+        if type2 in ["integer", "double"]:
+            data2 = Scalar(data2)
+        elif type2 == "ndarray":
+            data2 = Tensor(data2)
 
-        core = Core(graph_id=1)
-        output_id = core.compute(data_list=data_list, operator=get_operator_name(operator_number), op_type=op_type)
+        result = computations.start_operation(data1, data2, operator_number)
 
         response = dict()
-        response.update({'op_id': output_id})
+        response.update({'op_id': result.id})
         return Response(data=response)
 
 
@@ -77,10 +80,9 @@ class Result(APIView):
         response.update({'result': None})
 
         try:
-            op_object = models.Op.objects.get(pk=op_id)
-        except ObjectDoesNotExist as e:
+            op_object = Op(id=op_id)
+        except Exception as e:
             op_object = None
-
         if op_object is None:
             return Response(data=response, status=404, exception=ObjectDoesNotExist)
 
@@ -88,7 +90,86 @@ class Result(APIView):
         if op_object.status == 'computing' or op_object.status == 'pending':
             return Response(data=response)
 
-        result = evaluate.get_result(op_object)
-        response.update({'result': result})
+        output = op_object.output
+        if op_object.output_dtype == "ndarray":
+            output = output.tolist()
+            response.update({'result': output})
+
+        return Response(data=response)
+
+
+class ComputeLogisticRegression(APIView):
+    def post(self, request):
+        try:
+            data1 = request.data['data1']
+            data2 = request.data['data2']
+        except Exception:
+            return Response(data='Required parameters missing', status=400)
+
+        data1, type1 = parse_data(data1)
+        data2, type2 = parse_data(data2)
+
+        if data1 == 'invalid_data' or data2 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        lr = LogisticRegression()
+        lr.train(X=data1, y=data2, iter=100)
+
+        socket_client = SocketClient().connect()
+        socket_client.emit("update_server", data=None, namespace="/ravop")
+
+        response = dict()
+        response.update({ 'id': lr.id })
+
+        return Response(data=response)
+
+
+class StatusLogisticRegression(APIView):
+    def get(self, request, id):
+        print("Hey")
+        try:
+            lr = LogisticRegression(id=id)
+        except Exception as e:
+            lr = None
+        if lr is None:
+            return Response(data='Object does not exist', status=404, exception=ObjectDoesNotExist)
+
+        response = lr.get_op_stats()
+        response.update(
+            {
+                'percentage':
+                    (response["computed_ops"] + response["computing_ops"] + response["failed_ops"]) /
+                    response["total_ops"] * 100
+            }
+        )
+        return Response(data=response)
+
+
+class PredictLogisticRegression(APIView):
+    def post(self, request, id):
+        response = dict()
+        response.update({'result': None})
+
+        try:
+            lr = LogisticRegression(id=id)
+        except Exception as e:
+            lr = None
+        if lr is None:
+            return Response(data='Object does not exist', status=404, exception=ObjectDoesNotExist)
+
+        try:
+            data1 = request.data['data1']
+        except Exception:
+            return Response(data='Required parameters missing', status=400)
+
+        data1, type1 = parse_data(data1)
+        if data1 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        result = lr.predict(data1)
+        if type(result) == 'integer':
+            response['result'] = result
+        else:
+            response['result'] = result.tolist()
 
         return Response(data=response)

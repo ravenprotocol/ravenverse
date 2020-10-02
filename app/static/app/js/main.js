@@ -6,11 +6,6 @@ $(document).ready(function () {
 	$("input[id=chooseFile]").change(function() {
 		$(".uploadFileLabel").text($(this).val());
 	});
-
-	// let arr = [[1, 2], [3, 4]];
-	// let newElement = `<div id="errorBox" class="errorBox"></div>`;
-	// $("#calcuateCoreContainer").append(newElement);
-	// $("#errorBox").text(JSON.stringify(arr));
 });
 
 function removeClasses() {
@@ -44,6 +39,7 @@ $("#logistic").click(function () {
 	setDisplayNone();
 	$("#logistic").addClass('active');
 	$("#logisticContainer").css("display", "flex");
+	$("#datasetLogistic").addClass('active');
 });
 
 $("select[name='coreDropdown']").change(function() {
@@ -209,4 +205,86 @@ $("#calcuateCoreBtn").click(function () {
 			}
 		});
 	}
+});
+
+function pollLogisiticInputResult(id, timer) {
+	$.ajax({
+		url: `http://127.0.0.1:8000/app/status_logistic_regression/${id}`,
+		success: function(result) {
+			console.log(`${parseInt(result.percentage)}%`);
+			$("#progressNumber").css("width", `${parseInt(result.percentage)}%`);
+			$("#progressNumber").text(`${parseInt(result.percentage)}%`);
+			if(parseInt(result.percentage) == 100) {
+				let newElement = '<button id="trainLogisticInputBtn">Train</button>';
+				$("#trainLogisticInputBtnContainer").append(newElement);
+				clearInterval(timer);
+				$("#predictLogisticInputBtn").prop("disabled", false);
+			}
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
+		}
+	})
+}
+
+$("#trainLogisticInputBtn").click(function() {
+	const reqObj = {
+		data1: $("#inputLogisticInput1").val(),
+		data2: $("#inputLogisticInput2").val(),
+	}
+
+	$.ajax({
+		url: "http://127.0.0.1:8000/app/compute_logistic_regression/",
+		type: "POST",
+		data: JSON.stringify(reqObj),
+		contentType: "application/json",
+		success: function(result) {
+			$("#trainLogisticInputBtn").remove();
+			let progressBar = '<div id="progressNumber">0%</div>'
+			$("#trainigProgressBar").append(progressBar);
+			$("#progressNumber").css("width", `0%`);
+			localStorage.setItem('logisticTrainId', result.id);
+			let timer = setInterval(function() {
+				pollLogisiticInputResult(result.id, timer);
+			}, 5000);
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
+		}
+	})
+});
+
+$("#datasetLogistic").click(function() {
+	$("#datasetLogisticContainer").css("display", "block");
+	$("#inputLogisticContainer").css("display", "none");
+	$("#datasetLogistic").addClass("active");
+	$("#inputLogistic").removeClass("active");
+});
+
+$("#inputLogistic").click(function() {
+	$("#datasetLogisticContainer").css("display", "none");
+	$("#inputLogisticContainer").css("display", "block");
+	$("#inputLogistic").addClass("active");
+	$("#datasetLogistic").removeClass("active");
+});
+
+$("#predictLogisticInputBtn").click(function() {
+	let obj = {
+		data1: $("#predictLogisticInput").val()
+	}
+
+	$.ajax({
+		url: `http://127.0.0.1:8000/app/predict_logistic_regression/${localStorage.getItem("logisticTrainId")}/`,
+		type: "POST",
+		data: JSON.stringify(obj),
+		contentType: "application/json",
+		success: function(result) {
+			$("#outputPredictLogistic").text(JSON.stringify(result, null, 4));
+			$("#outputPredictLogistic").css("padding", "20px");
+			$("#outputPredictLogistic").css("border", "1px solid grey");
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
+		}
+	})
 });

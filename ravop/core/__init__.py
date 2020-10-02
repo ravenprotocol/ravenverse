@@ -3,10 +3,15 @@ import os
 
 import numpy as np
 
-from common import db
+from common import db, RavQueue
 from common.constants import DATA_FILES_PATH
 from common.db_manager import NodeTypes, OpTypes, Operators, OpStatus
 from ravop import globals as g
+
+
+QUEUE_HIGH_PRIORITY = "queue:high_priority"
+QUEUE_LOW_PRIORITY = "queue:low_priority"
+QUEUE_COMPUTING = "queue:computing"
 
 
 class Op(object):
@@ -60,6 +65,15 @@ class Op(object):
                               op_type=op_type,
                               operator=operator,
                               status=status)
+            # Add op to queue
+            if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+                if g.graph_id is None:
+                    q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                    q.push(op.id)
+                else:
+                    q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                    q.push(op.id)
+
             return op
         else:
             raise Exception("Invalid parameters")
@@ -109,6 +123,16 @@ class Op(object):
                           op_type=OpTypes.BINARY.value,
                           operator=operator,
                           status=OpStatus.PENDING.value)
+
+        # Add op to queue
+        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+            if g.graph_id is None:
+                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                q.push(op.id)
+            else:
+                q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                q.push(op.id)
+
         return Op(id=op.id)
 
     def __create_math_op2(self, op1, operator, **kwargs):
@@ -123,6 +147,16 @@ class Op(object):
                           op_type=OpTypes.UNARY.value,
                           operator=operator,
                           status=OpStatus.PENDING.value)
+
+        # Add op to queue
+        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+            if g.graph_id is None:
+                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                q.push(op.id)
+            else:
+                q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                q.push(op.id)
+
         return Op(id=op.id)
 
     @property
@@ -331,12 +365,8 @@ class Graph(object):
         if self._graph_db is None:
             raise Exception("Invalid graph id")
 
-        # To store a list of all ops
-        self.ops = list()
-
     def add(self, op):
         """Add an op to the graph"""
-        self.ops.append(op)
         op.add_to_graph(self._graph_db)
 
     @property
@@ -348,8 +378,53 @@ class Graph(object):
         self._graph_db = db.refresh(self._graph_db)
         return self._graph_db.status
 
+    @property
+    def progress(self):
+        """Get the progress"""
+        stats = self.get_op_stats()
+        progress = ((stats["computed_ops"]+stats["computing_ops"]+stats["failed_ops"])/stats["total_ops"])*100
+        return progress
+
+    def get_op_stats(self):
+        """Get stats of all ops"""
+        ops = db.get_graph_ops(graph_id=self.id)
+
+        pending_ops = 0
+        computed_ops = 0
+        computing_ops = 0
+        failed_ops = 0
+
+        for op in ops:
+            if op.status == "pending":
+                pending_ops += 1
+            elif op.status == "computed":
+                computed_ops += 1
+            elif op.status == "computing":
+                computing_ops += 1
+            elif op.status == "failed":
+                failed_ops += 1
+
+        total_ops = len(ops)
+        return {"total_ops": total_ops, "pending_ops": pending_ops,
+                "computing_ops": computing_ops, "computed_ops": computed_ops,
+                "failed_ops": failed_ops}
+
     def clean(self):
         db.delete_graph_ops(self._graph_db.id)
+
+    @property
+    def ops(self):
+        ops = db.get_graph_ops(self.id)
+        return [Op(id=op.id) for op in ops]
+
+    def print_ops(self):
+        """Print ops"""
+        for op in self.ops:
+            print(op)
+
+    def get_ops_by_name(self, op_name, graph_id=None):
+        ops = db.get_ops_by_name(op_name=op_name, graph_id=graph_id)
+        return [Op(id=op.id) for op in ops]
 
     def __str__(self):
         return "Graph:\nId:{}\nStatus:{}\n".format(self.id, self.status)
@@ -360,16 +435,16 @@ Functional Interface
 """
 
 
-def add(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.ADDITION.value, **kwargs)
+def add(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.ADDITION.value, **kwargs)
 
 
-def sub(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.SUBTRACTION.value, **kwargs)
+def sub(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.SUBTRACTION.value, **kwargs)
 
 
-def matmul(self, op, **kwargs):
-    return self.__create_math_op(self, op, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+def matmul(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
 
 
 def div(op1, op2, **kwargs):
@@ -416,6 +491,16 @@ def __create_math_op(op1, op2, operator, **kwargs):
                       op_type=OpTypes.BINARY.value,
                       operator=operator,
                       status=OpStatus.PENDING.value)
+
+    # Add op to queue
+    if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+        if g.graph_id is None:
+            q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+            q.push(op.id)
+        else:
+            q = RavQueue(name=QUEUE_LOW_PRIORITY)
+            q.push(op.id)
+
     return Op(id=op.id)
 
 
@@ -431,4 +516,14 @@ def __create_math_op2(op1, operator, **kwargs):
                       op_type=OpTypes.UNARY.value,
                       operator=operator,
                       status=OpStatus.PENDING.value)
+
+    # Add op to queue
+    if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+        if g.graph_id is None:
+            q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+            q.push(op.id)
+        else:
+            q = RavQueue(name=QUEUE_LOW_PRIORITY)
+            q.push(op.id)
+        
     return Op(id=op.id)

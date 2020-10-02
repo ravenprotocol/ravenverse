@@ -139,7 +139,6 @@ body{
 
 #selectDatasetContainer {
 	font-size: 18px;
-	width: 42%;
 }
 
 #calcuateCoreBtn {
@@ -247,7 +246,6 @@ body{
 
 .featureTargetCol {
 	margin: 5px;
-	width: 42%;
 }
 
 .featureTargetColInput {
@@ -260,4 +258,91 @@ body{
 
 #logisticContainer {
 	width: 100%;
+}
+
+.navButtonsLogistic {
+	display: flex;
+	justify-content: center;
+	padding: 10px;
+	width: 50%;
+	margin-bottom: 30px;
+}
+
+.navBtnLogistic {
+	border: none;
+	background-color: #F6F6F6;
+	color: #484848;
+	padding: 8px 24px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	transition: 0.2s;
+	font-weight: 500;
+}
+
+.navBtnLogistic:hover, .active {
+	border: none;
+	background-color: #484848;
+	color: white;
+	font-weight: 500;
+}
+
+#inputLogisticContainer {
+	display: none;
+	width: 50%;
+}
+
+.inputLogisticInput {
+	margin: 5px;
+}
+
+#trainLogisticInputBtn {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+#trainigProgressBar {
+	border: 1px solid #C3C3C3;
+	width: 100%;
+	align-items: center;
+	margin-top: 20px;
+}
+
+#progressNumber {
+    display: flex;
+    justify-content: center;
+    background: #46BAAE;
+    color: white;
+}
+
+#predictLogisticInputBtn {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+#predictLogisticInputBtn:disabled, #predictLogisticInputBtn[disabled] {
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;
 }
