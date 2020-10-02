@@ -67,7 +67,16 @@ class Op(models.Model):
     operator = models.CharField(max_length=100, choices=operators)
     status = models.CharField(max_length=20, choices=status_types, default='pending')
 
-    # List of clients
-    client_id = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+
+class ClientOpMapping(models.Model):
+    class Meta:
+        db_table = "client_op_mapping"
+    op = models.ForeignKey(Op, on_delete=models.CASCADE, related_name="op_mappings")
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="client_ops")
+    sent_time = models.DateTimeField(default=timezone.now, null=True)
+    response_time = models.DateTimeField(default=timezone.now, null=True)
+    status = models.CharField(max_length=20, default="computing")
 
     created_at = models.DateTimeField(default=timezone.now)

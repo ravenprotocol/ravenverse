@@ -40,7 +40,7 @@
     socket.on('connect', function(d){
         console.log("connected");
 
-        socket.emit("ask_op", JSON.stringify({
+        socket.emit("get_op", JSON.stringify({
             "message": "Send me an aop"
         }))
     });
@@ -88,7 +88,7 @@
                     y = tf.tensor(payload.values[1]);
                     result = x.matMul(y);
                     console.log("Computing matrix multiplication");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -98,7 +98,7 @@
                     }));                    
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -115,7 +115,7 @@
                     console.log("Computing negation");
                     result = x.neg();
                     console.log("Result:"+result);
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -125,7 +125,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -142,7 +142,7 @@
                     y = tf.tensor(payload.values[1]);
                     result = x.add(y);
                     console.log("Computing addition");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -152,7 +152,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -169,7 +169,7 @@
                     y = tf.tensor(payload.values[1]);
                     result = x.div(y);
                     console.log("Computing division");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -179,7 +179,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -195,7 +195,7 @@
                     x = tf.tensor(payload.values[0]);
                     result = x.exp();
                     console.log("Computing exponential");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -205,7 +205,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -221,7 +221,7 @@
                     x = tf.tensor(payload.values[0]);
                     result = x.transpose();
                     console.log("Computing transpose");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -231,7 +231,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -247,7 +247,7 @@
                     x = tf.tensor(payload.values[0]);
                     result = x.log();
                     console.log("Computing natural log");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -257,7 +257,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -274,7 +274,7 @@
                     y = tf.tensor(payload.values[1]);
                     result = x.mul(y);
                     console.log("Computing element wise multiplication");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -284,7 +284,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -302,7 +302,7 @@
                     y = tf.tensor(payload.values[1]);
                     result = x.sub(y);
                     console.log("Computing subtraction");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -312,7 +312,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -326,7 +326,7 @@
             case "linear":
                 try {
                     console.log("Computing linear");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': payload.values[0],
                         'values':payload.values,
@@ -336,7 +336,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,
@@ -352,7 +352,7 @@
                     x = tf.tensor(payload.values[0]);
                     result = x.sum()
                     console.log("Computing matrix_sum");
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': result.arraySync(),
                         'values':payload.values,
@@ -362,7 +362,7 @@
                     }));
                 }
                 catch(error) {
-                    socket.emit("result", JSON.stringify({
+                    socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
                         'result': error.message,
                         'values':payload.values,

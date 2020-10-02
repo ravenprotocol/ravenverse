@@ -130,4 +130,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+DATASETS_DIR = os.path.join(BASE_DIR, "datasets")
+
+
+
 

@@ -1,3 +1,9 @@
+import os
+import re
+import time
+
+from django.conf import settings
+
 import app.models as models
 import app.constants as constants
 from ravop.socket_client import SocketClient
@@ -9,10 +15,21 @@ from rest_framework.response import Response
 from django.shortcuts import render
 
 from ravop.core import Op, Scalar, Tensor
-from ravop.ml import LogisticRegression
+from ravop.ml import LogisticRegression, LinearRegression
 
 import json
 import numpy as np
+import pandas as pd
+
+
+operators = [
+    {
+        "name": "Addition", "type": "binary", "func": "add"
+    },
+    {
+        "name": "Subtraction", "type": "binary", "func": "sub"
+    }
+]
 
 
 def home(request):
@@ -24,53 +41,94 @@ def get_operator_name(operator_number):
     return operators[operator_number - 1]
 
 
+# def parse_data(data):
+#     if not data:
+#         return data, None
+#     try:
+#         return int(data), 'integer'
+#     except ValueError:
+#         try:
+#             return float(data), 'double'
+#         except ValueError:
+#             try:
+#                 data = json.loads(data)
+#                 data = np.array(data)
+#                 return data, 'ndarray'
+#             except ValueError:
+#                 return 'invalid_data', ''
+
+
 def parse_data(data):
-    if not data:
-        return data, None
-    try:
-        return int(data), 'integer'
-    except ValueError:
-        try:
-            return float(data), 'double'
-        except ValueError:
-            try:
-                data = json.loads(data)
-                data = np.array(data)
-                return data, 'ndarray'
-            except ValueError:
-                return 'invalid_data', ''
+    if type(data).__name__ == "str":
+        data = json.loads(data)
+        if type(data).__name__ == "list":
+            return Tensor(data)
+        elif type(data).__name__ in ["int", "float", "double"]:
+            return Scalar(data)
+    elif type(data).__name__ == "list":
+        return Tensor(data)
+    elif type(data).__name__ in ["int", "float", "double"]:
+        return Scalar(data)
+    else:
+        return None
 
 
 class Compute(APIView):
     def post(self, request):
-        try:
-            data1 = request.data['data1']
-            data2 = request.data['data2']
-            operator_number = request.data['operation']
-        except Exception:
+        operation = request.data.get('operation', None)
+
+        if operation is None:
             return Response(data='Required parameters missing', status=400)
 
-        data1, type1 = parse_data(data1)
-        data2, type2 = parse_data(data2)
+        operator = next(item for item in operators if item["name"] == operation)
 
-        if data1 == 'invalid_data' or data2 == 'invalid_data':
-            return Response(data='Operands consist of invalid data', status=422)
+        result = None
 
-        if type1 in ["integer", "double"]:
-            data1 = Scalar(data1)
-        elif type1 == "ndarray":
-            data1 = Tensor(data1)
+        if operator['type'] == "unary":
+            data1 = request.data.get("data1", None)
 
-        if type2 in ["integer", "double"]:
-            data2 = Scalar(data2)
-        elif type2 == "ndarray":
-            data2 = Tensor(data2)
+            if data1 is None:
+                return Response(data='Required parameters missing', status=400)
+            data1 = parse_data(data1)
 
-        result = computations.start_operation(data1, data2, operator_number)
+            if data1 is None:
+                return Response(data='Operands consist of invalid data', status=422)
+
+            result = start_operation(data1=data1, operator=operator)
+
+        elif operator['type'] == "binary":
+            data1 = request.data.get("data1", None)
+            data2 = request.data.get('data2', None)
+
+            if data1 is None or data2 is None:
+                return Response(data='Required parameters missing', status=400)
+
+            data1 = parse_data(data1)
+            data2 = parse_data(data2)
+
+            if data1 is None or data2 is None:
+                return Response(data='Operands consist of invalid data', status=422)
+
+            result = start_operation(data1=data1, data2=data2, operator=operator)
+
+        if result is None:
+            return Response(data='Invalid operation', status=422)
+
+        socket_client = SocketClient().connect()
+        socket_client.emit("inform_server", data={}, namespace="/ravop")
 
         response = dict()
         response.update({'op_id': result.id})
         return Response(data=response)
+
+
+def start_operation(data1=None, data2=None, operator=None):
+    from ravop import core
+    f = getattr(core, operator["func"])
+    if operator['type'] == "binary":
+        return f(data1, data2)
+    elif operator['type'] == "unary":
+        return f(data1)
 
 
 class Result(APIView):
@@ -167,6 +225,111 @@ class PredictLogisticRegression(APIView):
             return Response(data='Operands consist of invalid data', status=422)
 
         result = lr.predict(data1)
+        if type(result) == 'integer':
+            response['result'] = result
+        else:
+            response['result'] = result.tolist()
+
+        return Response(data=response)
+
+
+class TrainLinearRegression(APIView):
+    def post(self, request):
+        # Get data type
+        data_format = request.POST.get("data_format", None)
+
+        if data_format is None:
+            return Response(data="Data format is missing", status=400)
+
+        if data_format == "file":
+
+            target_column = request.POST.get("target_column", None)
+
+            if target_column is None:
+                return Response(data="Target column is missing", status=400)
+
+            # Get the file
+            all_files = request.FILES.getlist('file')
+            if len(all_files) == 0:
+                return Response(data="File is missing", status=400)
+            uploaded_file = all_files[0]
+            file_name = uploaded_file.name
+            file_name = re.sub('[^A-Za-z0-9.]+', '_', file_name)
+            file_name = "{}_{}".format(time.time(), file_name)
+
+            os.makedirs(settings.DATASETS_DIR, exist_ok=True)
+
+            file_path = os.path.join(settings.DATASETS_DIR, file_name)
+            fout = open(file_path, 'wb+')
+
+            # Iterate through the chunks.
+            for chunk in uploaded_file.chunks():
+                fout.write(chunk)
+            fout.close()
+
+            df = pd.read_csv(file_path)
+
+            y = df[target_column].values
+            df.drop(columns=[target_column], inplace=True)
+            X = df.values
+
+            print(X, y)
+            print(type(X), type(y))
+
+            lr = LinearRegression()
+            lr.train(X, y)
+
+            socket_client = SocketClient().connect()
+            socket_client.emit("inform_server", data={"type": "graph", "graph_id": lr.id}, namespace="/ravop")
+
+            response = dict()
+            response.update({'id': lr.id, "message":"Training started"})
+            return Response(data=response)
+
+        elif data_format == "matrices":
+            # Get X, get y
+            pass
+
+
+class StatusLinearRegression(APIView):
+    def get(self, request, id):
+        print("Hey")
+        try:
+            lr = LinearRegression(id=id)
+        except Exception as e:
+            lr = None
+
+        if lr is None:
+            return Response(data='Invalid id', status=404, exception=ObjectDoesNotExist)
+
+        return Response(data={"progress": lr.progress})
+
+
+class PredictLinearRegression(APIView):
+    def post(self, request, id):
+        response = dict()
+        response.update({'result': None})
+
+        try:
+            lr = LinearRegression(id=id)
+        except Exception as e:
+            lr = None
+
+        if lr is None:
+            return Response(data='Invalid id', status=404, exception=ObjectDoesNotExist)
+
+        data1 = request.data.get('data1', None)
+
+        if data1 is None:
+            return Response(data='Required parameters missing', status=400)
+
+        data1, type1 = parse_data(data1)
+
+        if data1 == 'invalid_data':
+            return Response(data='Operands consist of invalid data', status=422)
+
+        result = lr.predict(data1)
+
         if type(result) == 'integer':
             response['result'] = result
         else:

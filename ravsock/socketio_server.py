@@ -2,6 +2,8 @@ import datetime
 import json
 import logging
 import logging.handlers
+import threading
+
 import numpy as np
 import socketio
 from aiohttp import web
@@ -110,12 +112,12 @@ async def ping(sid):
 
 
 @sio.on("pong", namespace="/ravjs")
-async def pong(sid):
+async def pong(sid, data):
     """
     Client is available
     Send an op to the client
     """
-    print("Pong: {}".format(sid))
+    print("Pong: {} {}".format(sid, data))
 
     # Find, create payload and emit op
     await emit_op(sid)
@@ -129,11 +131,12 @@ async def inform_server(sid, data):
         data_id = data['op_id']
 
         # Emit op to the client
-        client = db.get_available_clients()[0]
-        await emit_op(client.client_id, data_id)
+        clients = db.get_available_clients()
+        for client in clients:
+            await sio.emit("ping", data=None, namespace="/ravjs", room=client.client_id)
     else:
         # Emit op to the client
-        clients = db.get_available_clients()[:3]
+        clients = db.get_available_clients()
         print(clients)
         for client in clients:
             await sio.emit("ping", data=None, namespace="/ravjs", room=client.client_id)
@@ -245,6 +248,13 @@ async def emit_op(sid, op=None):
     mapping = db.create_client_op_mapping(client_id=client.id, op_id=op.id, sent_time=datetime.datetime.now(),
                                           status=ClientOpMappingStatus.SENT.value)
     logger.debug("Mapping created:{}".format(mapping))
+
+    timer = threading.Timer(2.0, abc, [mapping.id])
+    timer.start()
+
+
+def abc(args):
+    print("Done:{}".format(args))
 
 
 def find_op():

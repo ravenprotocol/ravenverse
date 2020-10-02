@@ -31,5 +31,5 @@ def start_operation(data1, data2, operation):
         result = None
 
     socket_client = SocketClient().connect()
-    socket_client.emit("update_server", data=None, namespace="/ravop")
+    socket_client.emit("inform_server", data={"type": "op", "op_id": result.id}, namespace="/ravop")
     return result
