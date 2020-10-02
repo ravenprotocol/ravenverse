@@ -3,10 +3,15 @@ import os
 
 import numpy as np
 
-from common import db
+from common import db, RavQueue
 from common.constants import DATA_FILES_PATH
 from common.db_manager import NodeTypes, OpTypes, Operators, OpStatus
 from ravop import globals as g
+
+
+QUEUE_HIGH_PRIORITY = "queue:high_priority"
+QUEUE_LOW_PRIORITY = "queue:low_priority"
+QUEUE_COMPUTING = "queue:computing"
 
 
 class Op(object):
@@ -60,6 +65,15 @@ class Op(object):
                               op_type=op_type,
                               operator=operator,
                               status=status)
+            # Add op to queue
+            if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+                if g.graph_id is None:
+                    q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                    q.push(op.id)
+                else:
+                    q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                    q.push(op.id)
+
             return op
         else:
             raise Exception("Invalid parameters")
@@ -109,6 +123,16 @@ class Op(object):
                           op_type=OpTypes.BINARY.value,
                           operator=operator,
                           status=OpStatus.PENDING.value)
+
+        # Add op to queue
+        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+            if g.graph_id is None:
+                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                q.push(op.id)
+            else:
+                q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                q.push(op.id)
+
         return Op(id=op.id)
 
     def __create_math_op2(self, op1, operator, **kwargs):
@@ -123,6 +147,16 @@ class Op(object):
                           op_type=OpTypes.UNARY.value,
                           operator=operator,
                           status=OpStatus.PENDING.value)
+
+        # Add op to queue
+        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+            if g.graph_id is None:
+                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+                q.push(op.id)
+            else:
+                q = RavQueue(name=QUEUE_LOW_PRIORITY)
+                q.push(op.id)
+
         return Op(id=op.id)
 
     @property
@@ -457,6 +491,16 @@ def __create_math_op(op1, op2, operator, **kwargs):
                       op_type=OpTypes.BINARY.value,
                       operator=operator,
                       status=OpStatus.PENDING.value)
+
+    # Add op to queue
+    if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+        if g.graph_id is None:
+            q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+            q.push(op.id)
+        else:
+            q = RavQueue(name=QUEUE_LOW_PRIORITY)
+            q.push(op.id)
+
     return Op(id=op.id)
 
 
@@ -472,4 +516,14 @@ def __create_math_op2(op1, operator, **kwargs):
                       op_type=OpTypes.UNARY.value,
                       operator=operator,
                       status=OpStatus.PENDING.value)
+
+    # Add op to queue
+    if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
+        if g.graph_id is None:
+            q = RavQueue(name=QUEUE_HIGH_PRIORITY)
+            q.push(op.id)
+        else:
+            q = RavQueue(name=QUEUE_LOW_PRIORITY)
+            q.push(op.id)
+        
     return Op(id=op.id)

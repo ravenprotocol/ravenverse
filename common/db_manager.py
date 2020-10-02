@@ -5,11 +5,11 @@ from enum import Enum
 
 import numpy as np
 import sqlalchemy as db
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, or_, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
-from common.utils import delete_data_file, save_data_to_file
+from common.utils import delete_data_file, save_data_to_file, Singleton
 
 Base = declarative_base()
 
@@ -52,6 +52,17 @@ class OpStatus(Enum):
     FAILED = "failed"
 
 
+class ClientOpMappingStatus(Enum):
+    SENT = "sent"
+    ACKNOWLEDGED = "acknowledged"
+    NOT_ACKNOWLEDGED = "not_acknowledged"
+    COMPUTING = "computing"
+    COMPUTED = "computed"
+    NOT_COMPUTED = "not_computed"
+    FAILED = "failed"
+    REJECTED = "rejected"
+
+
 class Graph(Base):
     __tablename__ = 'graph'
     id = Column(Integer, primary_key=True)
@@ -81,6 +92,7 @@ class Client(Base):
     status = Column(String(20), nullable=False, default="disconnected")
     # 1. ravop 2. ravjs
     type = Column(String(10), nullable=True)
+    client_ops = relationship("ClientOpMapping", backref="client", lazy="dynamic")
 
     connected_at = Column(DateTime, default=datetime.datetime.utcnow)
     disconnected_at = Column(DateTime, default=datetime.datetime.utcnow)
@@ -114,11 +126,14 @@ class Op(Base):
     # 1. pending 2. computing 3. computed
     status = Column(String(10), default="pending")
 
+    op_mappings = relationship("ClientOpMapping", backref="op", lazy="dynamic")
+
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
 class ClientOpMapping(Base):
     __tablename__ = "client_op_mapping"
+    id = Column(Integer, primary_key=True)
     client_id = Column(Integer, ForeignKey('client.id'))
     op_id = Column(Integer, ForeignKey('op.id'))
     sent_time = Column(DateTime, default=None)
@@ -128,25 +143,6 @@ class ClientOpMapping(Base):
     status = Column(String(10), default="computing")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-
-
-class Singleton:
-
-    def __init__(self, cls):
-        self._cls = cls
-
-    def Instance(self):
-        try:
-            return self._instance
-        except AttributeError:
-            self._instance = self._cls()
-            return self._instance
-
-    def __call__(self):
-        raise TypeError('Singletons must be accessed through `Instance()`.')
-
-    def __instancecheck__(self, inst):
-        return isinstance(inst, self._cls)
 
 
 @Singleton
@@ -355,9 +351,15 @@ class DBManager(object):
 
     def get_client(self, client_id):
         """
-        Get an existing data
+        Get an existing client
         """
         return self.session.query(Client).get(client_id)
+
+    def get_client_by_sid(self, sid):
+        """
+        Get an existing client by sid
+        """
+        return self.session.query(Client).filter(Client.client_id == sid).first()
 
     def update_client(self, client, **kwargs):
         for key, value in kwargs.items():
@@ -383,7 +385,7 @@ class DBManager(object):
         self.session.commit()
 
     def disconnect_client(self, client_id):
-        client = self.get_client(graph_id=client_id)
+        client = self.get_client(client_id=client_id)
         client.status = "disconnected"
         self.session.commit()
 
@@ -394,3 +396,120 @@ class DBManager(object):
             ops = self.session.query(Op).filter(Op.name.contains(op_name)).all()
 
         return ops
+
+    def get_op_readiness(self, op_id):
+        """
+        Get op readiness
+        """
+        op = self.session.query(Op).get(op_id)
+
+        inputs = json.loads(op.inputs)
+
+        cs = 0
+        for input_op in inputs:
+            if input_op.status in ["pending", "computing"]:
+                return "parent_op_not_ready"
+            elif input_op.status == "failed":
+                return "parent_op_failed"
+            elif input_op.status == "computed":
+                cs += 1
+
+        if cs == len(inputs):
+            return "ready"
+        else:
+            return "not_ready"
+
+    def get_ops_without_graph(self, status=None):
+        """
+        Get a list of all ops not associated to any graph
+        """
+        if status is not None:
+            return self.session.query(Op).filter(Op.graph_id is None).filter(Op.status == status).all()
+        else:
+            return self.session.query(Op).filter(Op.graph_id is None).all()
+
+    def get_graphs(self, status=None):
+        """
+        Get a list of graphs
+        """
+        if status is not None:
+            return self.session.query(Graph).filter(Graph.status == status).all()
+        else:
+            self.session.query(Graph).all()
+
+    def get_clients(self, status=None):
+        """
+        Get a list of clients
+        """
+        if status is not None:
+            return self.session.query(Client).filter(Client.status == status).all()
+        else:
+            return self.session.query(Client).all()
+
+    def get_available_clients(self):
+        """
+        Get all clients which are available
+        """
+        clients = self.session.query(Client).filter(Client.status == "connected").all()
+
+        client_list = []
+        for client in clients:
+            client_ops = client.client_ops.filter(or_(ClientOpMapping.status == ClientOpMappingStatus.SENT,
+                                                      ClientOpMapping.status == ClientOpMappingStatus.ACKNOWLEDGED.value,
+                                                      ClientOpMapping.status == ClientOpMappingStatus.COMPUTING.value))
+            if client_ops.count() == 0:
+                client_list.append(client)
+
+        return client_list
+
+    def get_ops(self, graph_id=None, status=None):
+        """
+        Get a list of ops based on certain parameters
+        """
+        if graph_id is None and status is None:
+            return self.session.query(Op).all()
+        elif graph_id is not None and status is not None:
+            return self.session.query(Op).filter(Op.graph_id == graph_id).filter(Op.status == status).all()
+        else:
+            if graph_id is not None:
+                return self.session.query(Op).filter(Op.graph_id == graph_id).all()
+            elif status is not None:
+                return self.session.query(Op).filter(Op.status == status).all()
+            else:
+                return self.session.query(Op).all()
+
+    def create_client_op_mapping(self, **kwargs):
+        mapping = ClientOpMapping()
+
+        for key, value in kwargs.items():
+            setattr(mapping, key, value)
+
+        self.session.add(mapping)
+        self.session.commit()
+        return mapping
+
+    def update_client_op_mapping(self, client_op_mapping_id, **kwargs):
+        mapping = self.session.query(ClientOpMapping).get(client_op_mapping_id)
+        for key, value in kwargs.items():
+            setattr(mapping, key, value)
+        self.session.commit()
+        return mapping
+
+    def find_client_op_mapping(self, client_id, op_id):
+        mapping = self.session.query(ClientOpMapping).filter(ClientOpMapping.client_id == client_id,
+                                                             ClientOpMapping.op_id == op_id).first()
+        return mapping
+
+    def get_incomplete_op(self):
+        ops = self.session.query(Op).filter(Op.status == OpStatus.COMPUTING.value).all()
+
+        for op in ops:
+            op_mappings = op.op_mappings
+            if op_mappings.filter(ClientOpMapping.status == ClientOpMappingStatus.SENT.value).count() >= 3 or \
+                    op_mappings.filter(ClientOpMapping.status == ClientOpMappingStatus.COMPUTING.value).count() >= 2 \
+                    or op_mappings.filter(ClientOpMapping.status == ClientOpMappingStatus.REJECTED.value).count() >= 5 \
+                    or op_mappings.filter(ClientOpMapping.status == ClientOpMappingStatus.FAILED.value).count() >= 3:
+                continue
+
+            return op
+        return None

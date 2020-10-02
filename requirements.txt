@@ -21,3 +21,4 @@ scikit-learn==0.23.1
 mysqlclient==2.0.1
 django-cors-headers==3.4.0
 django-livereload-server==0.3.2
+redis==3.5.3
