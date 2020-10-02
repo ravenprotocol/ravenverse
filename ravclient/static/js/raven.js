@@ -45,6 +45,16 @@
         }))
     });
 
+    socket.on("ping", function(message) {
+        console.log(message);
+        console.log("Received PING");
+
+        console.log("Sending PONG");
+        socket.emit("pong", JSON.stringify({
+            "message": "PONG"
+        }));
+    });
+
     /* Socket connection and operations */
 
     // var webSocket = new WebSocket('ws://127.0.0.1:65433');
