@@ -2,6 +2,8 @@ import os
 import re
 import time
 
+from sklearn.datasets import load_breast_cancer, load_boston
+import sklearn
 from django.conf import settings
 
 import app.models as models
@@ -267,14 +269,14 @@ class PredictLogisticRegression(APIView):
 class TrainLinearRegression(APIView):
     def post(self, request):
         # Get data type
-        data_format = request.POST.get("data_format", None)
+        data_format = request.data.get("data_format", None)
 
         if data_format is None:
             return Response(data="Data format is missing", status=400)
 
         if data_format == "file":
 
-            target_column = request.POST.get("target_column", None)
+            target_column = request.data.get("target_column", None)
 
             if target_column is None:
                 return Response(data="Target column is missing", status=400)
@@ -319,7 +321,50 @@ class TrainLinearRegression(APIView):
 
         elif data_format == "matrices":
             # Get X, get y
-            pass
+            X = request.data.get("X", None)
+            y = request.data.get("y", None)
+
+            if X is None or y is None:
+                return Response(data="Either X or y is missing", status=400)
+
+            try:
+                X = json.loads(X)
+                y = json.loads(y)
+            except Exception as e:
+                return Response(data="Data format of X or y is invalid:{}".format(str(e)), status=400)
+
+            lr = LinearRegression()
+            lr.train(X, y)
+
+            socket_client = SocketClient().connect()
+            socket_client.emit("inform_server", data={"type": "graph", "graph_id": lr.id}, namespace="/ravop")
+
+            response = dict()
+            response.update({'id': lr.id, "message": "Training started"})
+            return Response(data=response)
+
+        elif data_format == "dataset":
+            dataset = request.data.get("dataset", None)
+
+            if dataset is None:
+                return Response(data="Dataset is missing", status=400)
+
+            if dataset == "boston_house_prices":
+                X, y = load_boston(return_X_y=True)
+            elif dataset == "breast_cancer":
+                X, y = load_breast_cancer(return_X_y=True)
+            else:
+                return Response(data="Invalid dataset", status=400)
+
+            lr = LinearRegression()
+            lr.train(X, y)
+
+            socket_client = SocketClient().connect()
+            socket_client.emit("inform_server", data={"type": "graph", "graph_id": lr.id}, namespace="/ravop")
+
+            response = dict()
+            response.update({'id': lr.id, "message": "Training started"})
+            return Response(data=response)
 
 
 class StatusLinearRegression(APIView):
