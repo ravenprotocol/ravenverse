@@ -385,19 +385,19 @@ function checkInputsLinear() {
 	return check;
 }
 
-function pollLinearDatasetResult(id, timer) {
+function pollLinearResult(id, timer, progressElementId, newElementContainer, predictElementId, linearBtnConntainerId) {
 	$.ajax({
 		url: `http://127.0.0.1:8000/app/linear_regression/status/${id}/`,
 		type: "GET",
 		success: function(result) {
 			console.log(`${parseInt(result.progress)}%`);
-			$("#progressNumberLinearDataset").css("width", `${parseInt(result.progress)}%`);
-			$("#progressNumberLinearDataset").text(`${parseInt(result.progress)}%`);
+			$(`#${progressElementId}`).css("width", `${parseInt(result.progress)}%`);
+			$(`#${progressElementId}`).text(`${parseInt(result.progress)}%`);
 			if(parseInt(result.progress) == 100) {
-				let newElement = '<button id="calcuateLinearBtn">Train</button>';
-				$("#calcuateLinearBtnContainer").append(newElement);
+				let newElement = `<button id="${newElementContainer}">Train</button>`;
+				$(`#${linearBtnConntainerId}`).append(newElement);
 				clearInterval(timer);
-				$("#predictLinearInputBtn").prop("disabled", false);
+				$(`#${predictElementId}`).prop("disabled", false);
 			}
 		},
 		error: function(xhr, status, error) {
@@ -454,7 +454,7 @@ $("#calcuateLinearBtn").click(function() {
 				$("#progressNumberLinearDataset").css("width", `0%`);
 				localStorage.setItem('linearTrainId', result.id);
 				let timer = setInterval(function() {
-					pollLinearDatasetResult(result.id, timer);
+					pollLinearResult(result.id, timer, "progressNumberLinearDataset", "calcuateLinearBtn", "predictLinearInputBtn", "calcuateLinearBtnContainer");
 				}, 5000);
 			},
 			error: function(xhr, status, error) {
@@ -467,24 +467,105 @@ $("#calcuateLinearBtn").click(function() {
 	}
 });
 
-$("#predictLinearInputBtn").click(function() {
-	let obj = {
-		data1: $("#predictLinearInputDataset").val()
-	}
-
+function predictLinearRegression(id, outputContainerId) {
 	$.ajax({
-		url: `http://127.0.0.1:8000/app/linear_regression/predict/${localStorage.getItem("linearTrainId")}/`,
+		url: `http://127.0.0.1:8000/app/linear_regression/predict/${id}/`,
 		type: "POST",
 		data: JSON.stringify(obj),
 		contentType: "application/json",
 		success: function(result) {
-			$("#outputPredictLinear").text(JSON.stringify(result, null, 4));
-			$("#outputPredictLinear").css("padding", "20px");
-			$("#outputPredictLinear").css("border", "1px solid grey");
+			$(`#${outputContainerId}`).text(JSON.stringify(result, null, 4));
+			$(`#${outputContainerId}`).css("padding", "20px");
+			$(`#${outputContainerId}`).css("border", "1px solid grey");
 		},
 		error: function(xhr, status, error) {
 			console.log(xhr, status, error);
 		}
 	})
+}
 
+$("#predictLinearInputBtn").click(function() {
+	let obj = {
+		data1: $("#predictLinearInputDataset").val()
+	}
+
+	predictLinearRegression(localStorage.getItem("linearTrainId"), "outputPredictLinear");
+});
+
+// Linear Regression X&Y
+
+function checkInputsLinearXY() {
+	let check = "";
+	
+	if($("#inputLinearInput1").val() == "") {
+		check = "input1";
+	}
+	if($("#inputLinearInput2").val() == "") {
+		check = "input2";
+	}
+
+	return check;
+
+}
+
+$("#calcuateLinearBtnInput").click(function() {
+	let check = checkInputsLinearXY();
+
+	if(check !== "") {
+		let newElement;
+
+		switch(check) {
+			case "input1":
+				newElement = `<div id="errorBoxLinearXY" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainerInput").append(newElement);
+				$("#errorBoxLinearXY").text(`Enter the matrix X`);
+				break;
+			case "input2":
+				newElement = `<div id="errorBoxLinearXY" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainerInput").append(newElement);
+				$("#errorBoxLinearXY").text(`Enter the matrix Y`);
+				break;
+			default:
+				null;
+		}
+	}
+	else {
+		let requestObj = new FormData();
+		requestObj.append("data_format", "matrices");
+		requestObj.append("X", $("#inputLinearInput1").val());
+		requestObj.append("y", $("#inputLinearInput2").val());
+
+		$.ajax({
+			url: "http://127.0.0.1:8000/app/linear_regression/train/",
+			data: requestObj,
+			type: "POST",
+			contentType: false,
+			processData: false,
+			success: function(result) {
+				$("#errorBoxLinearXY").remove();
+				$("#calcuateLinearBtnInput").remove();
+				let progressBar = '<div id="progressNumberLinearXY">0%</div>'
+				$("#trainigProgressBarLinearInput").append(progressBar);
+				$("#progressNumberLinearXY").css("width", `0%`);
+				localStorage.setItem('linearTrainId', result.id);
+				let timer = setInterval(function() {
+					pollLinearResult(result.id, timer, "progressNumberLinearXY", "calcuateLinearBtnInput", "predictLinearBtnInput", "calcuateLinearBtnContainerInput");
+				}, 5000);
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr, status, error);
+				let newElement = `<div id="errorBoxLinearXY" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainerInput").append(newElement);
+				$("#errorBoxLinearXY").text(`${error}`);
+			}
+		})
+	}
+});
+
+$("#predictLinearBtnInput").click(function() {
+	let obj = {
+		data1: $("#predictLinearInputXY").val()
+	}
+
+	predictLinearRegression(localStorage.getItem("linearTrainId"), "outputPredictLinearXY");
 });

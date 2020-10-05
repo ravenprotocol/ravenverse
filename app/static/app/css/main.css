@@ -407,3 +407,46 @@ body{
     background: #46BAAE;
     color: white;
 }
+
+#calcuateLinearBtnInput {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+#predictLinearBtnInput {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+#predictLinearBtnInput:disabled, #predictLinearBtnInput[disabled] {
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;
+}
+
+#trainigProgressBarLinearInput {
+	border: 1px solid #C3C3C3;
+	width: 100%;
+	align-items: center;
+	margin-top: 20px;
+}
