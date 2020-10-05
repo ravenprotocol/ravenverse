@@ -138,7 +138,7 @@ body{
 }
 
 #selectDatasetContainer {
-	font-size: 18px;
+	font-size: 16px;
 }
 
 #calcuateCoreBtn {
@@ -249,7 +249,7 @@ body{
 }
 
 .featureTargetColInput {
-	width: 100%;
+	width: 244px;
 	height: 34px;
 	padding-left: 10px;
 	border-radius: 5px;
@@ -347,7 +347,7 @@ body{
 	cursor: not-allowed;
 }
 
-#chooseFileLinear:disabled, #chooseFileLinear[disabled] {
+#chooseFileLinear:disabled+label {
 	background: lightgrey;
 	color: grey;
 	cursor: not-allowed;	
@@ -365,7 +365,45 @@ body{
 }
 
 #calcuateLinearBtnContainer {
-	margin: 12px;
 	display: flex;
 	flex-direction: column;
+}
+
+#trainigProgressBarLinearDataset {
+	border: 1px solid #C3C3C3;
+	width: 100%;
+	align-items: center;
+	margin-top: 20px;
+}
+
+.inputLinearInputDataset {
+	margin: 5px;
+}
+
+#predictLinearInputBtn {
+	background-color: #46BAAE;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+	border-radius: 5px;
+	height: 34px;
+	width: 107px;
+	margin: 12px;
+}
+
+#predictLinearInputBtn:disabled, #predictLinearInputBtn[disabled] {
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;
+}
+
+#progressNumberLinearDataset {
+    display: flex;
+    justify-content: center;
+    background: #46BAAE;
+    color: white;
 }
