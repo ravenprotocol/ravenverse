@@ -397,7 +397,7 @@ function pollLinearDatasetResult(id, timer) {
 				let newElement = '<button id="calcuateLinearBtn">Train</button>';
 				$("#calcuateLinearBtnContainer").append(newElement);
 				clearInterval(timer);
-				// $("#predictLogisticInputBtn").prop("disabled", false);
+				$("#predictLinearInputBtn").prop("disabled", false);
 			}
 		},
 		error: function(xhr, status, error) {
@@ -467,7 +467,7 @@ $("#calcuateLinearBtn").click(function() {
 	}
 });
 
-$("predictLinearInputBtn").click(function() {
+$("#predictLinearInputBtn").click(function() {
 	let obj = {
 		data1: $("#predictLinearInputDataset").val()
 	}
