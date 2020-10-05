@@ -16,6 +16,7 @@ from django.shortcuts import render
 
 from ravop.core import Op, Scalar, Tensor
 from ravop.ml import LogisticRegression, LinearRegression
+from ravop import globals as g
 
 import json
 import numpy as np
@@ -307,6 +308,8 @@ class TrainLinearRegression(APIView):
             print(X, y)
             print(type(X), type(y))
 
+            g.graph_id = None
+            print(g.graph_id)
             lr = LinearRegression()
             lr.train(X, y)
 

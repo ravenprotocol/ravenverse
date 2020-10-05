@@ -6,6 +6,8 @@ $(document).ready(function () {
 	$("input[id=chooseFile]").change(function() {
 		$(".uploadFileLabel").text($(this).val());
 	});
+
+	$('input[type=radio][value=iris]').prop("checked", true);
 });
 
 function removeClasses() {
@@ -32,6 +34,9 @@ $("#linear").click(function () {
 	setDisplayNone();
 	$("#linear").addClass('active');
 	$("#linearContainer").css("display", "flex");
+	$("#datasetLinear").addClass('active');
+	$("#inputLinear").removeClass('active');
+	setDatasetLinear();
 });
 
 $("#logistic").click(function () {
@@ -40,16 +45,18 @@ $("#logistic").click(function () {
 	$("#logistic").addClass('active');
 	$("#logisticContainer").css("display", "flex");
 	$("#datasetLogistic").addClass('active');
+	$("#inputLogistic").removeClass('active');
 });
 
 $("select[name='coreDropdown']").change(function() {
-	if($(this).val() >= 6) {
+	let operatorNumber = getOperationNumber($(this).val());
+	if(operatorNumber >= 6) {
 		$("#input2").prop("disabled", true);
-		$("#input2Dropdown").prop("disabled", true);
+		// $("#input2Dropdown").prop("disabled", true);
 	}
 	else {
 		$("#input2").prop("disabled", false);
-		$("#input2Dropdown").prop("disabled", false);
+		// $("#input2Dropdown").prop("disabled", false);
 	}
 
 	$("#errorBox").remove();
@@ -71,22 +78,40 @@ function pollResult(opId, timer) {
 	});
 }
 
+function getOperationNumber(operation) {
+	let obj = {
+		"Addition": 2,
+		"Subtraction": 3,
+        "Multiplication": 4,
+		"Division": 5,
+		"Linear": 6,
+        "Negation": 7,
+        "Exponential": 8,
+        "Transpose": 9,
+        "Natural Log": 10,
+	}
+
+	return obj[operation];
+}
+
 function createRequestObj() {
 	let obj = {
 		operation: parseInt($("select[name='coreDropdown']").val()),
 		data1: $("#input1").val(),
 	};
 
-	if($("select[name='coreDropdown']").val() >= 6) {
+	let operatorNumber = getOperationNumber($("select[name='coreDropdown']").val());
+
+	if(operatorNumber >= 6) {
 		obj["data2"] = null;
 		
 	}
 	else {
 		obj["data2"] = $("#input2").val();
 
-		if($("select[name='input1Dropdown']").val() === "matrix" && $("select[name='input2Dropdown']").val() === "matrix" && obj.operation == 4) {
-			obj.operation = 1;
-		}
+		// if($("select[name='input1Dropdown']").val() === "matrix" && $("select[name='input2Dropdown']").val() === "matrix" && obj.operation == 4) {
+		// 	obj.operation = 1;
+		// }
 	}
 
 	return obj;
@@ -94,6 +119,8 @@ function createRequestObj() {
 
 function checkInputs() {
 	let check = "";
+	let operatorNumber = getOperationNumber($("select[name='coreDropdown']").val());
+	console.log(operatorNumber);
 	
 	if(($("select[name='coreDropdown']").val() == "select")) {
 		check = "select";
@@ -101,15 +128,15 @@ function checkInputs() {
 	if(($("#input1").val() == "")) {
 		check = "input1";
 	}
-	if(($("#input2").val() == "") && $("select[name='coreDropdown']").val() < 6) {
+	if(($("#input2").val() == "") && operatorNumber < 6) {
 		check = "input2";
 	}
-	if(($("select[name='input1Dropdown']").val() == "select")) {
-		check = "input1Dropdown";
-	}
-	if(($("select[name='input2Dropdown']").val() == "select")) {
-		check = "input2Dropdown";
-	}
+	// if(($("select[name='input1Dropdown']").val() == "select")) {
+	// 	check = "input1Dropdown";
+	// }
+	// if(($("select[name='input2Dropdown']").val() == "select")) {
+	// 	check = "input2Dropdown";
+	// }
 
 	return check;
 }
@@ -138,13 +165,13 @@ $("#input2").on('input', function() {
 	}
 });
 
-$("#input1Dropdown").change(function() {
-	$("#errorBoxInput1Dropdown").remove();
-});
+// $("#input1Dropdown").change(function() {
+// 	$("#errorBoxInput1Dropdown").remove();
+// });
 
-$("#input2Dropdown").change(function() {
-	$("#errorBoxInput2Dropdown").remove();
-});
+// $("#input2Dropdown").change(function() {
+// 	$("#errorBoxInput2Dropdown").remove();
+// });
 
 
 $("#calcuateCoreBtn").click(function () {
@@ -165,24 +192,24 @@ $("#calcuateCoreBtn").click(function () {
 			case "input2":
 				checkInput(2);
 				break;
-			case "input1Dropdown":
-				newElement = `<div id="errorBoxInput1Dropdown" class="errorBox"></div>`;
-				$("#calcuateCoreContainer").append(newElement);
-				$("#errorBoxInput1Dropdown").text(`Data Type cannot be empty`);
-				break;
-			case "input2Dropdown":
-				newElement = `<div id="errorBoxInput2Dropdown" class="errorBox"></div>`;
-				$("#calcuateCoreContainer").append(newElement);
-				$("#errorBoxInput2Dropdown").text(`Data Type cannot be empty`);
-				break;
+			// case "input1Dropdown":
+			// 	newElement = `<div id="errorBoxInput1Dropdown" class="errorBox"></div>`;
+			// 	$("#calcuateCoreContainer").append(newElement);
+			// 	$("#errorBoxInput1Dropdown").text(`Data Type cannot be empty`);
+			// 	break;
+			// case "input2Dropdown":
+			// 	newElement = `<div id="errorBoxInput2Dropdown" class="errorBox"></div>`;
+			// 	$("#calcuateCoreContainer").append(newElement);
+			// 	$("#errorBoxInput2Dropdown").text(`Data Type cannot be empty`);
+			// 	break;
 			default:
 				null;
 		}
 	}
 	else {
 		let obj = createRequestObj();
-		$("#errorBoxInput1Dropdown").remove();
-		$("#errorBoxInput2Dropdown").remove();
+		// $("#errorBoxInput1Dropdown").remove();
+		// $("#errorBoxInput2Dropdown").remove();
 		
 		$.ajax({
 			url: "http://127.0.0.1:8000/app/compute/",
@@ -206,6 +233,9 @@ $("#calcuateCoreBtn").click(function () {
 		});
 	}
 });
+
+// Logistic regression
+
 
 function pollLogisiticInputResult(id, timer) {
 	$.ajax({
@@ -287,4 +317,103 @@ $("#predictLogisticInputBtn").click(function() {
 			console.log(xhr, status, error);
 		}
 	})
+});
+
+// Linear Regression stuff
+
+$('input[type=radio][name=datasetSelect]').change(function() {
+	switch(this.value) {
+		case 'iris':
+		case 'digits':
+		case 'breastCancer':
+		case 'wine':
+			$("#chooseFileLinear").prop("disabled", true);
+			$("#fileUploadBtnLinear").prop("disabled", true);
+			break;
+		case 'upload':
+			$('input[type=radio][value=upload]').attr("disabled", false);
+			$("#chooseFileLinear").prop("disabled", false);
+			$("#fileUploadBtnLinear").prop("disabled", false);
+			break;
+		default:
+			console.log('Nothing');
+	}
+});
+
+$("input[id=chooseFileLinear]").change(function() {
+	$(".uploadFileLabel").text($(this).val());
+});
+
+function setDatasetLinear() {
+	$("#datasetLinearContainer").css("display", "block");
+	$("#inputLinearContainer").css("display", "none");
+	$("#datasetLinear").addClass("active");
+	$("#inputLinear").removeClass("active");
+}
+
+function setInputLinear() {
+	$("#datasetLinearContainer").css("display", "none");
+	$("#inputLinearContainer").css("display", "block");
+	$("#inputLinear").addClass("active");
+	$("#datasetLinear").removeClass("active");
+}
+
+$("#datasetLinear").click(function() {
+	setDatasetLinear();
+});
+
+$("#inputLinear").click(function() {
+	setInputLinear();
+});
+
+function checkInputsLinear() {
+	let check = ""
+
+	if($("#chooseFileLinear")[0].files.length == 0) {
+		check = "file";
+	}
+	if($("input[id=targetColumnLinear]").val() == "") {
+		check = "tragetColumn";
+	}
+
+	return check;
+}
+
+function pollLinearRegression(id, timer) {
+
+}
+
+$("#calcuateLinearBtn").click(function() {	
+	let check = checkInputsLinear();
+
+	if(check !== "") {
+
+	}
+	else {
+		let requestObj = new FormData();
+		requestObj.append("target_column", $("input[id=targetColumnLinear]").val());
+		requestObj.append("data_format", "file");
+		requestObj.append("file", $("#chooseFileLinear")[0].files[0]);
+
+		$.ajax({
+			url: "http://127.0.0.1:8000/app/linear_regression/train/",
+			data: requestObj,
+			type: "POST",
+			contentType: false,
+			processData: false,
+			success: function(result) {
+				$("#errorBoxLinear").remove();
+				localStorage.setItem('logisticTrainId', result.id);
+				let timer = setInterval(function() {
+					pollLogisiticInputResult(result.id, timer);
+				}, 5000);
+			},
+			error: function(xhr, status, error) {
+				console.log(xhr, status, error);
+				let newElement = `<div id="errorBoxLinear" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainer").append(newElement);
+				$("#errorBox").text(`${xhr.responseText}`);
+			}
+		})
+	}
 });
