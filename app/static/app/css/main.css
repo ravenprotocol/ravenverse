@@ -190,7 +190,7 @@ body{
 	justify-content: space-between;
 }
 
-#chooseFile {
+#chooseFileLinear {
 	opacity: 0;
 	position: absolute;
 	z-index: -1;
@@ -202,7 +202,7 @@ body{
 	border-radius: 5px;
 	width: 143px;
 	font-size: 14px;
-	height: 34px;
+	height: auto;
 	display: flex;
 	align-items: center;
 	padding-left: 10px;
@@ -345,4 +345,27 @@ body{
 	background: lightgrey;
 	color: grey;
 	cursor: not-allowed;
+}
+
+#chooseFileLinear:disabled, #chooseFileLinear[disabled] {
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;	
+}
+
+#fileUploadBtnLinear:disabled, #fileUploadBtnLinear[disabled] {
+	background: lightgrey;
+	color: grey;
+	cursor: not-allowed;	
+}
+
+#inputLinearContainer {
+	display: none;
+	width: 50%;
+}
+
+#calcuateLinearBtnContainer {
+	margin: 12px;
+	display: flex;
+	flex-direction: column;
 }

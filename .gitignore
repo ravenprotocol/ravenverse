@@ -8,3 +8,4 @@ venv
 *.pyc
 ravop_log.log
 ravsock_log.log
+app/migrations/00*
