@@ -7,7 +7,11 @@ $(document).ready(function () {
 		$(".uploadFileLabel").text($(this).val());
 	});
 
-	$('input[type=radio][value=iris]').prop("checked", true);
+	$('input[type=radio][value=boston_house_prices]').prop("checked", true);
+	$("#chooseFileLinear").prop("disabled", true);
+	$("#fileUploadBtnLinear").prop("disabled", true);
+
+
 });
 
 function removeClasses() {
@@ -50,7 +54,7 @@ $("#logistic").click(function () {
 
 $("select[name='coreDropdown']").change(function() {
 	let operatorNumber = getOperationNumber($(this).val());
-	if(operatorNumber >= 6) {
+	if(operatorNumber >= 7) {
 		$("#input2").prop("disabled", true);
 		// $("#input2Dropdown").prop("disabled", true);
 	}
@@ -80,15 +84,18 @@ function pollResult(opId, timer) {
 
 function getOperationNumber(operation) {
 	let obj = {
-		"Addition": 2,
-		"Subtraction": 3,
-        "Multiplication": 4,
+		"Addition": 1,
+		"Subtraction": 2,
+		"Matrix Multiplication": 3,
+		"Multiplication": 4,
 		"Division": 5,
-		"Linear": 6,
-        "Negation": 7,
-        "Exponential": 8,
-        "Transpose": 9,
-        "Natural Log": 10,
+		"Element-wise Multiplication": 6,
+		"Negation": 7,
+		"Exponential": 8,
+		"Transpose": 9,
+		"Natural Log": 10,
+		"Matrix Sum": 11,
+		"Linear": 12
 	}
 
 	return obj[operation];
@@ -102,7 +109,7 @@ function createRequestObj() {
 
 	let operatorNumber = getOperationNumber($("select[name='coreDropdown']").val());
 
-	if(operatorNumber >= 6) {
+	if(operatorNumber >= 7) {
 		obj["data2"] = null;
 		
 	}
@@ -128,7 +135,7 @@ function checkInputs() {
 	if(($("#input1").val() == "")) {
 		check = "input1";
 	}
-	if(($("#input2").val() == "") && operatorNumber < 6) {
+	if(($("#input2").val() == "") && operatorNumber < 7) {
 		check = "input2";
 	}
 	// if(($("select[name='input1Dropdown']").val() == "select")) {
@@ -323,10 +330,8 @@ $("#predictLogisticInputBtn").click(function() {
 
 $('input[type=radio][name=datasetSelect]').change(function() {
 	switch(this.value) {
-		case 'iris':
-		case 'digits':
-		case 'breastCancer':
-		case 'wine':
+		case 'boston_house_prices':
+		case 'breast_cancer':
 			$("#chooseFileLinear").prop("disabled", true);
 			$("#fileUploadBtnLinear").prop("disabled", true);
 			break;
@@ -369,9 +374,10 @@ $("#inputLinear").click(function() {
 function checkInputsLinear() {
 	let check = ""
 
-	if($("#chooseFileLinear")[0].files.length == 0) {
+	if($("input[type=radio][name=upload]").is(':checked') && $("#chooseFileLinear")[0].files.length == 0) {
 		check = "file";
 	}
+	
 	if($("input[id=targetColumnLinear]").val() == "") {
 		check = "tragetColumn";
 	}
@@ -379,21 +385,60 @@ function checkInputsLinear() {
 	return check;
 }
 
-function pollLinearRegression(id, timer) {
-
+function pollLinearDatasetResult(id, timer) {
+	$.ajax({
+		url: `http://127.0.0.1:8000/app/linear_regression/status/${id}/`,
+		type: "GET",
+		success: function(result) {
+			console.log(`${parseInt(result.progress)}%`);
+			$("#progressNumberLinearDataset").css("width", `${parseInt(result.progress)}%`);
+			$("#progressNumberLinearDataset").text(`${parseInt(result.progress)}%`);
+			if(parseInt(result.progress) == 100) {
+				let newElement = '<button id="calcuateLinearBtn">Train</button>';
+				$("#calcuateLinearBtnContainer").append(newElement);
+				clearInterval(timer);
+				// $("#predictLogisticInputBtn").prop("disabled", false);
+			}
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
+		}
+	});
 }
 
 $("#calcuateLinearBtn").click(function() {	
 	let check = checkInputsLinear();
 
 	if(check !== "") {
+		let newElement;
 
+		switch(check) {
+			case "file":
+				newElement = `<div id="errorBoxChecks" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainer").append(newElement);
+				$("#errorBoxChecks").text(`File not selected`);
+				break;
+			case "tragetColumn":
+				newElement = `<div id="errorBoxChecks" class="errorBox"></div>`;
+				$("#calcuateLinearBtnContainer").append(newElement);
+				$("#errorBoxChecks").text(`Target Column cannot be empty`);
+				break;
+			default:
+				null;
+		}
 	}
 	else {
 		let requestObj = new FormData();
 		requestObj.append("target_column", $("input[id=targetColumnLinear]").val());
-		requestObj.append("data_format", "file");
-		requestObj.append("file", $("#chooseFileLinear")[0].files[0]);
+		if($("input[type=radio][value=upload]").is(':checked')) {
+			requestObj.append("data_format", "file");
+			requestObj.append("file", $("#chooseFileLinear")[0].files[0]);
+		}
+		else {
+			requestObj.append("data_format", "dataset");
+			console.log($("input[type=radio][name=datasetSelect]:checked").val());
+			requestObj.append("dataset", $("input[type=radio][name=datasetSelect]:checked").val());
+		}
 
 		$.ajax({
 			url: "http://127.0.0.1:8000/app/linear_regression/train/",
@@ -403,9 +448,13 @@ $("#calcuateLinearBtn").click(function() {
 			processData: false,
 			success: function(result) {
 				$("#errorBoxLinear").remove();
-				localStorage.setItem('logisticTrainId', result.id);
+				$("#calcuateLinearBtn").remove();
+				let progressBar = '<div id="progressNumberLinearDataset">0%</div>'
+				$("#trainigProgressBarLinearDataset").append(progressBar);
+				$("#progressNumberLinearDataset").css("width", `0%`);
+				localStorage.setItem('linearTrainId', result.id);
 				let timer = setInterval(function() {
-					pollLogisiticInputResult(result.id, timer);
+					pollLinearDatasetResult(result.id, timer);
 				}, 5000);
 			},
 			error: function(xhr, status, error) {
@@ -416,4 +465,26 @@ $("#calcuateLinearBtn").click(function() {
 			}
 		})
 	}
+});
+
+$("predictLinearInputBtn").click(function() {
+	let obj = {
+		data1: $("#predictLinearInputDataset").val()
+	}
+
+	$.ajax({
+		url: `http://127.0.0.1:8000/app/linear_regression/predict/${localStorage.getItem("linearTrainId")}/`,
+		type: "POST",
+		data: JSON.stringify(obj),
+		contentType: "application/json",
+		success: function(result) {
+			$("#outputPredictLinear").text(JSON.stringify(result, null, 4));
+			$("#outputPredictLinear").css("padding", "20px");
+			$("#outputPredictLinear").css("border", "1px solid grey");
+		},
+		error: function(xhr, status, error) {
+			console.log(xhr, status, error);
+		}
+	})
+
 });

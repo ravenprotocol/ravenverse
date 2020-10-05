@@ -19,17 +19,9 @@
         				<select name="coreDropdown" class="coreDropdown">
     	    				<option value="select">Select Operation</option>
                             <!-- <option value="1">Matrix Multiplication</option> -->
-                            <option value="Multiplication">Multiplication</option>
-    	    				
-    	    				
-                            
-                            
-                            
-                            
-
                             <option value="Addition">Addition</option>
                             <option value="Subtraction">Subtraction</option>
-                            <option value="Matrix Multiplication"></option>
+                            <option value="Matrix Multiplication">Matrix Multiplication</option>
                             <option value="Multiplication">Multiplication</option>
                             <option value="Division">Division</option>
                             <option value="Element-wise Multiplication">Element-wise Multiplication</option>
@@ -76,26 +68,21 @@
 
                     <div id="datasetLinearContainer">
                         <div id="selectDatasetContainer">
-                            Select a dataset<br>
+                            <span style="font-size: 20px">Select a dataset</span><br>
 
-                            <input type="radio" name="datasetSelect" value="iris">
-                            <label for="iris">Iris</label><br>
+                            <input type="radio" name="datasetSelect" value="boston_house_prices">
+                            <label for="boston_house_prices">Boston House Prices</label><br>
 
-                            <input type="radio" name="datasetSelect" value="digits">
-                            <label for="digits">Digits</label><br>
-
-                            <input type="radio" name="datasetSelect" value="wine">
-                            <label for="wine">Wine</label><br>
-
-                            <input type="radio" name="datasetSelect" value="breastCancer">
-                            <label for="breastCancer">Breast Cancer</label><br>
+                            <input type="radio" name="datasetSelect" value="breast_cancer">
+                            <label for="breast_cancer">Breast Cancer</label><br>
+                            <hr />
 
                             <input type="radio" name="datasetSelect" value="upload">
                             <label for="upload">Upload</label><br>
 
                             <form enctype="multipart/form-data" class="uploadFileForm">
-                                <label for="chooseFileLinear" class="uploadFileLabel">Choose File</label>
                                 <input id="chooseFileLinear" name="file" type="file" />
+                                <label for="chooseFileLinear" class="uploadFileLabel">Choose File</label>
                             </form>
                         </div>
 
@@ -106,12 +93,30 @@
 
                         <div class="featureTargetCol">
                             <span class="inputTitle">Target Column</span><br />
-                            <input id="targetColumnLinear" type="text" name="features" placeholder="Enter the target column" class="featureTargetColInput">
+                            <input id="targetColumnLinear" type="text" name="features" placeholder="Enter target column" class="featureTargetColInput">
                         </div>
 
-                        <class id="calcuateLinearBtnContainer" style="width: 45%">
+                        <class id="calcuateLinearBtnContainer">
                             <button id="calcuateLinearBtn">Train</button>
                         </class>
+
+                        <div id="trainigProgressBarLinearDataset">
+                        </div>
+
+                        <div style="font-size: 20px; margin-top: 20px">Predict</div>
+
+                        <div class="inputLinearInputDataset">
+                            <span class="inputTitle">Input</span><br />
+                            <input type="text" name="features" placeholder="Enter matrix" class="featureTargetColInput" id="predictLinearInputDataset">
+                        </div>
+
+                        <div id="predictLinearInputBtnContainer">
+                            <button disabled id="predictLinearInputBtn">Predict</button>
+                        </div>
+
+                        <pre id="outputPredictLinear">
+                            
+                        </pre>
                     </div>
 
                     <div id="inputLinearContainer">
