@@ -28,6 +28,36 @@ operators = [
     },
     {
         "name": "Subtraction", "type": "binary", "func": "sub"
+    },
+    {
+        "name": "Matrix Multiplication", "type": "binary", "func": "matmul"
+    },
+    {
+        "name": "Multiplication", "type": "binary", "func": "elemul"
+    },
+    {
+        "name": "Division", "type": "binary", "func": "div"
+    },
+    {
+        "name": "Element-wise Multiplication", "type": "binary", "func": "elemul"
+    },
+    {
+        "name": "Negation", "type": "unary", "func": "neg"
+    },
+    {
+        "name": "Exponential", "type": "unary", "func": "exp"
+    },
+    {
+        "name": "Transpose", "type": "unary", "func": "trans"
+    },
+    {
+        "name": "Natural Log", "type": "unary", "func": "natlog"
+    },
+    {
+        "name": "Matrix Sum", "type": "unary", "func": "matsum"
+    },
+    {
+        "name": "Linear", "type": "unary", "func": "linear"
     }
 ]
 
