@@ -75,6 +75,7 @@ def parse_data(data):
 
 class Compute(APIView):
     def post(self, request):
+        print(request.data)
         operation = request.data.get('operation', None)
 
         if operation is None:
@@ -115,7 +116,7 @@ class Compute(APIView):
             return Response(data='Invalid operation', status=422)
 
         socket_client = SocketClient().connect()
-        socket_client.emit("inform_server", data={}, namespace="/ravop")
+        socket_client.emit("inform_server", data={"type": "op", "op_id": result.id}, namespace="/ravop")
 
         response = dict()
         response.update({'op_id': result.id})
@@ -323,9 +324,9 @@ class PredictLinearRegression(APIView):
         if data1 is None:
             return Response(data='Required parameters missing', status=400)
 
-        data1, type1 = parse_data(data1)
+        data1 = parse_data(data1)
 
-        if data1 == 'invalid_data':
+        if data1 is None:
             return Response(data='Operands consist of invalid data', status=422)
 
         result = lr.predict(data1)
