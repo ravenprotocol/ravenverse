@@ -10,6 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
 from common.utils import delete_data_file, save_data_to_file, Singleton
+from .constants import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
 
 Base = declarative_base()
 
@@ -148,15 +149,20 @@ class ClientOpMapping(Base):
 @Singleton
 class DBManager(object):
     def __init__(self):
-        self.engine = db.create_engine('mysql://{}:{}@localhost/ravenwebdemo'.format(
-            os.environ.get('MYSQL_USER'),
-            os.environ.get('MYSQL_PASSWORD')), isolation_level="READ UNCOMMITTED")
+        self.engine = db.create_engine('mysql://{}:{}@{}/{}?host={}?port={}'.format(MYSQL_USER, MYSQL_PASSWORD,
+                                                                                 MYSQL_HOST, MYSQL_DATABASE,
+                                                                                    MYSQL_HOST, MYSQL_PORT),
+                                       isolation_level="READ UNCOMMITTED")
+        print(MYSQL_USER, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT)
+        print(self.engine)
         self.connection = self.engine.connect()
 
         Base.metadata.bind = self.engine
-
+        print(self.connection)
         DBSession = sessionmaker(bind=self.engine)
         self.session = DBSession()
+
+        print(self.session)
 
     def create_session(self):
         """
