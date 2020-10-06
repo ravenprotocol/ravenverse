@@ -103,7 +103,7 @@ function getOperationNumber(operation) {
 
 function createRequestObj() {
 	let obj = {
-		operation: parseInt($("select[name='coreDropdown']").val()),
+		operation: $("select[name='coreDropdown']").val(),
 		data1: $("#input1").val(),
 	};
 
