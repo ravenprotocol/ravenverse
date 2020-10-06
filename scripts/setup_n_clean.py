@@ -13,8 +13,8 @@ def clean():
     if os.path.exists("ravsock_log.log"):
         os.remove("ravsock_log.log")
 
-    if not os.path.exists("files"):
-        os.makedirs("files")
+    if not os.path.exists("../files"):
+        os.makedirs("../files")
 
 
 if __name__ == '__main__':

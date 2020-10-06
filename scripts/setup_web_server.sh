@@ -1,5 +1,6 @@
 #!/bin/bash
-sudo apt-get install python3-pip
+sudo apt-get update
+sudo apt-get install python3-pip -y
 sudo pip3 install virtualenv
 virtualenv venv -p python3
 venv/bin/pip install -r requirements.txt

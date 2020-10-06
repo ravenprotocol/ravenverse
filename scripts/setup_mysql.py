@@ -12,7 +12,7 @@ MYSQL_PORT = "3306"
 
 container_name = "rwd_mysql"
 
-with open("output.log", "a") as output:
+with open("../output.log", "a") as output:
     subprocess.call("docker container stop {}".format(container_name), shell=True, stdout=output, stderr=output)
     subprocess.call("docker container rm {}".format(container_name), shell=True, stdout=output, stderr=output)
     subprocess.call("docker run --name={} --env='MYSQL_ROOT_PASSWORD={}' "
