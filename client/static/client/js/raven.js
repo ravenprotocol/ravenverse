@@ -1,29 +1,15 @@
 (function () {
-
-    // var net = require('net-browserify');
-    //
-    // var client = new net.Socket();
-    // client.connect(65433, '127.0.0.1', function() {
-    //     console.log('Connected');
-    //     client.write('Hello, server! Love, Client.');
-    // });
-    //
-    // client.on('data', function(data) {
-    //     console.log('Received: ' + data);
-    //     client.destroy(); // kill client after server's response
-    // });
-
     var socket_server_url = 'ws://'+window.location.hostname+':9999/ravjs';
-    
+
     var socket = io(socket_server_url, {
         query: {
               "client_name": "ravjs"
         }});
 
     socket.on('op', function(d){
-        console.log(d);
+        $(".clientStatus").append("Op received");
+
         var data = JSON.parse(d);
-        console.log(data);
 
         //Acknowledge op
         socket.emit("acknowledge", JSON.stringify({
@@ -40,11 +26,18 @@
     });
 
     socket.on('connect', function(d){
-        console.log("connected");
+        console.log("Connected");
+
+        $(".clientStatus").html("Connected");
 
         socket.emit("get_op", JSON.stringify({
             "message": "Send me an aop"
         }))
+    });
+
+    socket.on('disconnect', function(d) {
+        console.log("Disconnected");
+         $(".clientStatus").html("Disconnected");
     });
 
     socket.on("ping", function(message) {
@@ -56,31 +49,6 @@
             "message": "PONG"
         }));
     });
-
-    /* Socket connection and operations */
-
-    // var webSocket = new WebSocket('ws://127.0.0.1:65433');
-    //
-    // webSocket.onmessage = function (e) {
-    //     var data = JSON.parse(e.data);
-    //     console.log(data);
-    //     let operation_type = data ["op_type"];
-    //     let operator = data ["operator"];
-    //     if(operation_type && operator) {
-    //         compute_operation(data);
-    //     }
-    // };
-    //
-    // webSocket.onopen = function (e) {
-    //     webSocket.send(JSON.stringify({
-    //         "client_id":guidGenerator()
-    //     }));
-    // };
-    //
-    // webSocket.onclose = function (e) {
-    //     console.error('Web socket closed unexpectedly');
-    // };
-    //
 
     function compute_operation(payload) {
         switch(payload.operator) {
@@ -378,16 +346,10 @@
     }
 
     $(window).bind('beforeunload', function(){
+        $(".clientStatus").html("Disconnected");
         socket.disconnect();
         return 'Are you sure you want to leave?';
     });
-
-    // function guidGenerator() {
-    //     let S4 = function () {
-    //         return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-    //     };
-    //     return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
-    // }
 
 })();
 
