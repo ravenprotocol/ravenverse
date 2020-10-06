@@ -1,9 +1,7 @@
-FROM ubuntu:18.04
-
-COPY . /
-
-EXPOSE 9999
-
-RUN bash install_deps.sh
-
-ENTRYPOINT python3 run_socket_server.py
+FROM python:3.8
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /rdf
+WORKDIR /rdf
+ADD requirements.txt /rdf/
+RUN pip install --upgrade pip && pip install -r requirements.txt
+ADD . /rdf/
