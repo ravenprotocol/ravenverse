@@ -569,3 +569,32 @@ $("#predictLinearBtnInput").click(function() {
 
 	predictLinearRegression(localStorage.getItem("linearTrainId"), "outputPredictLinearXY");
 });
+
+
+// Clear Inputs
+
+$("#clearInputCoreBtn").click(function() {
+	$("#input1").val("");
+	$("#input2").val("");
+	$("select[name='coreDropdown']").val("select");
+});
+
+$("#clearInputLinearDatasetBtn").click(function() {
+	$("#targetColumnLinear").val("");
+	$("#chooseFileLinear").val("");
+	$('input[type=radio][name=datasetSelect][value=boston_house_prices]').prop("checked", true);
+	$(".uploadFileLabel").text("Choose File");
+	$("#predictLinearInputDataset").val("");
+});
+
+$("#clearInputLinearXYBtn").click(function() {
+	$("#inputLinearInput1").val("");
+	$("#inputLinearInput2").val("");
+	$("#predictLinearInputXY").val("");
+});
+
+$("#clearInputLogisticXYBtn").click(function() {
+	$("#inputLogisticInput1").val("");
+	$("#inputLogisticInput2").val("");
+	$("#predictLogisticInput").val("");
+});

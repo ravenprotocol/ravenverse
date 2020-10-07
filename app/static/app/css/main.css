@@ -450,3 +450,23 @@ body{
 	align-items: center;
 	margin-top: 20px;
 }
+
+.clearInputContainer {
+	display: flex;
+	flex-direction: column;
+}
+
+.clearInputBtnStyle {
+	background-color: #46BAAE;
+	width: 244px;
+	height: 34px;
+	border-radius: 5px;
+	color: white;
+	padding: 5px 18px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 16px;
+	border: none;
+}
+
