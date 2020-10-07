@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'client'
 ]
 
 MIDDLEWARE = [
@@ -81,9 +82,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'ravenwebdemo',
-        'USER': "raven",
+        'USER': "root",
         'PASSWORD': "",
-        'HOST': "146.148.39.78",
+        'HOST': "localhost",
         'PORT': '3306',
     }
 }
