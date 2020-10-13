@@ -13,7 +13,9 @@
     //     client.destroy(); // kill client after server's response
     // });
 
-    var socket = io('ws://localhost:9999/ravjs', {
+    var socket_server_url = 'ws://'+window.location.hostname+':9999/ravjs';
+    
+    var socket = io(socket_server_url, {
         query: {
               "client_name": "ravjs"
         }});
