@@ -231,6 +231,8 @@ async def emit_op(sid, op=None):
     if op is None:
         op = find_op()
 
+    print(op)
+
     if op is None:
         return
 
@@ -279,7 +281,7 @@ def find_op():
                 return op
             elif q2.__len__() > 0:
                 op_id = q2.pop()
-                op = db.get_op(op_id=op_id)
+                op = db.get_op(op_id=int(op_id))
                 return op
             else:
                 print("There is no op")

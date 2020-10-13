@@ -6,7 +6,7 @@ from .utils import Singleton
 @Singleton
 class RedisManager(object):
     def __init__(self):
-        self.r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+        self.r = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
     def connect(self):
         return self.r
@@ -50,3 +50,5 @@ class RavQueue(object):
             return elements.index(bytes(value, "utf-8"))
         except ValueError as e:
             return -1
+
+

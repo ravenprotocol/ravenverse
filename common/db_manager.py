@@ -153,16 +153,10 @@ class DBManager(object):
                                                                                  MYSQL_HOST, MYSQL_DATABASE,
                                                                                     MYSQL_HOST, MYSQL_PORT),
                                        isolation_level="READ UNCOMMITTED")
-        print(MYSQL_USER, MYSQL_HOST, MYSQL_PASSWORD, MYSQL_PORT)
-        print(self.engine)
         self.connection = self.engine.connect()
-
         Base.metadata.bind = self.engine
-        print(self.connection)
         DBSession = sessionmaker(bind=self.engine)
         self.session = DBSession()
-
-        print(self.session)
 
     def create_session(self):
         """

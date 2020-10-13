@@ -6,6 +6,8 @@ setup(
     packages=find_packages(),
     install_requires=[
         'python-socketio==4.5.1',
-        'requests==2.23.0'
+        'requests==2.23.0',
+        'SQLAlchemy==1.3.17',
+        'redis==3.5.3'
     ],
 )
