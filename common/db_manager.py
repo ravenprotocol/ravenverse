@@ -28,25 +28,63 @@ class NodeTypes(Enum):
 
 
 class Operators(Enum):
-    MATRIX_MULTIPLICATION = "matrix_multiplication"
+    # Arithmetic
+    LINEAR = "linear"
     ADDITION = "addition"
     SUBTRACTION = "subtraction"
     MULTIPLICATION = "multiplication"
-    ELEMENT_WISE_MULTIPLICATION = "element_wise_multiplication"
     DIVISION = "division"
-    LINEAR = "linear"
     NEGATION = "negation"
     EXPONENTIAL = "exponential"
-    TRANSPOSE = "transpose"
     NATURAL_LOG = "natural_log"
+    POWER = "power"
+    ABSOLUTE = "absolute"
+
+    # Matrix
+    MATRIX_MULTIPLICATION = "matrix_multiplication"
+    MULTIPLY = "multiply"  # Elementwise multiplication
+    TRANSPOSE = "transpose"
     MATRIX_SUM = "matrix_sum"
-    SQUARE = "square"
-    CUBE = "cube"
-    SQUARE_ROOT = "square_root"
-    CUBE_ROOT = "cube_root"
+    SORT = "sort"
+    SPLIT = "split"
+    RESHAPE = "reshape"
+    CONCATENATE = "concatenate"
+    MIN = "min"
+    MAX = "max"
+    UNIQUE = "unique"
+
+    # Comparison Operators
+    GREATER = "greater"
+    GREATER_EQUAL = "greater_equal"
+    LESS = "less"
+    LESS_EQUAL = "less_equal"
+    EQUAL = "equal"
+    NOT_EQUAL = "not_equal"
+
+    # Logical
+    LOGICAL_AND = "logical_and"
+    LOGICAL_OR = "logical_or"
+    LOGICAL_NOT = "logical_not"
+    LOGICAL_XOR = "logical_xor"
+
+    # Statistical
+    MEAN = "mean"
+    AVERAGE = "average"
+    MODE = "mode"
+    VARIANCE = "variance"
+    MEDIAN = "median"
+    STANDARD_DEVIATION = "standard_deviation"
+    PERCENTILE = "percentile"
 
 
 class OpStatus(Enum):
+    PENDING = "pending"
+    COMPUTING = "computing"
+    COMPUTED = "computed"
+    FAILED = "failed"
+
+
+class GraphStatus(Enum):
     PENDING = "pending"
     COMPUTING = "computing"
     COMPUTED = "computed"
@@ -69,8 +107,8 @@ class Graph(Base):
     id = Column(Integer, primary_key=True)
     ops = relationship("Op", backref="graph")
 
-    # Status of this graph 1.active 2.inactive
-    status = Column(String(10), default="active")
+    # Status of this graph 1. pending 2. computing 3. computed 4. failed
+    status = Column(String(10), default="pending")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -124,7 +162,7 @@ class Op(Base):
     op_type = Column(String(50), nullable=False)
     operator = Column(String(50), nullable=False)
 
-    # 1. pending 2. computing 3. computed
+    # 1. pending 2. computing 3. computed 4. failed
     status = Column(String(10), default="pending")
 
     op_mappings = relationship("ClientOpMapping", backref="op", lazy="dynamic")
@@ -149,8 +187,8 @@ class ClientOpMapping(Base):
 @Singleton
 class DBManager(object):
     def __init__(self):
-        self.engine = db.create_engine('mysql://{}:{}@{}/{}?host={}?port={}'.format(MYSQL_USER, MYSQL_PASSWORD,
-                                                                                 MYSQL_HOST, MYSQL_DATABASE,
+        self.engine = db.create_engine('mysql://{}:{}@{}:{}/{}?host={}?port={}'.format(MYSQL_USER, MYSQL_PASSWORD,
+                                                                                 MYSQL_HOST, MYSQL_PORT, MYSQL_DATABASE,
                                                                                     MYSQL_HOST, MYSQL_PORT),
                                        isolation_level="READ UNCOMMITTED")
         self.connection = self.engine.connect()
@@ -367,16 +405,16 @@ class DBManager(object):
         self.session.commit()
         return client
 
-    def deactivate_all_graphs(self):
-        for graph in self.session.query(Graph).all():
-            graph.status = "inactive"
-
-        self.session.commit()
-
-    def deactivate_graph(self, graph_id):
-        graph = self.get_graph(graph_id=graph_id)
-        graph.status = "inactive"
-        self.session.commit()
+    # def deactivate_all_graphs(self):
+    #     for graph in self.session.query(Graph).all():
+    #         graph.status = "inactive"
+    #
+    #     self.session.commit()
+    #
+    # def deactivate_graph(self, graph_id):
+    #     graph = self.get_graph(graph_id=graph_id)
+    #     graph.status = "inactive"
+    #     self.session.commit()
 
     def disconnect_all_clients(self):
         for cliet in self.session.query(Client).all():
@@ -397,21 +435,20 @@ class DBManager(object):
 
         return ops
 
-    def get_op_readiness(self, op_id):
+    def get_op_readiness(self, op):
         """
         Get op readiness
         """
-        op = self.session.query(Op).get(op_id)
-
         inputs = json.loads(op.inputs)
 
         cs = 0
         for input_op in inputs:
-            if input_op.status in ["pending", "computing"]:
+            input_op1 = self.get_op(op_id=input_op)
+            if input_op1.status in ["pending", "computing"]:
                 return "parent_op_not_ready"
-            elif input_op.status == "failed":
+            elif input_op1.status == "failed":
                 return "parent_op_failed"
-            elif input_op.status == "computed":
+            elif input_op1.status == "computed":
                 cs += 1
 
         if cs == len(inputs):
@@ -513,3 +550,25 @@ class DBManager(object):
 
             return op
         return None
+
+    def get_op_status_final(self, op_id):
+        op = self.get_op(op_id=op_id)
+        op_mappings = op.op_mappings
+        if op_mappings.filter(ClientOpMapping.status == ClientOpMappingStatus.FAILED.value).count() >= 3:
+            return "failed"
+
+        return "computing"
+
+    def get_first_graph_op(self, graph_id):
+        """
+        Return the first graph op
+        """
+        ops = self.get_graph_ops(graph_id=graph_id)
+        return ops[0]
+
+    def get_last_graph_op(self, graph_id):
+        """
+        Return the last graph op
+        """
+        ops = self.get_graph_ops(graph_id=graph_id)
+        return ops[-1]
