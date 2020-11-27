@@ -1,26 +1,28 @@
-from ravop.core import Tensor, Scalar
+import ravop.core as R
 
+def mean_ab_error(y_true ,y_pred):
 
-def f1_score(y_true, y_pred):
-    pass
+  if not isinstance(y_true, R.Tensor):
+        y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+        y_pred = R.Tensor(y_pred)
 
+  return R.mean(R.sqrt(R.square(R.sub(y_true, y_pred))))
 
-def mean_squared_error(y_true, y_pred):
-    if not isinstance(y_true, Tensor):
-        y_true = Tensor(y_true)
-    if not isinstance(y_pred, Tensor):
-        y_pred = Tensor(y_pred)
+def mean_sq_error(y_true ,y_pred):
 
-    a = Tensor(y_true).sub(y_pred)
-    b = a.square()
-    c = b.sum()
-    d = Scalar(1).div(y_pred.shape[0]).elemul(c) 
-    return d
+  if not isinstance(y_true, R.Tensor):
+        y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+        y_pred = R.Tensor(y_pred)
 
+  return R.mean(R.sqr(R.sub(y_true, y_pred)))
 
-def root_mean_squared_error(y_true, y_pred):
-    pass
+def root_mean_sq_error(y_true ,y_pred):
 
+  if not isinstance(y_true, R.Tensor):
+        y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+        y_pred = R.Tensor(y_pred)
 
-def mean_absolute_error(y_true, y_pred):
-    pass
+  return R.sqrt(mean_sq_error(y_true, y_pred))
