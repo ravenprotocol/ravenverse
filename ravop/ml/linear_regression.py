@@ -5,6 +5,8 @@ import numpy as np
 
 from ravop import globals as g
 from ravop.core import Graph, Tensor, Scalar
+from ravop.ml import metrics
+import ravop.core as R
 
 
 class LinearRegression(Graph):
@@ -50,7 +52,7 @@ class LinearRegression(Graph):
         # 3. Gradient descent - Update weight values
         for i in range(iter):
             y_pred = X.matmul(weights, name="y_pred{}".format(i))
-            c = X.trans().matmul(y_pred)
+            c = X.transpose().matmul(y_pred)
             d = learning_rate.div(no_samples)
             weights = weights.sub(c.elemul(d), name="weights{}".format(i))
             cost = self.__compute_cost(y, y_pred, no_samples, name="cost{}".format(i))
@@ -68,7 +70,7 @@ class LinearRegression(Graph):
         """Cost function"""
         a = y_pred.sub(y)
         b = a.elemul(a).matsum()
-        cost = Scalar(1).div(Scalar(2).elemul(no_samples)).elemul(b, name=name)
+        cost = Scalar(1).div(Scalar(2).multiply(no_samples)).elemul(b, name=name)
         return cost
 
     @property
@@ -86,6 +88,15 @@ class LinearRegression(Graph):
         weight = weight_op.output
 
         return weight
+
+    def score(self, X, y, name="r2"):
+        y_pred = self.predict(X)
+        y_true = y
+
+        if name == "r2":
+            return metrics.r2_score(y_true, y_pred)
+        else:
+            return None
 
     def __str__(self):
         return "LinearRegression:Graph Id:{}\n".format(self.id)
