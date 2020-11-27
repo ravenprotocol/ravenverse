@@ -13,7 +13,7 @@ from sqlalchemy import desc, and_, or_
 
 from common import db
 
-from common.db_manager import Client, Op, Data, OpStatus, Graph, ClientOpMapping, ClientOpMappingStatus
+from common.db_manager import Client, Op, Data, OpStatus, Graph, ClientOpMapping, ClientOpMappingStatus, GraphStatus
 from common import RavQueue
 from .constants import RAVSOCK_LOG_FILE, QUEUE_HIGH_PRIORITY, QUEUE_LOW_PRIORITY, QUEUE_COMPUTING
 from ravop.core import Op as RavOp, Data as RavData
@@ -186,12 +186,12 @@ async def acknowledge_op(sid, message):
 @sio.on('op_completed', namespace="/ravjs")
 async def op_completed(sid, data):
     # Save the results
-    print("\nResult received {}".format(data))
+    logger.debug("\nResult received {}".format(data))
     data = json.loads(data)
 
     op_id = data['op_id']
 
-    print(op_id, type(data['result']), data['operator'], data['result'])
+    logger.debug("{} {} {} {}".format(op_id, type(data['result']), data['operator'], data['result']))
 
     op = RavOp(id=op_id)
 
@@ -203,12 +203,33 @@ async def op_completed(sid, data):
 
         # Update client op mapping
         update_client_op_mapping(op_id, sid=sid, status=ClientOpMappingStatus.COMPUTED.value)
+
+        db_op = db.get_op(op_id=op_id)
+        if db_op.graph_id is not None:
+            last_op = db.get_last_graph_op(graph_id=db_op.graph_id)
+
+            if last_op.id == op_id:
+                db.update(name="graph", id=db_op.graph_id, status=GraphStatus.COMPUTED.value)
     else:
         # Update op
         db.update_op(op._op_db, outputs=None, status=OpStatus.FAILED.value)
 
         # Update client op mapping
         update_client_op_mapping(op_id, sid=sid, status=ClientOpMappingStatus.FAILED.value)
+
+        op_status = db.get_op_status_final(op_id=op_id)
+
+        if op_status == "failed":
+            db_op = db.get_op(op_id=op_id)
+            db.update(name="graph", id=db_op.graph_id, status=GraphStatus.FAILED.value)
+
+            graph_ops = db.get_graph_ops(graph_id=db_op.graph_id)
+            for graph_op in graph_ops:
+                db.update_op(op=graph_op, status=OpStatus.FAILED.value)
+
+                mappings = graph_op.mappings
+                for mapping in mappings:
+                    db.update_client_op_mapping(mapping.id, status=ClientOpMappingStatus.FAILED.value)
 
     # Emit another op to this client
     await emit_op(sid)
@@ -231,16 +252,17 @@ async def emit_op(sid, op=None):
     if op is None:
         op = find_op()
 
-    print(op)
+    logger.debug(op)
 
     if op is None:
+        print("None")
         return
 
     # Create payload
     payload = create_payload(op)
 
     # Emit op
-    print("Emitting op:{}, {}".format(sid, payload))
+    logger.debug("Emitting op:{}, {}".format(sid, payload))
     await sio.emit("op", payload, namespace="/ravjs", room=sid)
 
     # Store the mapping in database
@@ -251,6 +273,10 @@ async def emit_op(sid, op=None):
                                           status=ClientOpMappingStatus.SENT.value)
     logger.debug("Mapping created:{}".format(mapping))
 
+    if op.graph_id is not None:
+        # if db.get_first_graph_op(graph_id=op.graph_id).id == op.id:
+        db.update(name="graph", id=op.graph_id, status=GraphStatus.COMPUTING.value)
+
     timer = threading.Timer(2.0, abc, [mapping.id])
     timer.start()
 
@@ -260,12 +286,6 @@ def abc(args):
 
 
 def find_op():
-    """
-    Find op
-    1. Look in mappings
-    2. Pop from the queues
-    """
-
     op = db.get_incomplete_op()
 
     if op is not None:
@@ -275,17 +295,83 @@ def find_op():
         q2 = RavQueue(name=QUEUE_LOW_PRIORITY)
 
         while True:
+            op_id1 = None
+            op_id2 = None
+
             if q1.__len__() > 0:
-                op_id = q1.pop()
-                op = db.get_op(op_id=op_id)
-                return op
+                op_id1 = q1.get(0)
             elif q2.__len__() > 0:
-                op_id = q2.pop()
-                op = db.get_op(op_id=int(op_id))
-                return op
-            else:
-                print("There is no op")
+                op_id2 = q2.get(0)
+
+            if op_id1 is None and op_id2 is None:
                 return None
+
+            ops = [op_id1, op_id2]
+
+            for index, op_id in enumerate(ops):
+                if op_id is None:
+                    continue
+
+                op = db.get_op(op_id=op_id)
+
+                if op.graph_id is not None:
+                    if db.get_graph(op.graph_id).status == "failed":
+                        # Change this op's status to failed
+                        if op.status != "failed":
+                            db.update_op(op, status=OpStatus.FAILED.value)
+                            continue
+
+                    elif db.get_graph(op.graph_id).status == "computed":
+                        if index == 0:
+                            q1.pop()
+                        elif index == 1:
+                            q2.pop()
+                        continue
+
+                r = db.get_op_readiness(op)
+                if r == "ready":
+                    if index == 0:
+                        q1.pop()
+                    elif index == 1:
+                        q2.pop()
+
+                    return op
+                elif r == "parent_op_failed":
+                    if index == 0:
+                        q1.pop()
+                    elif index == 1:
+                        q2.pop()
+                    
+                    # Change this op's status to failed
+                    if op.status != "failed":
+                        db.update_op(op, status=OpStatus.FAILED.value)
+                        
+            return None
+
+            # if q1.__len__() > 0 or q2.__len__() > 0:
+            #     if
+            #     op_id = q1.get(0)
+            #     op = db.get_op(op_id=op_id)
+            #
+            #     if db.get_op_readiness(op) == "ready":
+            #         q1.pop()
+            #         return op
+            #     elif db.get_op_readiness(op) == "parent_op_not_ready":
+            #         continue
+            #
+            # elif q2.__len__() > 0:
+            #     op_id = q2.get(0)
+            #     op = db.get_op(op_id=int(op_id))
+            #
+            #     if db.get_op_readiness(op) == "ready":
+            #         q2.pop()
+            #         return op
+            #     elif db.get_op_readiness(op) == "parent_op_not_ready":
+            #         continue
+            # else:
+            #     op = None
+            #     print("There is no op")
+            #     return op
 
 
 def create_payload(op):
