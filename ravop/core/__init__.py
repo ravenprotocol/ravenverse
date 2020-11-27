@@ -8,10 +8,21 @@ from common.constants import DATA_FILES_PATH
 from common.db_manager import NodeTypes, OpTypes, Operators, OpStatus
 from ravop import globals as g
 
-
 QUEUE_HIGH_PRIORITY = "queue:high_priority"
 QUEUE_LOW_PRIORITY = "queue:low_priority"
 QUEUE_COMPUTING = "queue:computing"
+
+
+def epsilon():
+    return Scalar(1e-07)
+
+
+def one():
+    return Scalar(1)
+
+
+def inf():
+    return Scalar(np.inf)
 
 
 class Op(object):
@@ -78,86 +89,124 @@ class Op(object):
         else:
             raise Exception("Invalid parameters")
 
+    # Arithmetic
+    def lin(self, **kwargs):
+        return lin(self, **kwargs)
+
     def add(self, op, **kwargs):
-        return self.__create_math_op(self, op, Operators.ADDITION.value, **kwargs)
+        return add(self, op, **kwargs)
 
     def sub(self, op, **kwargs):
-        return self.__create_math_op(self, op, Operators.SUBTRACTION.value, **kwargs)
+        return sub(self, op, **kwargs)
 
-    def matmul(self, op, **kwargs):
-        return self.__create_math_op(self, op, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+    def mul(self, op, **kwargs):
+        return mul(self, op, **kwargs)
 
     def div(self, op, **kwargs):
-        return self.__create_math_op(self, op, Operators.DIVISION.value, **kwargs)
-
-    def elemul(self, op, **kwargs):
-        return self.__create_math_op(self, op, Operators.ELEMENT_WISE_MULTIPLICATION.value, **kwargs)
+        return div(self, op, **kwargs)
 
     def neg(self, **kwargs):
-        return self.__create_math_op2(self, Operators.NEGATION.value, **kwargs)
+        return neg(self, **kwargs)
 
     def exp(self, **kwargs):
-        return self.__create_math_op2(self, Operators.EXPONENTIAL.value, **kwargs)
-
-    def trans(self, **kwargs):
-        return self.__create_math_op2(self, Operators.TRANSPOSE.value, **kwargs)
+        return exp(self, **kwargs)
 
     def natlog(self, **kwargs):
-        return self.__create_math_op2(self, Operators.NATURAL_LOG.value, **kwargs)
+        return natlog(self, **kwargs)
 
-    def matsum(self, **kwargs):
-        return self.__create_math_op2(self, Operators.MATRIX_SUM.value, **kwargs)
+    def pow(self, op, **kwargs):
+        return pow(self, op, **kwargs)
 
-    def linear(self, **kwargs):
-        return self.__create_math_op2(self, Operators.LINEAR.value, **kwargs)
+    def abs(self, **kwargs):
+        return abs(self, **kwargs)
 
-    def __create_math_op(self, op1, op2, operator, **kwargs):
-        if op1 is None or op2 is None:
-            raise Exception("Null Op")
+    # Matrix
+    def matmul(self, op, **kwargs):
+        return matmul(self, op, **kwargs)
 
-        op = db.create_op(name=kwargs.get('name', None),
-                          graph_id=g.graph_id,
-                          node_type=NodeTypes.MIDDLE.value,
-                          inputs=json.dumps([op1.id, op2.id]),
-                          outputs=json.dumps(None),
-                          op_type=OpTypes.BINARY.value,
-                          operator=operator,
-                          status=OpStatus.PENDING.value)
+    def multiply(self, op, **kwargs):
+        return multiply(self, op, **kwargs)
 
-        # Add op to queue
-        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
-            if g.graph_id is None:
-                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
-                q.push(op.id)
-            else:
-                q = RavQueue(name=QUEUE_LOW_PRIORITY)
-                q.push(op.id)
+    def transpose(self, **kwargs):
+        return transpose(self, **kwargs)
 
-        return Op(id=op.id)
+    def sum(self, **kwargs):
+        return sum(self, **kwargs)
 
-    def __create_math_op2(self, op1, operator, **kwargs):
-        if op1 is None:
-            raise Exception("Null Op")
+    def sort(self, **kwargs):
+        return sort(self, **kwargs)
 
-        op = db.create_op(name=kwargs.get('name', None),
-                          graph_id=g.graph_id,
-                          node_type=NodeTypes.MIDDLE.value,
-                          inputs=json.dumps([op1.id]),
-                          outputs=json.dumps(None),
-                          op_type=OpTypes.UNARY.value,
-                          operator=operator,
-                          status=OpStatus.PENDING.value)
+    def split(self, **kwargs):
+        return split(self, **kwargs)
 
-        # Add op to queue
-        if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
-            if g.graph_id is None:
-                q = RavQueue(name=QUEUE_HIGH_PRIORITY)
-                q.push(op.id)
-            else:
-                q = RavQueue(name=QUEUE_LOW_PRIORITY)
-                q.push(op.id)
+    def reshape(self, **kwargs):
+        return reshape(self, **kwargs)
 
-        return Op(id=op.id)
+    def concat(self, op, **kwargs):
+        return concat(self, op, **kwargs)
+
+    def min(self, **kwargs):
+        return min(self, **kwargs)
+
+    def max(self, **kwargs):
+        return max(self, **kwargs)
+
+    def unique(self, **kwargs):
+        return unique(self, **kwargs)
+
+    # Comparison Ops
+    def greater(self, op1, **kwargs):
+        return greater(self, op1, **kwargs)
+
+    def greater_equal(self, op1, **kwargs):
+        return greater_equal(self, op1, **kwargs)
+
+    def less(self, op1, **kwargs):
+        return less(self, op1, **kwargs)
+
+    def less_equal(self, op1, **kwargs):
+        return less_equal(self, op1, **kwargs)
+
+    def equal(self, op1, **kwargs):
+        return equal(self, op1, **kwargs)
+
+    def not_equal(self, op1, **kwargs):
+        return not_equal(self, op1, **kwargs)
+
+    # Logical
+    def logical_and(self, op1, **kwargs):
+        return logical_and(self, op1, **kwargs)
+
+    def logical_or(self, op1, **kwargs):
+        return logical_or(self, op1, **kwargs)
+
+    def logical_not(self, **kwargs):
+        return logical_not(self, **kwargs)
+
+    def logical_xor(self, op1, **kwargs):
+        return logical_xor(self, op1, **kwargs)
+
+    # Statistical
+    def mean(self, **kwargs):
+        return mean(self, **kwargs)
+
+    def average(self, **kwargs):
+        return average(self, **kwargs)
+
+    def mode(self, **kwargs):
+        return mode(self, **kwargs)
+
+    def median(self, **kwargs):
+        return median(self, **kwargs)
+
+    def variance(self, **kwargs):
+        return variance(self, **kwargs)
+
+    def std(self, **kwargs):
+        return std(self, **kwargs)
+
+    def percentile(self, **kwargs):
+        return percentile(self, **kwargs)
 
     @property
     def output(self):
@@ -382,7 +431,7 @@ class Graph(object):
     def progress(self):
         """Get the progress"""
         stats = self.get_op_stats()
-        progress = ((stats["computed_ops"]+stats["computing_ops"]+stats["failed_ops"])/stats["total_ops"])*100
+        progress = ((stats["computed_ops"] + stats["computing_ops"] + stats["failed_ops"]) / stats["total_ops"]) * 100
         return progress
 
     def get_op_stats(self):
@@ -430,9 +479,12 @@ class Graph(object):
         return "Graph:\nId:{}\nStatus:{}\n".format(self.id, self.status)
 
 
-"""
-Functional Interface
-"""
+# Functional Interface of RavOp
+
+
+# Arithmetic
+def lin(op, **kwargs):
+    return __create_math_op2(op, Operators.LINEAR.value, **kwargs)
 
 
 def add(op1, op2, **kwargs):
@@ -443,16 +495,12 @@ def sub(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.SUBTRACTION.value, **kwargs)
 
 
-def matmul(op1, op2, **kwargs):
-    return __create_math_op(op1, op2, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+def mul(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.MULTIPLICATION.value, **kwargs)
 
 
 def div(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.DIVISION.value, **kwargs)
-
-
-def elemul(op1, op2, **kwargs):
-    return __create_math_op(op1, op2, Operators.ELEMENT_WISE_MULTIPLICATION.value, **kwargs)
 
 
 def neg(op, **kwargs):
@@ -463,20 +511,131 @@ def exp(op, **kwargs):
     return __create_math_op2(op, Operators.EXPONENTIAL.value, **kwargs)
 
 
-def trans(op, **kwargs):
-    return __create_math_op2(op, Operators.TRANSPOSE.value, **kwargs)
-
-
 def natlog(op, **kwargs):
     return __create_math_op2(op, Operators.NATURAL_LOG.value, **kwargs)
 
 
-def matsum(op, **kwargs):
+def pow(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.POWER.value, **kwargs)
+
+
+def abs(op1, **kwargs):
+    return __create_math_op2(op1, Operators.ABSOLUTE.value, **kwargs)
+
+
+# Tensors
+def matmul(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.MATRIX_MULTIPLICATION.value, **kwargs)
+
+
+def multiply(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.MULTIPLY.value, **kwargs)
+
+
+def transpose(op, **kwargs):
+    return __create_math_op2(op, Operators.TRANSPOSE.value, **kwargs)
+
+
+def sum(op, **kwargs):
     return __create_math_op2(op, Operators.MATRIX_SUM.value, **kwargs)
 
 
-def linear(op, **kwargs):
-    return __create_math_op2(op, Operators.LINEAR.value, **kwargs)
+def sort(op, **kwargs):
+    return __create_math_op2(op, Operators.SORT.value, **kwargs)
+
+
+def split(op, **kwargs):
+    return __create_math_op2(op, Operators.SPLIT.value, **kwargs)
+
+
+def reshape(op, **kwargs):
+    return __create_math_op2(op, Operators.RESHAPE.value, **kwargs)
+
+
+def concat(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.CONCATENATE.value, **kwargs)
+
+
+def min(op1, **kwargs):
+    return __create_math_op2(op1, Operators.MIN.value, **kwargs)
+
+
+def max(op1, **kwargs):
+    return __create_math_op2(op1, Operators.MAX.value, **kwargs)
+
+
+def unique(op1, **kwargs):
+    return __create_math_op2(op1, Operators.UNIQUE.value, **kwargs)
+
+
+# Comparison
+def greater(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.GREATER.value, **kwargs)
+
+
+def greater_equal(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.GREATER_EQUAL.value, **kwargs)
+
+
+def less(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.LESS.value, **kwargs)
+
+
+def less_equal(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.LESS_EQUAL.value, **kwargs)
+
+
+def equal(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.EQUAL.value, **kwargs)
+
+
+def not_equal(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.NOT_EQUAL.value, **kwargs)
+
+# Logical
+def logical_and(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.LOGICAL_AND.value, **kwargs)
+
+
+def logical_or(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.LOGICAL_OR.value, **kwargs)
+
+
+def logical_not(op1, **kwargs):
+    return __create_math_op2(op1, Operators.LOGICAL_NOT.value, **kwargs)
+
+
+def logical_xor(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.LOGICAL_XOR.value, **kwargs)
+
+
+# Statistical
+def mean(op1, **kwargs):
+    return __create_math_op2(op1, Operators.SUM.value, **kwargs)
+
+
+def average(op1, **kwargs):
+    return __create_math_op2(op1, Operators.AVERAGE.value, **kwargs)
+
+
+def mode(op1, **kwargs):
+    return __create_math_op2(op1, Operators.MODE.value, **kwargs)
+
+
+def median(op1, **kwargs):
+    return __create_math_op2(op1, Operators.MEDIAN.value, **kwargs)
+
+
+def variance(op1, **kwargs):
+    return __create_math_op2(op1, Operators.VARIANCE.value, **kwargs)
+
+
+def std(op1, **kwargs):
+    return __create_math_op2(op1, Operators.STANDARD_DEVIATION.value, **kwargs)
+
+
+def percentile(op1, **kwargs):
+    return __create_math_op2(op1, Operators.PERCENTILE.value, **kwargs)
 
 
 def __create_math_op(op1, op2, operator, **kwargs):
@@ -525,5 +684,5 @@ def __create_math_op2(op1, operator, **kwargs):
         else:
             q = RavQueue(name=QUEUE_LOW_PRIORITY)
             q.push(op.id)
-        
+
     return Op(id=op.id)
