@@ -33,7 +33,7 @@ def log_loss(y_true , y_pred , with_logit=True):
     y_pred = R.sigmoid(y_pred)
   else:
     pass
-  y_pred = R.clip(y_pred, R.epsilon(), R.Saclar(1)-R.epsilon())
+  y_pred = R.clip(y_pred, R.epsilon(), R.sub(R.Saclar(1), R.epsilon()))
   loss = R.elemul(R.Saclar(-1) ,R.mean(R.elemul(y_true ,R.natlog(y_pred)) ,R.elemul((R.sub(R.Saclar(1), y_true)) ,R.natlog(R.sub(R.Saclar(1),y_pred)))))
 
   return loss
@@ -44,7 +44,7 @@ def one_hot_cross_entropy(y_true, y_pred, with_logit=True):
     y_pred = R.softmax(y_pred)
   else:
     pass
-  y_pred = R.clip(y_pred, R.epsilon(), R.div(R.Scalar(1) ,epsilon))
+  y_pred = R.clip(y_pred, R.epsilon(), R.div(R.Scalar(1) ,R.epsilon()))
   N = y_pred.shape[0]
   loss = R.div(R.elemul(R.Scalar(-1),R.mul(R.sum(y_true ,R.natlog(R.addd(y_pred,1e-9))))),R.Scalar(N))
   return loss
@@ -55,7 +55,7 @@ def sparse_cross_entropy(y_true, y_pred, with_logit=True):
     y_pred = R.softmax(y_pred)
   else:
     pass
-  y_pred = R.clip(y_pred, R.epsilon(), R.div(R.Scalar(1) ,epsilon))
+  y_pred = R.clip(y_pred, R.epsilon(), R.div(R.Scalar(1) ,R.epsilon()))
   N = y_pred.shape[0]
   loss = R.div(R.elemul(R.Scalar(-1),R.mul(R.sum(y_true ,R.natlog(R.addd(y_pred,1e-9))))),R.Scalar(N))
   return loss
