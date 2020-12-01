@@ -46,7 +46,7 @@ def one_hot_cross_entropy(y_true, y_pred, with_logit=True):
     pass
   y_pred = R.clip(y_pred, R.epsilon(), R.div(R.Scalar(1) ,R.epsilon()))
   N = y_pred.shape[0]
-  loss = R.div(R.elemul(R.Scalar(-1),R.mul(R.sum(y_true ,R.natlog(R.addd(y_pred,1e-9))))),R.Scalar(N))
+  loss = R.div(R.elemul(R.Scalar(-1),R.mul(R.sum(y_true ,R.natlog(R.add(y_pred,1e-9))))),R.Scalar(N))
   return loss
 
 def sparse_cross_entropy(y_true, y_pred, with_logit=True):
