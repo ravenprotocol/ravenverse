@@ -188,6 +188,7 @@ async def op_completed(sid, data):
     # Save the results
     logger.debug("\nResult received {}".format(data))
     data = json.loads(data)
+    print(data)
 
     op_id = data['op_id']
 
@@ -212,7 +213,7 @@ async def op_completed(sid, data):
                 db.update(name="graph", id=db_op.graph_id, status=GraphStatus.COMPUTED.value)
     else:
         # Update op
-        db.update_op(op._op_db, outputs=None, status=OpStatus.FAILED.value)
+        db.update_op(op._op_db, outputs=None, status=OpStatus.FAILED.value, message=data['result'])
 
         # Update client op mapping
         update_client_op_mapping(op_id, sid=sid, status=ClientOpMappingStatus.FAILED.value)
