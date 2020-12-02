@@ -164,6 +164,7 @@ class Op(Base):
 
     # 1. pending 2. computing 3. computed 4. failed
     status = Column(String(10), default="pending")
+    message = Column(Text, nullable=True)
 
     op_mappings = relationship("ClientOpMapping", backref="op", lazy="dynamic")
 

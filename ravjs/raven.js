@@ -342,7 +342,7 @@
     function emit_result(payload, result) {
         socket.emit("op_completed", JSON.stringify({
             'op_type': payload.op_type,
-            'result': result.arraySync(),
+            'result': result,
             'values': payload.values,
             'operator': payload.operator,
             "op_id": payload.op_id,
