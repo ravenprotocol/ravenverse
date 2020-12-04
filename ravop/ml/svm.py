@@ -21,14 +21,18 @@ class Support_Vector_Machine:
     def computing_cost(self, W, X, Y):
         """
 
-    It will calculate the optimal parameters for W and b parameters in order to minimise the cost function.
+            It will calculate the optimal parameters for W and b parameters in order to minimise the cost function.
 
-    Parameters:
+            Parameters:
+                        W = Weights
+                        X = Input Features
+                        Y = Target Output
 
 
-    Output:
-          It returns the cost
-          """
+            Output:
+                It returns the cost
+        
+        """
         N = X.shape[0]
         distances = 1 - Y*(np.dot(X, W))
         # max(0, distance)
@@ -49,9 +53,9 @@ class Support_Vector_Machine:
                     Y_batch = Target features in batch or likewise depending on the type of gradient descent method used
 
         Output:
-                Cost
+                Weights Derivatives
 
-      """
+        """
         
         if type(Y_batch) == np.float64:
             Y_batch = np.array([Y_batch])
@@ -80,6 +84,13 @@ class Support_Vector_Machine:
         """
         
         SGD to calculate Gradients such that only a Single points are considered to update weights
+
+        Parameters:
+                    features = Input Features
+                    outputs = outputs
+
+        Output:
+                weights
 
 
         """
@@ -115,6 +126,11 @@ class Support_Vector_Machine:
     def remove_correlated_features(self, X):
         """
         Removing Correlated Fetures
+        Parameters:
+                    X = input variables
+                
+        Output:
+                Removing correlated features
 
         """
 
@@ -133,6 +149,15 @@ class Support_Vector_Machine:
 
 
     def remove_less_significant_features(self, X, Y):
+        """
+        Removing Less significant features
+
+        Parameters:
+                    X=input features
+                    Y=output
+        Output:
+                Less important features removed
+        """
         
         sl = 0.05
         regression_ols = None
@@ -153,6 +178,21 @@ class Support_Vector_Machine:
         return columns_dropped
 
     def train_svm(self, X, Y, X_train, X_test, y_train, y_test):
+        """
+        Training SVM
+
+        Parameters:
+                    X=input features
+                    Y=output class
+                    X_train = training input features
+                    X_test = testing input features
+                    y_train = training output
+                    y_test = testing output
+
+        Output:
+                Trained Weights
+
+        """
         
         # insert 1 in every row for intercept b
         X_train.insert(loc=len(X_train.columns), column='intercept', value=1)
@@ -168,6 +208,22 @@ class Support_Vector_Machine:
         return X, Y, X_train, X_test, y_train, y_test, W
 
     def test_svm(self, X, Y, X_train, X_test, y_train, y_test, W):
+        """
+        Testing/Predict SVM
+
+        Parameters:
+                    X=input features
+                    Y=output class
+                    X_train = training input features
+                    X_test = testing input features
+                    y_train = training output
+                    y_test = testing output
+                    W=Weights trained
+
+        Output:
+                y_test_predicted = Predictions Made
+
+        """
         
 
         print("**** TEST THE MODEL ****")
