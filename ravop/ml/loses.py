@@ -33,8 +33,8 @@ def log_loss(y_true , y_pred , with_logit=True):
     y_pred = R.sigmoid(y_pred)
   else:
     pass
-  y_pred = R.clip(y_pred, R.epsilon(), R.sub(R.Saclar(1), R.epsilon()))
-  loss = R.elemul(R.Saclar(-1) ,R.mean(R.elemul(y_true ,R.natlog(y_pred)) ,R.elemul((R.sub(R.Saclar(1), y_true)) ,R.natlog(R.sub(R.Saclar(1),y_pred)))))
+  y_pred = R.clip(y_pred, R.epsilon(), R.sub(R.Scalar(1), R.epsilon()))
+  loss = R.elemul(R.Scalar(-1) ,R.mean(R.elemul(y_true ,R.natlog(y_pred)) ,R.elemul((R.sub(R.Scalar(1), y_true)) ,R.natlog(R.sub(R.Scalar(1),y_pred)))))
 
   return loss
 
