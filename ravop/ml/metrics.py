@@ -75,3 +75,113 @@ def f1_score(true_labels, pred_labels, average):
     F1 = R.div(R.elemul(R.Scalar(2), R.elemul(Recall, Precision)),R.sum(Recall ,Precision))
     return F1
 
+
+  
+
+def accuracy(y_true, y_pred):
+
+  if not isinstance(y_true, R.Tensor):
+      y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+      y_pred = R.Tensor(y_pred)
+
+  y_pred = np.array([ 0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
+  y_val = np.array([0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
+  accuracy = R.div(R.sum((y_pred == y_val)),y_pred.shape[0])
+  return accuracy
+
+
+def out_pred(y_true, y_pred, per_label=False, mode):
+
+  if not isinstance(y_true, R.Tensor):
+      y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+      y_pred = R.Tensor(y_pred)
+
+  for i in sorted(set(y_true)):
+
+    TP = R.sum(R.and(y_pred == i, y_true == i)) 
+    TN = R.sum(R.and(y_pred =! i, y_true =! i))
+    FP = R.sum(R.and(y_pred == i, y_true =! i))
+    FN = R.sum(R.and(y_pred =! i, y_true == i))
+
+    confusion.append([TP, TN, FP, FN])
+
+  confusion = R.Tensor(confusion)
+
+  if per_label:
+    
+    final = []
+
+    for i in confusion:
+      TP ,TN ,FP ,FN = i[0] ,i[1] ,i[2] ,i[3]
+
+      Precision = R.div(TP, R.add(TP, FP))
+      Recall = R.div(TP, R.add(TP, FN))
+
+      if mode == 'precision':
+
+        if Precision == 0 or Precision == np.nan:
+          final.append(0)
+
+        else:
+
+          final.append(Precision)
+
+      if mode == 'recall':
+        
+        if Recall == 0 or Recall==np.nan:
+          final.append(0)
+
+        else:
+
+          final.append(Recall)
+
+    return final
+
+  else:
+
+    confusion = R.Tensor(confusion)
+    TP = R.sum(confusion ,axis=0)[0]
+    TN = R.sum(confusion ,axis=0)[1]
+    FP = R.sum(confusion ,axis=0)[2]
+    FN = R.sum(confusion ,axis=0)[3]
+
+    if mode == 'precision':
+
+      Precision = R.div(TP, R.add(TP, FP))
+      return Precision
+
+    if mode == 'recall':
+
+      Recall = R.div(TP, R.add(TP, FN))
+      return Recall
+
+def recall(y_true, y_pred, per_label):
+
+  return out_pred(y_true, y_pred, per_label=per_label,mode='recall')
+
+def precision(y_true, y_pred, per_label):
+
+  return out_pred(y_true, y_pred, per_label=per_label,mode='precision')
+
+def AUCROC(y_true, y_pred):
+
+  '''
+  not completed
+
+  '''
+
+  for i in sorted(set(y_true)):
+
+    TP = R.sum(R.and(y_pred == i, y_true == i)) 
+    TN = R.sum(R.and(y_pred =! i, y_true =! i))
+    FP = R.sum(R.and(y_pred == i, y_true =! i))
+    FN = R.sum(R.and(y_pred =! i, y_true == i))
+
+    confusion.append([TP, TN, FP, FN])
+
+  confusion = R.Tensor(confusion)
+
+  tpr = R.div(TP, R.add(TP, FN))
+  fpr = R.div(FP, R.add(TN, FP)) 
