@@ -34,6 +34,14 @@ def root_mean_sq_error(y_true ,y_pred):
 
   return R.sqrt(mean_sq_error(y_true, y_pred))
 
+def msle(y_true, y_pred):
+
+  if not isinstance(y_true, R.Tensor):
+      y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+      y_pred = R.Tensor(y_pred)
+
+  return R.mean(R.square(R.sub(R.add(R.Scalar(1),R.natlog(y_true),R.add(R.Scalar(1),R.natlog(y_pred))))))
 
 def log_loss(y_true , y_pred , with_logit=True):
   
