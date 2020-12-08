@@ -84,9 +84,7 @@ def accuracy(y_true, y_pred):
       y_true = R.Tensor(y_true)
   if not isinstance(y_pred, R.Tensor):
       y_pred = R.Tensor(y_pred)
-
-  y_pred = np.array([ 0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
-  y_val = np.array([0.,  1.,  0.,  0.,  0.,  0.,  0.,  0.,  0.,  0.])
+      
   accuracy = R.div(R.sum((y_pred == y_val)),y_pred.shape[0])
   return accuracy
 
@@ -140,8 +138,7 @@ def out_pred(y_true, y_pred, per_label=False, mode):
     return final
 
   else:
-
-    confusion = R.Tensor(confusion)
+    
     TP = R.sum(confusion ,axis=0)[0]
     TN = R.sum(confusion ,axis=0)[1]
     FP = R.sum(confusion ,axis=0)[2]
@@ -166,11 +163,15 @@ def precision(y_true, y_pred, per_label):
   return out_pred(y_true, y_pred, per_label=per_label,mode='precision')
 
 def AUCROC(y_true, y_pred):
-
+  
   '''
   not completed
-
   '''
+  
+  if not isinstance(y_true, R.Tensor):
+      y_true = R.Tensor(y_true)
+  if not isinstance(y_pred, R.Tensor):
+      y_pred = R.Tensor(y_pred)
 
   for i in sorted(set(y_true)):
 
@@ -182,6 +183,11 @@ def AUCROC(y_true, y_pred):
     confusion.append([TP, TN, FP, FN])
 
   confusion = R.Tensor(confusion)
+  
+  TP = R.sum(confusion ,axis=0)[0]
+  TN = R.sum(confusion ,axis=0)[1]
+  FP = R.sum(confusion ,axis=0)[2]
+  FN = R.sum(confusion ,axis=0)[3]
 
   tpr = R.div(TP, R.add(TP, FN))
   fpr = R.div(FP, R.add(TN, FP)) 
