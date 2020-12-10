@@ -21,6 +21,10 @@ def one():
     return Scalar(1)
 
 
+def minus_one():
+    return Scalar(-1)
+
+
 def inf():
     return Scalar(np.inf)
 
