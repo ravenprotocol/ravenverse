@@ -38,6 +38,10 @@ class Operators(Enum):
     EXPONENTIAL = "exponential"
     NATURAL_LOG = "natural_log"
     POWER = "power"
+    SQUARE = "square"
+    CUBE = "cube"
+    SQUARE_ROOT = "square_root"
+    CUBE_ROOT = "cube_root"
     ABSOLUTE = "absolute"
 
     # Matrix
@@ -53,6 +57,8 @@ class Operators(Enum):
     MIN = "min"
     MAX = "max"
     UNIQUE = "unique"
+    ARGMAX = "argmax"
+
 
     # Comparison Operators
     GREATER = "greater"

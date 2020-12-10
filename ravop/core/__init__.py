@@ -121,6 +121,18 @@ class Op(object):
     def pow(self, op, **kwargs):
         return pow(self, op, **kwargs)
 
+    def square(self, **kwargs):
+        return square(self, **kwargs)
+
+    def cube(self, **kwargs):
+        return cube(self, **kwargs)
+
+    def square_root(self, **kwargs):
+        return square_root(self, **kwargs)
+
+    def cube_root(self, **kwargs):
+        return cube_root(self, **kwargs)
+
     def abs(self, **kwargs):
         return abs(self, **kwargs)
 
@@ -160,6 +172,9 @@ class Op(object):
 
     def unique(self, **kwargs):
         return unique(self, **kwargs)
+
+    def argmax(self, **kwargs):
+        return argmax(self, **kwargs)
 
     # Comparison Ops
     def greater(self, op1, **kwargs):
@@ -526,6 +541,22 @@ def pow(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.POWER.value, **kwargs)
 
 
+def square(op1, **kwargs):
+    return __create_math_op(op1, Operators.SQUARE.value, **kwargs)
+
+
+def cube(op1, **kwargs):
+    return __create_math_op(op1, Operators.CUBE.value, **kwargs)
+
+
+def square_root(op1, **kwargs):
+    return __create_math_op(op1, Operators.SQUARE_ROOT.value, **kwargs)
+
+
+def cube_root(op1, **kwargs):
+    return __create_math_op(op1, Operators.CUBE_ROOT.value, **kwargs)
+
+
 def abs(op1, **kwargs):
     return __create_math_op2(op1, Operators.ABSOLUTE.value, **kwargs)
 
@@ -577,6 +608,10 @@ def max(op1, **kwargs):
 
 def unique(op1, **kwargs):
     return __create_math_op2(op1, Operators.UNIQUE.value, **kwargs)
+
+
+def argmax(op1, **kwargs):
+    return __create_math_op2(op1, Operators.ARGMAX.value, **kwargs)
 
 
 # Comparison

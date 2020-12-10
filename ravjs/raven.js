@@ -139,6 +139,42 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "square":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = x.pow(2.0).arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "cube":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = x.pow(3.0).arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "square_root":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = x.sqrt().arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "cube_root":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = x.pow(1.0/3.0).arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "absolute":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -228,6 +264,15 @@
                 break;
             case "unique":
                 emit_error(payload, {message: "This method is not implemented yet"});
+                break;
+            case "argmax":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = x.argMax().arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "greater":
                 try {
