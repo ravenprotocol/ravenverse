@@ -1,12 +1,15 @@
 import numpy as np
-
+import logging
+import logging.handlers
+from ravop import globals as g
+from ravop.core import Graph, Tensor, Scalar
 # KNN Regression
 
-class KNN():
+class KNN(Graph):
 
     print(" \n ----------------------- KNN OBJECT INSTANTIATED --- GOOD TO GO ---------------------- \n")
 
-    def __init__(self, X_train, y_train, n_neighbours = 5, n_classes = None, weights = "uniform"):
+    def __init__(self, id = None, **kwargs):
         """ 
         
         Called as soon as the object of KNN class is created.
@@ -21,11 +24,37 @@ class KNN():
 
         """
 
-        self.X_train = X_train
-        self.y_train = y_train
-        self.n_neighbours = n_neighbours
-        self.weights = weights
-        self.n_classes = n_classes
+        super().__init__(id = id, **kwargs)
+        self.__setup_logger()
+        # defining hyperparameters
+        X_train = kwargs.get("X_train", None)
+        self.X_train = Tensor(X_train, name = "X_train")
+
+        y_train = kwargs.get("y_train", None)
+        self.y_train = Tensor(y_train, name = "y_train")
+
+        self.n_neighbours = kwargs.get("n_neighbours", None)
+        if self.n_neighbours is None:
+            self.n_neighbours = 5
+
+        self.weights = kwargs.get("weights", None)
+        if self.weights is None:
+            self.weights = "uniform"
+
+        self.n_classes = kwargs.get("n_classes", None)
+        if self.n_classes is None:
+            self.n_classes = 3
+
+    def __setup_logger(self):
+
+        # Set up a specific logger with our desired output level
+        self.logger = logging.getLogger(KNN.__class__.__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # Add the log message handler to the logger
+        handler = logging.handlers.RotatingFileHandler(g.ravop_log_file)
+
+        self.logger.addHandler(handler)
 
 
     def euclidean_distance(self, a, b):
@@ -43,8 +72,8 @@ class KNN():
                 Scalar Value for Distance between the two points.
         
         """
-
-        return np.sqrt(np.sum((a - b)**2, axis=1))
+        # np.sqrt(sum((a-b)**2), axis = 1)
+        return np.sqrt(sum((a.sub(b)).pow(2), axis=1))
 
     
     def KNN_neighbours(self, X_test, return_distance = False):
@@ -67,6 +96,7 @@ class KNN():
         # indexes of neighbours
 
         point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test]
+        # return is Scalar/Tensor
         # each row has a list distance value between test point 1 and all the individual training data points.
 
         for i in point_distance:
@@ -74,12 +104,12 @@ class KNN():
             # enumerate so as to preserve index and value
             enumerated_neighbour = enumerate(i)
             # sorted list of N nearest neighbours
-            sorted_neighbour = sorted(enumerated_neighbour, key = lambda x: x[1])[:self.n_neighbours]
+            sorted_neighbour = sorted(enumerated_neighbour, key = lambda x: Scalar(x[1]))[:self.n_neighbours]
 
             # index list for sorted N nearest neighbours
-            index_list = [t[0] for t in sorted_neighbour]
+            index_list = [Scalar(t[0]) for t in sorted_neighbour]
             # distance value list for sorted N nearest neighbours
-            distance_list = [t[1] for t in sorted_neighbour]
+            distance_list = [Scalar(t[1]) for t in sorted_neighbour]
 
             # appending
             distance.append(distance_list)
@@ -102,21 +132,21 @@ class KNN():
                 Gives you the Prediction
         
         """
-        if self.weights == "uniform":
+        if self.weights.equal("uniform"):
             neighbours = self.KNN_neighbours(X_test)
             # to understand bincount(), visit - https://i.stack.imgur.com/yAwym.png
             y_pred = np.array([np.argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours])
 
             return y_pred
 
-        if self.weights == "distance":
+        if self.weights.equal("distance"):
 
             # N nearest neighbours distance and indexes
             distance, neighbour_index = self.KNN_neighbours(X_test, return_distance = True)
             
-            inverse_distance = 1/distance
+            inverse_distance = Scalar(1).div(distance)
 
-            mean_inverse_distance = inverse_distance / np.sum(inverse_distance, axis=1)[:, np.newaxis]
+            mean_inverse_distance = inverse_distance.div(sum(inverse_distance, axis=1)[:, np.newaxis])
 
             proba = []
 
@@ -126,11 +156,11 @@ class KNN():
                 row_pred = self.y_train[neighbour_index[i]]
 
                 for k in range(self.n_classes):
-                    indices = np.where(row_pred == k)
-                    prob_ind = np.sum(row[indices])
+                    indices = np.where(row_pred.equal(k))
+                    prob_ind = sum(row[indices])
                     proba.append(np.array(prob_ind))
 
-            predict_proba = np.array(proba).reshape(X_test.shape[0], self.n_classes)
+            predict_proba = np.array(proba).reshape(Scalar(X_test.shape[0]), self.n_classes)
             y_pred = np.array([np.argmax(item) for item in predict_proba])
             
             return y_pred
@@ -147,10 +177,11 @@ class KNN():
         Output:
                 Returns the Score Value
         """
+        X_test = Tensor(X_test, name = "X_test")
+        y_test = Tensor(y_test, name = "y_test")
+        y_pred = Tensor(self.predict(X_test), name = "y_pred")
         
-        y_pred = self.predict(X_test)
-        
-        return float(sum(y_pred == y_test)) / float(len(y_test))
+        return float(Scalar(sum(y_pred.equal(y_test)))) / float(Scalar(len(y_test)))
 
 
     
