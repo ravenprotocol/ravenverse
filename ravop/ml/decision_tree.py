@@ -1,5 +1,6 @@
 from ravop.core import Tensor, Scalar
 import numpy as np
+from ravop.core import less_equal, less, greater, greater_equal
 
 
 class BaseAlgorithm(object):
@@ -34,7 +35,29 @@ class DecisionTreeClassifier(BaseAlgorithm):
 
         # 2. Train
         # 3. Accuracy
-
+        
+        row_count = X.shape[0]
+        column_count = X.shape[1]
+        val = np.mean(np.array(np.arange(row_count)))
+        eval = float("inf")
+        min_leaf = Scalar(5)
+        
+        for c in range(column_count):
+            x = X.output[row_count, c]
+            
+            for r in range(row_count):
+                x1 = Tensor(x)
+                r1 = Scalar(x[r])
+                
+                lhs = x1.less_equal(r1)
+                rhs = x1.greater(r1)
+                
+                a = lhs.matsum().less(min_leaf)
+                b = rhs.matsum().less(min_leaf)
+                if a.logical_or(b):
+                    continue
+            
+        
         size = X.shape[1]
         no_samples = Scalar(X.shape[0])
         weights = Tensor(np.random.uniform(0, 1, size).reshape((size, 1)), name="weights")
