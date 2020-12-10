@@ -43,6 +43,7 @@ class Operators(Enum):
     # Matrix
     MATRIX_MULTIPLICATION = "matrix_multiplication"
     MULTIPLY = "multiply"  # Elementwise multiplication
+    DOT = "dot"
     TRANSPOSE = "transpose"
     MATRIX_SUM = "matrix_sum"
     SORT = "sort"

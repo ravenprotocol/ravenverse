@@ -168,6 +168,16 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "dot":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    y = tf.tensor(payload.values[1]);
+                    result = x.dot(y).arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "transpose":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -340,6 +350,10 @@
     }
 
     function emit_result(payload, result) {
+        console.log("Emit Success");
+        console.log(payload);
+        console.log(result);
+
         socket.emit("op_completed", JSON.stringify({
             'op_type': payload.op_type,
             'result': result,
@@ -351,6 +365,10 @@
     }
 
     function emit_error(payload, error) {
+        console.log("Emit Error");
+        console.log(payload);
+        console.log(error);
+
         socket.emit("op_completed", JSON.stringify({
             'op_type': payload.op_type,
             'result': error.message,

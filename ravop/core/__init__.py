@@ -21,6 +21,10 @@ def one():
     return Scalar(1)
 
 
+def minus_one():
+    return Scalar(-1)
+
+
 def inf():
     return Scalar(np.inf)
 
@@ -126,6 +130,9 @@ class Op(object):
 
     def multiply(self, op, **kwargs):
         return multiply(self, op, **kwargs)
+
+    def dot(self, op, **kwargs):
+        return dot(self, op, **kwargs)
 
     def transpose(self, **kwargs):
         return transpose(self, **kwargs)
@@ -532,6 +539,10 @@ def multiply(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.MULTIPLY.value, **kwargs)
 
 
+def dot(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.DOT.value, **kwargs)
+
+
 def transpose(op, **kwargs):
     return __create_math_op2(op, Operators.TRANSPOSE.value, **kwargs)
 
@@ -611,7 +622,7 @@ def logical_xor(op1, op2, **kwargs):
 
 # Statistical
 def mean(op1, **kwargs):
-    return __create_math_op2(op1, Operators.SUM.value, **kwargs)
+    return __create_math_op2(op1, Operators.MEAN.value, **kwargs)
 
 
 def average(op1, **kwargs):
