@@ -395,6 +395,7 @@ def create_payload(op):
     payload['values'] = values
     payload['op_type'] = op.op_type
     payload['operator'] = op.operator
+    payload['params'] = json.loads(op.params)
 
     return json.dumps(payload)
 

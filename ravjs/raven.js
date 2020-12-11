@@ -226,7 +226,13 @@
             case "matrix_sum":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.sum().arraySync();
+                    let params = payload.params;
+                    if('axis' in params){
+                        let axis = params.axis;
+                        result = x.sum(axis).arraySync();
+                    }else{
+                        result = x.sum().arraySync();
+                    }
                     emit_result(payload, result)
                 } catch (error) {
                     emit_error(payload, error);
