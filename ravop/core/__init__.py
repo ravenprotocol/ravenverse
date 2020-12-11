@@ -79,7 +79,8 @@ class Op(object):
                               outputs=outputs,
                               op_type=op_type,
                               operator=operator,
-                              status=status)
+                              status=status,
+                              params=json.dumps(kwargs))
             # Add op to queue
             if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
                 if g.graph_id is None:
@@ -695,7 +696,8 @@ def __create_math_op(op1, op2, operator, **kwargs):
                       outputs=json.dumps(None),
                       op_type=OpTypes.BINARY.value,
                       operator=operator,
-                      status=OpStatus.PENDING.value)
+                      status=OpStatus.PENDING.value,
+                      params=json.dumps(kwargs))
 
     # Add op to queue
     if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:
@@ -720,7 +722,8 @@ def __create_math_op2(op1, operator, **kwargs):
                       outputs=json.dumps(None),
                       op_type=OpTypes.UNARY.value,
                       operator=operator,
-                      status=OpStatus.PENDING.value)
+                      status=OpStatus.PENDING.value,
+                      params=json.dumps(kwargs))
 
     # Add op to queue
     if op.status != OpStatus.COMPUTED.value and op.status != OpStatus.FAILED.value:

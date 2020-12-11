@@ -173,6 +173,9 @@ class Op(Base):
     status = Column(String(10), default="pending")
     message = Column(Text, nullable=True)
 
+    # Dict of params
+    params = Column(Text, nullable=True)
+
     op_mappings = relationship("ClientOpMapping", backref="op", lazy="dynamic")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
