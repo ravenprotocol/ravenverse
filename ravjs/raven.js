@@ -274,7 +274,13 @@
             case "argmax":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.argMax().arraySync();
+                    let params = payload.params;
+                    if('axis' in params){
+                        let axis = params.axis;
+                        result = x.argMax(axis).arraySync();
+                    }else{
+                        result = x.argMax().arraySync();
+                    }
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
