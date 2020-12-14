@@ -38,6 +38,10 @@ class Operators(Enum):
     EXPONENTIAL = "exponential"
     NATURAL_LOG = "natural_log"
     POWER = "power"
+    SQUARE = "square"
+    CUBE = "cube"
+    SQUARE_ROOT = "square_root"
+    CUBE_ROOT = "cube_root"
     ABSOLUTE = "absolute"
 
     # Matrix
@@ -53,6 +57,8 @@ class Operators(Enum):
     MIN = "min"
     MAX = "max"
     UNIQUE = "unique"
+    ARGMAX = "argmax"
+
 
     # Comparison Operators
     GREATER = "greater"
@@ -166,6 +172,9 @@ class Op(Base):
     # 1. pending 2. computing 3. computed 4. failed
     status = Column(String(10), default="pending")
     message = Column(Text, nullable=True)
+
+    # Dict of params
+    params = Column(Text, nullable=True)
 
     op_mappings = relationship("ClientOpMapping", backref="op", lazy="dynamic")
 

@@ -1,6 +1,7 @@
 import argparse
 from scripts import setup_n_clean
 from common import db, RavQueue
+from scripts.setup_mysql import delete_create_database
 
 
 def clear_redis_queues():
@@ -27,4 +28,6 @@ if __name__ == '__main__':
         # Clear redis queues
         clear_redis_queues()
     elif args.step == "setup_database":
+        delete_create_database()
+        print("Creating tables")
         db.create_tables()
