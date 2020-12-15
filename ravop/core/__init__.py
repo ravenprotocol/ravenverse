@@ -543,19 +543,19 @@ def pow(op1, op2, **kwargs):
 
 
 def square(op1, **kwargs):
-    return __create_math_op(op1, Operators.SQUARE.value, **kwargs)
+    return __create_math_op2(op1, Operators.SQUARE.value, **kwargs)
 
 
 def cube(op1, **kwargs):
-    return __create_math_op(op1, Operators.CUBE.value, **kwargs)
+    return __create_math_op2(op1, Operators.CUBE.value, **kwargs)
 
 
 def square_root(op1, **kwargs):
-    return __create_math_op(op1, Operators.SQUARE_ROOT.value, **kwargs)
+    return __create_math_op2(op1, Operators.SQUARE_ROOT.value, **kwargs)
 
 
 def cube_root(op1, **kwargs):
-    return __create_math_op(op1, Operators.CUBE_ROOT.value, **kwargs)
+    return __create_math_op2(op1, Operators.CUBE_ROOT.value, **kwargs)
 
 
 def abs(op1, **kwargs):

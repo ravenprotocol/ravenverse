@@ -52,7 +52,7 @@
     });
 
     function compute(payload) {
-        console.log("Computing "+payload.operator);
+        console.log("Computing " + payload.operator);
         switch (payload.operator) {
             case "linear":
                 try {
@@ -99,7 +99,7 @@
                     result = x.div(y).arraySync();
                     emit_result(payload, result)
                 } catch (error) {
-                     emit_error(payload, error);
+                    emit_error(payload, error);
                 }
                 break;
             case "negation":
@@ -169,7 +169,7 @@
             case "cube_root":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.pow(1.0/3.0).arraySync();
+                    result = x.pow(1.0 / 3.0).arraySync();
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -227,10 +227,10 @@
                 try {
                     x = tf.tensor(payload.values[0]);
                     let params = payload.params;
-                    if('axis' in params){
+                    if ('axis' in params) {
                         let axis = params.axis;
                         result = x.sum(axis).arraySync();
-                    }else{
+                    } else {
                         result = x.sum().arraySync();
                     }
                     emit_result(payload, result)
@@ -239,16 +239,87 @@
                 }
                 break;
             case "sort":
-                emit_error(payload, {message: "This method is not implemented yet"});
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    if(x.shape.length !== 1)
+                        emit_error(payload, "Invalid Input");
+                    result = tf.reverse(tf.topk(x, x.shape[0]).values).arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "split":
-                emit_error(payload, {message: "This method is not implemented yet"});
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    let numOrSizeSplits = null;
+                    let axis = null;
+
+                    if ('numOrSizeSplits' in params) {
+                        numOrSizeSplits = params.numOrSizeSplits;
+                    }
+                    if ('axis' in params) {
+                        axis = params.axis;
+                    }
+
+                    if (numOrSizeSplits !== undefined && axis !== undefined) {
+                        let result = tf.split(x, numOrSizeSplits, axis);
+                        let finaL_result = [];
+                        result.forEach(a => finaL_result.push(a.arraySync()));
+                        emit_result(payload, finaL_result);
+                    } else if (axis === undefined) {
+                        let result = tf.split(x, numOrSizeSplits);
+                        let finaL_result = [];
+                        result.forEach(a => finaL_result.push(a.arraySync()));
+                        emit_result(payload, finaL_result);
+                    } else {
+                        emit_error(payload, "Parameter 'numOrSizeSplits' is missing");
+                        return;
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "reshape":
-                emit_error(payload, {message: "This method is not implemented yet"});
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('shape' in params) {
+                        let shape = params.shape;
+                        result = x.reshape(shape).arraySync();
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, "Parameter 'shape' is missing");
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "concatenate":
-                emit_error(payload, {message: "This method is not implemented yet"});
+                try {
+                    let values = payload.values;
+                    let tensors = [];
+                    for(let i=0; i<values.length; i++){
+                        tensors.push(tf.tensor(values[i]));
+                    }
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        if(axis !== undefined) {
+                            let result = tf.concat(tensors, axis).arraySync();
+                            emit_result(payload, result);
+                        }else{
+                            let result = tf.concat(tensors).arraySync();
+                            emit_result(payload, result);
+                        }
+                    } else {
+                        let result = tf.concat(tensors).arraySync();
+                        emit_result(payload, result);
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "min":
                 try {
@@ -269,16 +340,29 @@
                 }
                 break;
             case "unique":
-                emit_error(payload, {message: "This method is not implemented yet"});
+                 try {
+                    let x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        let result = tf.unique(x, axis).arraySync();
+                        emit_result(payload, result);
+                    } else {
+                        let result = tf.unique(x).arraySync();
+                        emit_result(payload, result);
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
                 break;
             case "argmax":
                 try {
                     x = tf.tensor(payload.values[0]);
                     let params = payload.params;
-                    if('axis' in params){
+                    if ('axis' in params) {
                         let axis = params.axis;
                         result = x.argMax(axis).arraySync();
-                    }else{
+                    } else {
                         result = x.argMax().arraySync();
                     }
                     emit_result(payload, result);
@@ -398,6 +482,51 @@
                 try {
                     x = tf.tensor(payload.values[0]);
                     result = x.mean().arraySync();
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "mode":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.mode(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "median":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.median(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "variance":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.variance(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "standard_deviation":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.std(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "percentile":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = "This method is not implemented yet";
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -757,5 +886,41 @@
         return 'Are you sure you want to leave?';
     });
 
+    // Calculate median of an array
+    function median(values) {
+        if (values.length === 0) return 0;
+
+        values.sort(function (a, b) {
+            return a - b;
+        });
+
+        var half = Math.floor(values.length / 2);
+
+        if (values.length % 2)
+            return values[half];
+
+        return (values[half - 1] + values[half]) / 2.0;
+    }
+
+    // Calculate mode
+    function mode(arr) {
+        return arr.reduce(function (current, num) {
+            const freq = (num in current.numMap) ? ++current.numMap[num] : (current.numMap[num] = 1);
+            if (freq > current.modeFreq && freq > 1) {
+                current.modeFreq = freq;
+                current.mode = num;
+            }
+            return current;
+        }, {mode: null, modeFreq: 0, numMap: {}}).mode
+    }
+
+    // Calculate the frequency distribution of an array
+    function calculateFrequencyDistribution(arr) {
+        return arr.reduce((op, inp) => {
+            op[inp] = op[inp] || 0;
+            op[inp]++;
+            return op;
+        }, {})
+    }
 })();
 
