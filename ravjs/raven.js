@@ -85,7 +85,7 @@
                 try {
                     x = tf.tensor(payload.values[0]);
                     y = tf.tensor(payload.values[1]);
-                    result = x.multiply(y).arraySync();
+                    result = x.mul(y).arraySync();
                     emit_result(payload, result);
                 } catch (error) {
                     result = error.message;
@@ -142,7 +142,7 @@
             case "square":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.pow(2.0).arraySync();
+                    result = x.square().arraySync();
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -151,7 +151,7 @@
             case "cube":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.pow(3.0).arraySync();
+                    result = x.mul(x).mul(x).arraySync();
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -345,10 +345,10 @@
                     let params = payload.params;
                     if ('axis' in params) {
                         let axis = params.axis;
-                        let result = tf.unique(x, axis).arraySync();
+                        let result = tf.unique(x, axis).values.arraySync();
                         emit_result(payload, result);
                     } else {
-                        let result = tf.unique(x).arraySync();
+                        let result = tf.unique(x).values.arraySync();
                         emit_result(payload, result);
                     }
                 } catch (error) {
@@ -364,6 +364,21 @@
                         result = x.argMax(axis).arraySync();
                     } else {
                         result = x.argMax().arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "expand_dims":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.expandDims(axis).arraySync();
+                    } else {
+                        result = x.expandDims().arraySync();
                     }
                     emit_result(payload, result);
                 } catch (error) {
@@ -649,7 +664,7 @@
                 try {
                     x = tf.tensor(payload.values[0]);
                     y = tf.tensor(payload.values[1]);
-                    result = x.multiply(y);
+                    result = x.mul(y);
                     console.log("Computing " + payload.operator);
                     socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,

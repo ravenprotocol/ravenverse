@@ -58,7 +58,7 @@ class Operators(Enum):
     MAX = "max"
     UNIQUE = "unique"
     ARGMAX = "argmax"
-
+    EXPAND_DIMS = "expand_dims"
 
     # Comparison Operators
     GREATER = "greater"

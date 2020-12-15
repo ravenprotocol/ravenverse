@@ -177,6 +177,9 @@ class Op(object):
     def argmax(self, **kwargs):
         return argmax(self, **kwargs)
 
+    def expand_dims(self, **kwargs):
+        return expand_dims(self, **kwargs)
+
     # Comparison Ops
     def greater(self, op1, **kwargs):
         return greater(self, op1, **kwargs)
@@ -230,6 +233,24 @@ class Op(object):
 
     def percentile(self, **kwargs):
         return percentile(self, **kwargs)
+
+    def to_tensor(self):
+        self._op_db = db.refresh(self._op_db)
+        if self._op_db.outputs is None or self._op_db.outputs == "null":
+            return None
+
+        data_id = json.loads(self._op_db.outputs)[0]
+        data = Data(id=data_id)
+        return Tensor(data.value)
+
+    def to_scalar(self):
+        self._op_db = db.refresh(self._op_db)
+        if self._op_db.outputs is None or self._op_db.outputs == "null":
+            return None
+
+        data_id = json.loads(self._op_db.outputs)[0]
+        data = Data(id=data_id)
+        return Scalar(data.value)
 
     @property
     def output(self):
@@ -613,6 +634,10 @@ def unique(op1, **kwargs):
 
 def argmax(op1, **kwargs):
     return __create_math_op2(op1, Operators.ARGMAX.value, **kwargs)
+
+
+def expand_dims(op, **kwargs):
+    return __create_math_op2(op, Operators.EXPAND_DIMS.value, **kwargs)
 
 
 # Comparison
