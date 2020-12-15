@@ -241,7 +241,7 @@
             case "sort":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    if(x.shape.length !== 1)
+                    if (x.shape.length !== 1)
                         emit_error(payload, "Invalid Input");
                     result = tf.reverse(tf.topk(x, x.shape[0]).values).arraySync();
                     emit_result(payload, result);
@@ -300,16 +300,16 @@
                 try {
                     let values = payload.values;
                     let tensors = [];
-                    for(let i=0; i<values.length; i++){
+                    for (let i = 0; i < values.length; i++) {
                         tensors.push(tf.tensor(values[i]));
                     }
                     let params = payload.params;
                     if ('axis' in params) {
                         let axis = params.axis;
-                        if(axis !== undefined) {
+                        if (axis !== undefined) {
                             let result = tf.concat(tensors, axis).arraySync();
                             emit_result(payload, result);
-                        }else{
+                        } else {
                             let result = tf.concat(tensors).arraySync();
                             emit_result(payload, result);
                         }
@@ -340,7 +340,7 @@
                 }
                 break;
             case "unique":
-                 try {
+                try {
                     let x = tf.tensor(payload.values[0]);
                     let params = payload.params;
                     if ('axis' in params) {
@@ -540,9 +540,15 @@
                 break;
             case "percentile":
                 try {
-                    x = tf.tensor(payload.values[0]);
-                    result = "This method is not implemented yet";
-                    emit_result(payload, result);
+                    let x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('value' in params) {
+                        let value = params.value;
+                        let result = percentile(x.arraySync(), value);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, "Parameter 'value' is missing");
+                    }
                 } catch (error) {
                     emit_error(payload, error);
                 }
@@ -871,7 +877,7 @@
             case "matrix_sum":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.sum()
+                    result = x.sum();
                     console.log("Computing matrix_sum");
                     socket.emit("op_completed", JSON.stringify({
                         'op_type': payload.op_type,
@@ -937,5 +943,13 @@
             return op;
         }, {})
     }
+
+    const percentile = (arr, val) =>
+        (100 *
+            arr.reduce(
+                (acc, v) => acc + (v < val ? 1 : 0) + (v === val ? 0.5 : 0),
+                0
+            )) /
+        arr.length;
 })();
 
