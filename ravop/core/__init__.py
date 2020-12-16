@@ -475,6 +475,8 @@ class Graph(object):
     def progress(self):
         """Get the progress"""
         stats = self.get_op_stats()
+        if stats['total_ops'] == 0:
+            return 0
         progress = ((stats["computed_ops"] + stats["computing_ops"] + stats["failed_ops"]) / stats["total_ops"]) * 100
         return progress
 

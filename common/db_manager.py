@@ -416,6 +416,15 @@ class DBManager(object):
         self.session.commit()
         return client
 
+    def get_all_clients(self):
+        return self.session.query(Client).order_by(Client.created_at.desc()).all()
+
+    def get_all_graphs(self):
+        return self.session.query(Graph).order_by(Graph.created_at.desc()).all()
+
+    def get_all_ops(self):
+        return self.session.query(Op).order_by(Op.id.desc()).all()
+
     # def deactivate_all_graphs(self):
     #     for graph in self.session.query(Graph).all():
     #         graph.status = "inactive"

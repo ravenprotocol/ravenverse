@@ -25,3 +25,5 @@ redis==3.5.3
 pandas==1.1.2
 django-mysql
 mysql-connector-python
+flask
+flask-sqlalchemy-2.4.4
