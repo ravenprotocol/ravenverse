@@ -54,7 +54,7 @@ class LinearRegression(Graph):
             y_pred = X.matmul(weights, name="y_pred{}".format(i))
             c = X.transpose().matmul(y_pred)
             d = learning_rate.div(no_samples)
-            weights = weights.sub(c.elemul(d), name="weights{}".format(i))
+            weights = weights.sub(c.multiply(d), name="weights{}".format(i))
             cost = self.__compute_cost(y, y_pred, no_samples, name="cost{}".format(i))
 
         return cost, weights
@@ -69,8 +69,8 @@ class LinearRegression(Graph):
     def __compute_cost(self, y, y_pred, no_samples, name="cost"):
         """Cost function"""
         a = y_pred.sub(y)
-        b = a.elemul(a).matsum()
-        cost = Scalar(1).div(Scalar(2).multiply(no_samples)).elemul(b, name=name)
+        b = a.multiply(a).sum()
+        cost = Scalar(1).div(Scalar(2).multiply(no_samples)).multiply(b, name=name)
         return cost
 
     @property
@@ -90,6 +90,7 @@ class LinearRegression(Graph):
         return weight
 
     def score(self, X, y, name="r2"):
+        g.graph_id = None
         y_pred = self.predict(X)
         y_true = y
 
