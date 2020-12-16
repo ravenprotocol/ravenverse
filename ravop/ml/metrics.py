@@ -16,7 +16,7 @@ def r2_score(y_true, y_pred):
   return R.sub(scalar1, R.div(SS_res, R.add(SS_tot, R.epsilon())))
 
 
-def f1_score(true_labels, pred_labels, average):
+def f1_score(y_true, y_pred, average):
     """
     average argument:
     
@@ -26,54 +26,50 @@ def f1_score(true_labels, pred_labels, average):
         macro( Calculate the TP, TN, FP, FN Globally and then calculate
                 the F1 scores )
     """
-  confusion = []
-  final = []
+    confusion = []
+    final = []
 
-  if not isinstance(y_true, R.Tensor):
+    if not isinstance(y_true, R.Tensor):
       y_true = R.Tensor(y_true)
-  if not isinstance(y_pred, R.Tensor):
+    if not isinstance(y_pred, R.Tensor):
       y_pred = R.Tensor(y_pred)  
 
-  for i in R.sort(set(true_labels)):
+    for i in sorted(set(y_true.output)):
 
-    TP = R.sum(R.and(pred_labels == i, true_labels == i)) 
-    TN = R.sum(R.and(pred_labels =! i, true_labels =! i))
-    FP = R.sum(R.and(pred_labels == i, true_labels =! i))
-    FN = R.sum(R.and(pred_labels =! i, true_labels == i))
-
-    confusion.append([TP, TN, FP, FN])
-
-  confusion = R.Tensor(confusion)
-
-  if average=='macro':
-
-    for i in confusion:
-      TP ,TN ,FP ,FN = i[0] ,i[1] ,i[2] ,i[3]
-      Recall = R.div(TP, R.add(TP, FN))
-      Precision = R.div(TP, R.add(TP, FP))
-
-      if Precision == 0 or Recall == 0 
-          or Recall == np.nan or Precision == np.nan:
-        final.append(0)
-
-      else:
-        F1 = R.div(R.elemul(R.Scalar(2), R.elemul(Recall, Precision)),R.sum(Recall ,Precision))
-        final.append(F1)
-        
-    return R.mean(final)
-
-  if average=='micro':
+      TP = R.sum(R.and(y_pred == i, y_true == i))
+      TN = R.sum(R.and(y_pred =! i, y_true =! i))
+      FP = R.sum(R.and(y_pred == i, y_true =! i))
+      FN = R.sum(R.and(y_pred =! i, y_true == i))
+      confusion.append([TP, TN, FP, FN])
 
     confusion = R.Tensor(confusion)
-    TP = R.sum(confusion ,axis=0)[0]
-    TN = R.sum(confusion ,axis=0)[1]
-    FP = R.sum(confusion ,axis=0)[2]
-    FN = R.sum(confusion ,axis=0)[3]
 
-    Recall = R.div(TP, R.add(TP, FN))
-    Precision = R.div(TP, R.add(TP, FP))
-    F1 = R.div(R.elemul(R.Scalar(2), R.elemul(Recall, Precision)),R.sum(Recall ,Precision))
-    return F1
+    if average=='macro':
+      f = confusion.output
+      for i in f:
+        TP ,TN ,FP ,FN = i[0] ,i[1] ,i[2] ,i[3]
+        Recall = R.div(TP, R.add(TP, FN))
+        Precision = R.div(TP, R.add(TP, FP))
+
+        if Precision == 0 or Recall == 0 or Recall == R.nan or Precision == R.nan:
+          final.append(0)
+
+        else:
+          F1 = R.div(R.mul(R.Scalar(2), R.mul(Recall, Precision)),R.add(Recall ,Precision))
+          final.append(F1)
+        
+      return R.mean(final)
+
+    if average=='micro':
+
+      TP = R.sum(confusion ,axis=0)[0]
+      FP = R.sum(confusion ,axis=0)[2]
+      FN = R.sum(confusion ,axis=0)[3]
+
+      Recall = R.div(TP, R.add(TP, FN))
+      Precision = R.div(TP, R.add(TP, FP))
+      F1 = R.div(R.mul(R.Scalar(2), R.mul(Recall, Precision)),R.add(Recall ,Precision))
+      return F1
 
 
   
@@ -84,19 +80,20 @@ def accuracy(y_true, y_pred):
       y_true = R.Tensor(y_true)
   if not isinstance(y_pred, R.Tensor):
       y_pred = R.Tensor(y_pred)
-      
-  accuracy = R.div(R.sum((y_pred == y_val)),y_pred.shape[0])
-  return accuracy
+
+  acc = R.div(R.sum((y_pred == y_true)),y_pred.shape[0])
+  return acc
 
 
-def out_pred(y_true, y_pred, per_label=False, mode):
+def out_pred(y_true, y_pred, mode ,per_label=False):
+  confusion = []
 
   if not isinstance(y_true, R.Tensor):
       y_true = R.Tensor(y_true)
   if not isinstance(y_pred, R.Tensor):
       y_pred = R.Tensor(y_pred)
 
-  for i in sorted(set(y_true)):
+  for i in sorted(set(y_true.output)):
 
     TP = R.sum(R.and(y_pred == i, y_true == i)) 
     TN = R.sum(R.and(y_pred =! i, y_true =! i))
@@ -110,8 +107,9 @@ def out_pred(y_true, y_pred, per_label=False, mode):
   if per_label:
     
     final = []
+    f = confusion.output
+    for i in f:
 
-    for i in confusion:
       TP ,TN ,FP ,FN = i[0] ,i[1] ,i[2] ,i[3]
 
       Precision = R.div(TP, R.add(TP, FP))
@@ -119,7 +117,7 @@ def out_pred(y_true, y_pred, per_label=False, mode):
 
       if mode == 'precision':
 
-        if Precision == 0 or Precision == np.nan:
+        if Precision == 0 or Precision == R.nan:
           final.append(0)
 
         else:
@@ -128,7 +126,7 @@ def out_pred(y_true, y_pred, per_label=False, mode):
 
       if mode == 'recall':
         
-        if Recall == 0 or Recall==np.nan:
+        if Recall == 0 or Recall==R.nan:
           final.append(0)
 
         else:
@@ -140,7 +138,6 @@ def out_pred(y_true, y_pred, per_label=False, mode):
   else:
     
     TP = R.sum(confusion ,axis=0)[0]
-    TN = R.sum(confusion ,axis=0)[1]
     FP = R.sum(confusion ,axis=0)[2]
     FN = R.sum(confusion ,axis=0)[3]
 
@@ -162,7 +159,8 @@ def precision(y_true, y_pred, per_label):
 
   return out_pred(y_true, y_pred, per_label=per_label,mode='precision')
 
-def AUCROC(y_true, y_pred):
+def aucroc(y_true, y_pred):
+  confusion = []
   
   '''
   not completed
@@ -173,13 +171,12 @@ def AUCROC(y_true, y_pred):
   if not isinstance(y_pred, R.Tensor):
       y_pred = R.Tensor(y_pred)
 
-  for i in sorted(set(y_true)):
+  for i in sorted(set(y_true.output)):
 
     TP = R.sum(R.and(y_pred == i, y_true == i)) 
     TN = R.sum(R.and(y_pred =! i, y_true =! i))
     FP = R.sum(R.and(y_pred == i, y_true =! i))
     FN = R.sum(R.and(y_pred =! i, y_true == i))
-
     confusion.append([TP, TN, FP, FN])
 
   confusion = R.Tensor(confusion)
@@ -190,4 +187,5 @@ def AUCROC(y_true, y_pred):
   FN = R.sum(confusion ,axis=0)[3]
 
   tpr = R.div(TP, R.add(TP, FN))
-  fpr = R.div(FP, R.add(TN, FP)) 
+  fpr = R.div(FP, R.add(TN, FP))
+  return
