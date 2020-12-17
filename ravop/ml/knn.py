@@ -9,7 +9,7 @@ class KNN(Graph):
 
     print(" \n ----------------------- KNN OBJECT INSTANTIATED --- GOOD TO GO ---------------------- \n")
 
-    def __init__(self, id = None, **kwargs):
+    def __init__(self, X_train, y_train, id = None,  **kwargs):
         """ 
         
         Called as soon as the object of KNN class is created.
@@ -27,11 +27,14 @@ class KNN(Graph):
         super().__init__(id = id, **kwargs)
         self.__setup_logger()
         # defining hyperparameters
-        X_train = kwargs.get("X_train", None)
+        # X_train = args.get("X_train", None)
+        # self.X_train = Tensor(X_train, name = "X_train")
         self.X_train = Tensor(X_train, name = "X_train")
 
-        y_train = kwargs.get("y_train", None)
         self.y_train = Tensor(y_train, name = "y_train")
+        #
+        # y_train = args.get("y_train", None)
+        # self.y_train = Tensor(y_train, name = "y_train")
 
         self.n_neighbours = kwargs.get("n_neighbours", None)
         if self.n_neighbours is None:
@@ -132,14 +135,14 @@ class KNN(Graph):
                 Gives you the Prediction
         
         """
-        if self.weights.equal("uniform"):
+        if self.weights == "uniform":
             neighbours = self.KNN_neighbours(X_test)
             # to understand bincount(), visit - https://i.stack.imgur.com/yAwym.png
             y_pred = np.array([argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours])
 
             return y_pred
 
-        if self.weights.equal("distance"):
+        if self.weights == "distance":
 
             # N nearest neighbours distance and indexes
             distance, neighbour_index = self.KNN_neighbours(X_test, return_distance = True)
