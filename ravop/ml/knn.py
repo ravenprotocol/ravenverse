@@ -2,7 +2,7 @@ import numpy as np
 import logging
 import logging.handlers
 from ravop import globals as g
-from ravop.core import Graph, Tensor, Scalar
+from ravop.core import Graph, Tensor, Scalar, square_root, argmax
 # KNN Regression
 
 class KNN(Graph):
@@ -73,7 +73,7 @@ class KNN(Graph):
         
         """
         # np.sqrt(sum((a-b)**2), axis = 1)
-        return np.sqrt(sum((a.sub(b)).pow(2), axis=1))
+        return square_root(sum((a.sub(b)).pow(2), axis=1))
 
     
     def KNN_neighbours(self, X_test, return_distance = False):
@@ -135,7 +135,7 @@ class KNN(Graph):
         if self.weights.equal("uniform"):
             neighbours = self.KNN_neighbours(X_test)
             # to understand bincount(), visit - https://i.stack.imgur.com/yAwym.png
-            y_pred = np.array([np.argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours])
+            y_pred = np.array([argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours])
 
             return y_pred
 
@@ -161,7 +161,7 @@ class KNN(Graph):
                     proba.append(np.array(prob_ind))
 
             predict_proba = np.array(proba).reshape(Scalar(X_test.shape[0]), self.n_classes)
-            y_pred = np.array([np.argmax(item) for item in predict_proba])
+            y_pred = np.array([argmax(item) for item in predict_proba])
             
             return y_pred
 

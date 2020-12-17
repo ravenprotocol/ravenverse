@@ -10,6 +10,6 @@ REDIS_DB = "0"
 
 MYSQL_HOST = "localhost"
 MYSQL_PORT = "3306"
-MYSQL_USER = os.environ.get("MYSQL_USER")
-MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
+MYSQL_USER = "root"
+MYSQL_PASSWORD = "surendra"
 MYSQL_DATABASE = "ravenwebdemo"
