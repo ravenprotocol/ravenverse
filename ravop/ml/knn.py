@@ -75,8 +75,12 @@ class KNN(Graph):
                 Scalar Value for Distance between the two points.
         
         """
+        a = Tensor(a, name = "a")
+        while square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).status == "pending":
+            pass
         # np.sqrt(sum((a-b)**2), axis = 1)
-        return square_root(sum((a.sub(b)).pow(2), axis=1))
+        print("\n\n Final Status \n\n", square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).status)
+        return square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).output
 
     
     def KNN_neighbours(self, X_test, return_distance = False):
@@ -98,7 +102,7 @@ class KNN(Graph):
         neighbour_index = []
         # indexes of neighbours
 
-        point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test]
+        point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test.output]
         # return is Scalar/Tensor
         # each row has a list distance value between test point 1 and all the individual training data points.
 
