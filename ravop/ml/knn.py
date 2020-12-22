@@ -179,15 +179,15 @@ class KNN(Graph):
             # running loop on K nearest neighbours elements only and selecting train for them
             for i , row in enumerate(mean_inverse_distance.output):
 
-                row_pred = self.y_train[neighbour_index[i]]
+                row_pred = self.y_train[neighbour_index.output[i]]
 
                 for k in range(self.n_classes):
-                    indices = np.where(row_pred.equal(k))
+                    indices = np.where((Tensor(row_pred, name = "row_pred").equal(k)).output)
                     prob_ind = sum(row[indices])
-                    proba.append(np.array(prob_ind))
+                    proba.append(Tensor(prob_ind, name = "prob_ind").output)
 
-            predict_proba = np.array(proba).reshape(Scalar(X_test.shape[0]), self.n_classes)
-            y_pred = np.array([argmax(item) for item in predict_proba])
+            predict_proba = Tensor(proba, name = "proba").reshape(Scalar(X_test.shape[0]), self.n_classes)
+            y_pred = Tensor([argmax(Scalar(item)) for item in predict_proba.output], name = "y_pred")
             
             return y_pred
 
