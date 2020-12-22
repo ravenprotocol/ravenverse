@@ -3,6 +3,8 @@ import logging
 import logging.handlers
 from ravop import globals as g
 from ravop.core import Graph, Tensor, Scalar, square_root, argmax
+import sys
+import time
 # KNN Regression
 
 class KNN(Graph):
@@ -76,11 +78,17 @@ class KNN(Graph):
         
         """
         a = Tensor(a, name = "a")
-        while square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).status == "pending":
-            pass
+        sq_cal = square_root(((a.sub(b)).pow(Scalar(2))).sum(axis=1))
+        while sq_cal.status!="computed":
+            print("Going Sleep for 15 sec")
+            time.sleep(15)
+
+
+
         # np.sqrt(sum((a-b)**2), axis = 1)
-        print("\n\n Final Status \n\n", square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).status)
-        return square_root(sum((a.sub(b)).pow(Scalar(2)), axis=1)).output
+        print("square calculation\n", sq_cal.status)
+        print("square calculation Output\n", sq_cal.output)
+        return sq_cal.output
 
     
     def KNN_neighbours(self, X_test, return_distance = False):
@@ -103,29 +111,34 @@ class KNN(Graph):
         # indexes of neighbours
 
         point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test.output]
-        # return is Scalar/Tensor
+        # N-d list
+
         # each row has a list distance value between test point 1 and all the individual training data points.
 
         for i in point_distance:
 
             # enumerate so as to preserve index and value
             enumerated_neighbour = enumerate(i)
+            # print("enumerated_neighbour", enumerated_neighbour.output)
+            # sys.exit(0)
             # sorted list of N nearest neighbours
-            sorted_neighbour = sorted(enumerated_neighbour, key = lambda x: Scalar(x[1]))[:self.n_neighbours]
+            sorted_neighbour = sorted(enumerated_neighbour, key = lambda x: x[1])[:self.n_neighbours]
+            print("sorted_neighbour", sorted_neighbour)
+            # 2 d list, with N nearest entries only like this [[a, b, c], [d, e, f], ...]
 
             # index list for sorted N nearest neighbours
-            index_list = [Scalar(t[0]) for t in sorted_neighbour]
+            index_list = [t[0] for t in sorted_neighbour]
             # distance value list for sorted N nearest neighbours
-            distance_list = [Scalar(t[1]) for t in sorted_neighbour]
+            distance_list = [t[1] for t in sorted_neighbour]
 
             # appending
             distance.append(distance_list)
             neighbour_index.append(index_list)
 
         if return_distance:
-            return np.array(distance), np.array(neighbour_index)
+            return Tensor(distance), Tensor(neighbour_index)
         
-        return np.array(neighbour_index)
+        return Tensor(neighbour_index)
 
 
     def predict(self, X_test):
@@ -153,7 +166,7 @@ class KNN(Graph):
             
             inverse_distance = Scalar(1).div(distance)
 
-            mean_inverse_distance = inverse_distance.div(sum(inverse_distance, axis=1)[:, np.newaxis])
+            mean_inverse_distance = inverse_distance.div(inverse_distance.sum(axis=1)[:, np.newaxis])
 
             proba = []
 
