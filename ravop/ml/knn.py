@@ -79,15 +79,7 @@ class KNN(Graph):
         """
         a = Tensor(a, name = "a")
         sq_cal = square_root(((a.sub(b)).pow(Scalar(2))).sum(axis=1))
-        while sq_cal.status!="computed":
-            print("Going Sleep for 15 sec")
-            time.sleep(15)
-
-
-        print("Op ID", sq_cal.id)
         # np.sqrt(sum((a-b)**2), axis = 1)
-        print("square calculation\n", sq_cal.status)
-        print("square calculation Output\n", sq_cal.output)
         return sq_cal.output
 
     
@@ -156,8 +148,6 @@ class KNN(Graph):
             # neighbours is a Tensor, use neighbours.output for converting to nd array
             # to understand bincount(), visit - https://i.stack.imgur.com/yAwym.png
             y_pred = Tensor([argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours.output], name = "y_pred from uniform weights")
-            print("op id from uniform weights", y_pred.id)
-
 
             return y_pred
 
@@ -167,12 +157,9 @@ class KNN(Graph):
             distance, neighbour_index = self.KNN_neighbours(X_test, return_distance = True)
             
             inverse_distance = Scalar(1).div(distance)
-            print("inverse_distance op id", inverse_distance.id, "\n\ninverse distance\n\n", inverse_distance, "\n type \n", type(inverse_distance))
-
             mean_inverse_distance = inverse_distance.div(inverse_distance.sum(axis=1).output[:, np.newaxis])
 
             mean_inverse_distance = Tensor(mean_inverse_distance, name="mean_inverse_distance")
-            print("mean_inverse_distance op id", mean_inverse_distance.id)
 
             proba = []
 
@@ -208,8 +195,3 @@ class KNN(Graph):
         y_pred = Tensor(self.predict(X_test), name = "y_pred")
         
         return float(Scalar(sum(y_pred.equal(y_test)))) / float(Scalar(len(y_test)))
-
-
-    
-
-    
