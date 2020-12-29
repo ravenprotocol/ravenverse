@@ -6,14 +6,44 @@ from sklearn.preprocessing import MinMaxScaler  # for normalization
 from sklearn.model_selection import train_test_split as tts
 from sklearn.metrics import accuracy_score, recall_score, precision_score
 from sklearn.utils import shuffle
+import numpy as np
+import logging
+import logging.handlers
+from ravop import globals as g
+from ravop.core import Graph, Tensor, Scalar, square_root, argmax
+import sys
 
 
-class Support_Vector_Machine:
+
+class Support_Vector_Machine(Graph):
+
+    print("\n ------------------ SVM OBJECT INITIATED ------------------ \n")
+
     
-    def __init__(self, regularisation_parameter = 10000, learning_rate = 0.000001):
-        
-        self.regularisation_parameter = regularisation_parameter
-        self.learning_rate = learning_rate
+    def __init__(self, id = None, **kwargs):
+        # regularisation_parameter = 10000, learning_rate = 0.000001
+
+        super().__init__(id = id, **kwargs)
+        self.__setup_logger()
+        self.regularisation_parameter = kwargs.get("regularisation_parameter", None)
+        if self.regularisation_parameter is None:
+            self.regularisation_parameter = 10000
+
+        self.learning_rate = kwargs.get("learning_rate", None)
+        if self.learning_rate is None:
+            self.learning_rate = 0.000001
+
+    def __setup_logger(self):
+
+        # Set up a specific logger with our desired output level
+        self.logger = logging.getLogger(Support_Vector_Machine.__class__.__name__)
+        self.logger.setLevel(logging.DEBUG)
+
+        # Add the log message handler to the logger
+        handler = logging.handlers.RotatingFileHandler(g.ravop_log_file)
+
+        self.logger.addHandler(handler)
+
         
     print("\n\n--------------- SVM MODEL STARTS ---------------\n\n")
     
@@ -33,13 +63,18 @@ class Support_Vector_Machine:
                 It returns the cost
         
         """
+        W = Tensor(W, name = "W")
+        X = Tensor(X, name = "X")
+        Y = Tensor(Y, name = "Y")
+
         N = X.shape[0]
-        distances = 1 - Y*(np.dot(X, W))
+        distances = Scalar(1).sub((Y.matmul(X.dot(W))))
+        # distances = 1 - Y*(np.dot(X, W))
         # max(0, distance)
-        distances[distances < 0] = 0
-        loss = self.regularisation_parameter*(np.sum(distances)/N)
+        distances[distances.less(Scalar(0))] = Scalar(0)
+        loss = Scalar(self.regularisation_parameter).mul(sum(distances)/N)
         # find cost
-        cost = 1/2 * np.dot(W, W) + loss
+        cost = Scalar(0.5).mul((W.dot(W))).add(loss)
     
         return cost
 
