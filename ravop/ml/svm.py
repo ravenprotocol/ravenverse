@@ -91,21 +91,24 @@ class Support_Vector_Machine(Graph):
                 Weights Derivatives
 
         """
-        
-        if type(Y_batch) == np.float64:
-            Y_batch = np.array([Y_batch])
-            X_batch = np.array([X_batch])
-            
-        distance = 1 - (Y_batch * np.dot(X_batch, W))
+        W = Tensor(W, name = "W")
+        X_batch = Tensor(X_batch, name = "X_batch")
+        Y_batch = Tensor(Y_batch, name = "Y_batch")
+
+        # if type(Y_batch) == np.float64:
+        #     Y_batch = np.array([Y_batch])
+        #     X_batch = np.array([X_batch])
+
+        distance = Scalar(1).sub((Y_batch.matmul(X_batch.dot(W))))
         dw = np.zeros(len(W))
         
-        for ind, d in enumerate(distance):
+        for ind, d in enumerate(distance.output):
             
             if max(0, d) == 0:
                 di = W
                 
             else:
-                di = W - (self.regularisation_parameter * Y_batch[ind] * X_batch[ind])
+                di = W - (Scalar(self.regularisation_parameter).mul(Y_batch.output[ind].mul(X_batch.output[ind])))
             
             dw += di
             
