@@ -234,6 +234,15 @@ class Op(object):
     def percentile(self, **kwargs):
         return percentile(self, **kwargs)
 
+    def bincount(self, **kwargs):
+        return bincount(self, **kwargs)
+
+    def where(self, op1, **kwargs):
+        return where(self, op1, **kwargs)
+
+    def sign(self, **kwargs):
+        return sign(self, **kwargs)
+
     def to_tensor(self):
         self._op_db = db.refresh(self._op_db)
         if self._op_db.outputs is None or self._op_db.outputs == "null":
@@ -710,6 +719,18 @@ def std(op1, **kwargs):
 
 def percentile(op1, **kwargs):
     return __create_math_op2(op1, Operators.PERCENTILE.value, **kwargs)
+
+
+def bincount(op1, **kwargs):
+    return __create_math_op2(op1, Operators.BINCOUNT.value, **kwargs)
+
+
+def where(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.WHERE.value, **kwargs)
+
+
+def sign(op1, **kwargs):
+    return __create_math_op2(op1, Operators.SIGN.value, **kwargs)
 
 
 def __create_math_op(op1, op2, operator, **kwargs):

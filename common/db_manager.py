@@ -83,6 +83,10 @@ class Operators(Enum):
     STANDARD_DEVIATION = "standard_deviation"
     PERCENTILE = "percentile"
 
+    BINCOUNT = "bincount"
+    WHERE = "where"
+    SIGN = "sign"
+
 
 class OpStatus(Enum):
     PENDING = "pending"
