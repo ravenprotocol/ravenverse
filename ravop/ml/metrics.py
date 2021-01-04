@@ -15,6 +15,14 @@ def r2_score(y_true, y_pred):
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    while True:
+
+        if y_pred.status == 'computed' and y_true.status == 'computed':
+            break
+
+        else:
+            pass
+
     scalar1 = R.Scalar(1)
 
     SS_res = R.sum(R.square(R.sub(y_true, y_pred)))
@@ -44,11 +52,19 @@ def f1_score(y_true, y_pred, average='macro'):
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    while True:
+
+        if y_pred.status == 'computed':
+            print('y_pred_computed')
+            break
+
+        else:
+            pass
+
     if y_true.status == 'computed':
         a = y_true.output
 
         for i in sorted(set(a)):
-
             i = R.Tensor(i)
             TP = R.sum(R.logical_and(y_pred.equal(i), y_true.equal(i)))
             TN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.not_equal(i)))
@@ -64,19 +80,38 @@ def f1_score(y_true, y_pred, average='macro'):
             Recall = R.div(TP, R.add(TP, FN))
             Precision = R.div(TP, R.add(TP, FP))
 
-            # if Recall.status == 'pending' and Precision.status == 'pending':
-            #    p = Precision.output
-            #    r = Recall.output
+            while True:
 
-            if Precision.equal(R.Tensor(0)) or Precision.equal(R.Tensor(np.nan)) or Recall.equal(R.Tensor(0)) or \
-                    Recall.equal(R.Tensor(np.nan)):
+                if Recall.status == 'computed' and Precision.status == 'computed':
+                    print('precision recall computed')
+                    p = Precision.output
+                    r = Recall.output
+                    break
+
+                else:
+                    pass
+
+            # if Precision.equal(R.Scalar(0)) or Precision.equal(R.Scalar(np.nan)) or Recall.equal(R.Scalar(0)) or
+            # \Recall.equal(R.Scalar(np.nan)):
+
+            if p == 0 or p == np.nan or r == 0 or r == np.nan:
                 final.append(R.Tensor(0))
 
             else:
+
                 F1 = R.div(R.mul(R.Scalar(2), R.mul(Recall, Precision)), R.add(Recall, Precision))
                 final.append(F1)
 
-        return R.div(R.Tensor(final), R.Scalar(len(confusion)))
+        a = R.div(R.sum(R.Tensor(final)), R.Scalar(len(confusion)), name='f1')
+
+        while True:
+
+            if a.status == 'computed':
+                print('f1 computed')
+                return a
+            else:
+                print('f1 computing')
+                pass
 
     if average == 'micro':
 
@@ -93,7 +128,14 @@ def f1_score(y_true, y_pred, average='macro'):
         Precision = R.div(TP, R.add(TP, FP))
         F1 = R.div(R.mul(R.Scalar(2), R.mul(Recall, Precision)), R.add(Recall, Precision))
 
-        return F1
+        while True:
+
+            if F1.status == 'computed':
+                print('f1 computed')
+                return F1
+            else:
+                print('f1 computing')
+                pass
 
 
 def accuracy(y_true, y_pred):
@@ -103,27 +145,50 @@ def accuracy(y_true, y_pred):
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    while True:
+
+        if y_pred.status == 'computed' and y_true.status == 'computed':
+            break
+
+        else:
+            pass
+
     acc = R.div(R.sum((y_pred.equal(y_true))), R.Scalar(n))
     return acc
 
 
 def out_pred(y_true, y_pred, mode, per_label=False):
-
     """
     helper function for precision and recall
     """
     confusion = []
+
+    while True:
+
+        if y_pred.status == 'computed' and y_true.status == 'computed':
+            break
+
+        else:
+            pass
 
     if not isinstance(y_true, R.Tensor):
         y_true = R.Tensor(y_true)
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    while True:
+
+        if y_pred.status == 'computed':
+            print('y_pred_computed')
+            break
+
+        else:
+            pass
+
     if y_true.status == 'computed':
         a = y_true.output
 
         for i in sorted(set(a)):
-
             i = R.Tensor(i)
             TP = R.sum(R.logical_and(y_pred.equal(i), y_true.equal(i)))
             TN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.not_equal(i)))
@@ -142,7 +207,20 @@ def out_pred(y_true, y_pred, mode, per_label=False):
 
             if mode == 'precision':
 
-                if Precision.equal(R.Tensor(0)) or Precision.equal(R.Tensor(np.nan)):
+                while True:
+
+                    if Precision.status == 'computed':
+                        print('precision computed')
+                        p = Precision.output
+                        break
+
+                    else:
+                        pass
+
+                # if Precision.equal(R.Scalar(0)) or Precision.equal(R.Scalar(np.nan)) or Recall.equal(R.Scalar(0)) or
+                # \Recall.equal(R.Scalar(np.nan)):
+
+                if p == 0 or p == np.nan:
                     final.append(R.Tensor(0))
 
                 else:
@@ -150,12 +228,25 @@ def out_pred(y_true, y_pred, mode, per_label=False):
 
             if mode == 'recall':
 
-                if Recall.equal(R.Tensor(0)) or Recall.equal(R.Tensor(np.nan)):
+                while True:
+
+                    if Recall.status == 'computed':
+                        print('precision computed')
+                        r = Recall.output
+                        break
+
+                    else:
+                        pass
+
+                # if Precision.equal(R.Scalar(0)) or Precision.equal(R.Scalar(np.nan)) or Recall.equal(R.Scalar(0)) or
+                # \Recall.equal(R.Scalar(np.nan)):
+
+                if r == 0 or r == np.nan:
                     final.append(R.Tensor(0))
-                  
+
                 else:
                     final.append(Recall)
-                    
+
     else:
 
         TP = R.Scalar(0)
@@ -214,11 +305,18 @@ def aucroc(y_true, y_pred):
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    while True:
+
+        if y_pred.status == 'computed':
+            break
+
+        else:
+            pass
+
     if y_true.status == 'computed':
         a = y_true.output
 
         for i in sorted(set(a)):
-
             i = R.Tensor(i)
             TP = R.sum(R.logical_and(y_pred.equal(i), y_true.equal(i)))
             TN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.not_equal(i)))
