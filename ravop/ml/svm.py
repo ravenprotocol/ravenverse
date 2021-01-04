@@ -101,18 +101,19 @@ class Support_Vector_Machine(Graph):
 
         distance = Scalar(1).sub((Y_batch.matmul(X_batch.dot(W))))
         dw = np.zeros(len(W))
+        dw = Tensor(dw, name = "dw")
         
         for ind, d in enumerate(distance.output):
             
-            if max(0, d) == 0:
+            if Scalar(max(0, d)).equal(Scalar(0)):
                 di = W
                 
             else:
-                di = W - (Scalar(self.regularisation_parameter).mul(Y_batch.output[ind].mul(X_batch.output[ind])))
+                di = W.sub(Scalar(self.regularisation_parameter).mul(Y_batch.output[ind].mul(X_batch.output[ind])))
             
             dw += di
             
-        dw = dw/len(Y_batch)  # average
+        dw = dw.div(len(Y_batch))  # average
         
         return dw
 
@@ -133,6 +134,8 @@ class Support_Vector_Machine(Graph):
 
         """
 
+        features = Tensor(features, name = "features")
+        outputs = Tensor(outputs, name = "outputs")
         
         max_epochs = 5000
         weights = np.zeros(features.shape[1])
@@ -147,15 +150,15 @@ class Support_Vector_Machine(Graph):
             # shuffle to prevent repeating update cycles
             X, Y = shuffle(features, outputs)
             for ind, x in enumerate(X):
-                ascent = self.calculate_cost_gradient(weights, x, Y[ind])
-                weights = weights - (self.learning_rate * ascent)
+                ascent = self.calculate_cost_gradient(weights, x, Y.output[ind])
+                weights = weights.sub((Scalar(self.learning_rate).mul(ascent)))
 
             # convergence check on 2^nth epoch
-            if epoch == 2 ** nth or epoch == max_epochs - 1:
+            if epoch.equal(Scalar(2).exp(Scalar(nth))) or epoch.equal(Scalar(max_epochs).sub(Scalar(1))):
                 cost = self.computing_cost(weights, features, outputs)
                 print("Epoch is: {} and Cost is: {}".format(epoch, cost))
                 # stoppage criterion
-                if abs(prev_cost - cost) < cost_threshold * prev_cost:
+                if abs(Scalar(prev_cost).sub(cost)).less((Scalar(cost_threshold).mul(Scalar(prev_cost)))):
                     return weights
                 prev_cost = cost
                 nth += 1
@@ -171,7 +174,7 @@ class Support_Vector_Machine(Graph):
                 Removing correlated features
 
         """
-
+        # X = Tensor(X, name = "X")
         corr_threshold = 0.9
         corr = X.corr()
         drop_columns = np.full(corr.shape[0], False, dtype=bool)
@@ -196,19 +199,22 @@ class Support_Vector_Machine(Graph):
         Output:
                 Less important features removed
         """
+
+        X = Tensor(X, name = "X")
+        Y = Tensor(Y, name="Y")
         
         sl = 0.05
         regression_ols = None
-        columns_dropped = np.array([])
-        for i in range(0, len(X.columns)):
+        columns_dropped = Tensor([])
+        for i in range(0, len(X.output.columns)):
             
-            regression_ols = sm.OLS(Y, X).fit()
+            regression_ols = sm.OLS(Y.output, X.output).fit()
             max_col = regression_ols.pvalues.idxmax()
             max_val = regression_ols.pvalues.max()
             
-            if max_val > sl:
-                X.drop(max_col, axis='columns', inplace=True)
-                columns_dropped = np.append(columns_dropped, [max_col])
+            if Scalar(max_val).greater(Scalar(sl)):
+                X.output.drop(max_col, axis='columns', inplace=True)
+                columns_dropped.output = np.append(columns_dropped.output, [max_col])
             else:
                 break
         regression_ols.summary()
@@ -231,14 +237,21 @@ class Support_Vector_Machine(Graph):
                 Trained Weights
 
         """
+        X = Tensor(X, name = "X")
+        Y = Tensor(Y, name = "Y")
+        y_train = Tensor(y_train, name = "y_train")
+        y_test = Tensor(y_test, name = "y_test")
         
         # insert 1 in every row for intercept b
         X_train.insert(loc=len(X_train.columns), column='intercept', value=1)
         X_test.insert(loc=len(X_test.columns), column='intercept', value=1)
 
+        X_train = Tensor(X_train, name = "X_train")
+        X_test = Tensor(X_test, name ="X_test")
+
         # train the model
         print("***** TRAINING IS STARTED ****")
-        W = self.Stochastic_gradient_descent(X_train.to_numpy(), y_train.to_numpy())
+        W = self.Stochastic_gradient_descent(X_train.output.to_numpy(), y_train.output.to_numpy())
         # above operation's aim is to return us the optimised weights for OPTIMISATION problem.
         print("**** TRAINING COMPLETED ****")
         print("WEIGHTS ARE AS FOLLOWS: {}".format(W))
@@ -266,14 +279,22 @@ class Support_Vector_Machine(Graph):
 
         print("**** TEST THE MODEL ****")
 
-        y_train_predicted = np.array([])
-        for i in range(X_train.shape[0]):
-            yp = np.sign(np.dot(X_train.to_numpy()[i], W))
+        y_train_predicted = Tensor([])
+
+        X = Tensor(X, name="X")
+        Y = Tensor(Y, name="Y")
+        X_train = Tensor(X_train, name = "X_train")
+        X_test = Tensor(X_test, name="X_test")
+        y_train = Tensor(y_train, name = "y_train")
+        y_test = Tensor(y_test, name="y_test")
+
+        for i in range(X_train.output.shape[0]):
+            yp = np.sign((X_train.output.to_numpy()[i]).dot(W))
             y_train_predicted = np.append(y_train_predicted, yp)
 
-        y_test_predicted = np.array([])
+        y_test_predicted = Tensor([])
         for i in range(X_test.shape[0]):
-            yp = np.sign(np.dot(X_test.to_numpy()[i], W))
+            yp = np.sign((X_test.output.to_numpy()[i]).dot(W))
             y_test_predicted = np.append(y_test_predicted, yp)
 
         print("accuracy on test dataset: {}".format(accuracy_score(y_test, y_test_predicted)))
