@@ -5,7 +5,7 @@ def softmax(x):
     """
     Softmax Activation Function
     """
-    exp = R.exp(x)
+    exp = R.exp(R.sub(x, R.max(x))
     return R.div(exp, R.sum(exp))
 
 
