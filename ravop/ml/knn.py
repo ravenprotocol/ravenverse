@@ -83,6 +83,20 @@ class KNN(Graph):
         while sq_cal.status != "computed":
             pass
         # np.sqrt(sum((a-b)**2), axis = 1)
+        # c = Scalar(2)
+        # d = Scalar(4)
+        # e = c.add(d)
+        # print("\n\nOutput is : \n\n",e.output, "\n\n Status is : \n\n", e.status)
+        # a = Tensor([[1]])
+        # b = Tensor([[2.724]])
+        # print("\n what is a \n", a)
+        # distance = Tensor(b, name = "d_check")
+        # inverse_distance = a.div(distance)
+        # while inverse_distance.status != "computed":
+        #     pass
+        # print("\n inverse_distance_first created \n", inverse_distance)
+
+
         return sq_cal.output
 
     
@@ -106,7 +120,7 @@ class KNN(Graph):
         # indexes of neighbours
 
         point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test.output]
-        print(point_distance, "\n point-distance list", type(point_distance), "data type")
+        print("\n point-distance list \n", point_distance, "data type", type(point_distance))
         # N-d list
 
         # each row has a list distance value between test point 1 and all the individual training data points.
@@ -115,42 +129,42 @@ class KNN(Graph):
 
             # enumerate so as to preserve index and value
             enumerated_neighbour = enumerate(i)
-            print(enumerated_neighbour, "\n enumerated_neighbour", type(enumerated_neighbour), "data type")
+            print("\n enumerated_neighbour \n", enumerated_neighbour, "data type", type(enumerated_neighbour))
             # sys.exit(0)
             # sorted list of N nearest neighbours
             sorted_neighbour = sorted(enumerated_neighbour, key = lambda x: x[1])[:self.n_neighbours]
-            print(sorted_neighbour, "\n sorted_neighbor", type(sorted_neighbour), "data type")
+            print("\n sorted_neighbor \n", sorted_neighbour, "\n data type \n", type(sorted_neighbour))
             # 2 d list, with N nearest entries only like this [[a, b, c], [d, e, f], ...]
 
             # index list for sorted N nearest neighbours
             index_list = [t[0] for t in sorted_neighbour]
-            print(index_list, "\n index_list \n", type(index_list), "data type")
+            print("\n index_list \n", index_list, "\n data type \n", type(index_list))
             # distance value list for sorted N nearest neighbours
             distance_list = [t[1] for t in sorted_neighbour]
-            print(distance_list, "\n distance_list \n", type(distance_list), "data type")
+            print("\n distance_list \n", distance_list, "\n data type \n ", type(distance_list))
 
             # appending
             distance.append(distance_list)
             neighbour_index.append(index_list)
-            print(distance, "\n distance \n", type(distance), "data type of distance", neighbour_index,
-                  "\n neighbour_index \n", type(neighbour_index), "data type")
+            print("\n distance \n", distance, "\n data type of distance \n", type(distance),
+                  "\n neighbour_index \n", neighbour_index, "\ndata type\n", type(neighbour_index))
 
         if return_distance:
             distance = Tensor(distance, name = "distance")
-            print(distance, "\n distance tensor created")
+            print("\n distance tensor created \n", distance)
             neighbour_index = Tensor(neighbour_index, name = "neighbour_index")
-            print(neighbour_index, "\n neighbour index tensor created")
+            print("\n neighbour index tensor created \n", neighbour_index)
 
             while distance.status and neighbour_index.status != "computed":
                 pass
-            print(distance.output, "\n distance output when return distance is true \n",neighbour_index.output, "\n neighbour_index output when it is true \n")
-            return distance.output, neighbour_index.output
+            print("\n distance output when return distance is true \n", distance.output, "\n neighbour_index output when it is true \n", neighbour_index.output)
+            return distance, neighbour_index
         
         neighbour_index = Tensor(neighbour_index, name = "neighbour_index_outer")
         while neighbour_index.status != "computed":
             pass
-        print(neighbour_index.output, "\n neigbour_index from function when it is False\n")
-        return neighbour_index.output
+        print("\n neigbour_index from function when it is False\n", neighbour_index.output)
+        return neighbour_index
 
 
     def predict(self, X_test):
@@ -162,15 +176,17 @@ class KNN(Graph):
 
         Output:
                 Gives you the Prediction
-        
+
         """
+        X_test = Tensor(X_test, name="X_test")
+
         if self.weights == "uniform":
             neighbours = self.KNN_neighbours(X_test)
-            print(neighbours, "\n neighbours \n", type(neighbours), "data type")
+            print("\n neighbours \n", neighbours, "\n data type \n",type(neighbours))
             # neighbours is a Tensor, use neighbours.output for converting to nd array
             # to understand bincount(), visit - https://i.stack.imgur.com/yAwym.png
-            y_pred = Tensor([argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours.output], name = "y_pred from uniform weights")
-            print(y_pred, "\n y_pred \n", type(y_pred), "data type")
+            y_pred = Tensor([argmax(np.bincount(self.y_train[neighbour])) for neighbour in neighbours], name = "y_pred from uniform weights")
+            print("\n y_pred \n", y_pred, "\n data type \n", type(y_pred))
 
             return y_pred
 
@@ -178,13 +194,18 @@ class KNN(Graph):
 
             # N nearest neighbours distance and indexes
             distance, neighbour_index = self.KNN_neighbours(X_test, return_distance = True)
-            print(distance, "\n distance", neighbour_index, "\n neighbour_index", type(distance), "distance type",
-                  type(neighbour_index), "neighbour_index data type")
-            distance = Tensor(distance, name = "distance_in_inverse")
-            print(distance, "\n distance tensor for inverse distance calculation \n")
+            print("\n distance \n", distance, "\n neighbour_index \n", neighbour_index, "distance type", type(distance)
+                  , "\n neighbour_index data type \n", type(neighbour_index))
+            # distance_demo = Tensor(distance, name = "distance_in_inverse")
+            print("\n distance tensor for inverse distance calculation \n", distance)
             # from here it does not work..
-
-            inverse_distance = Scalar(1).div(distance)
+            c = Scalar(2)
+            d = Scalar(4)
+            e = c.add(d)
+            print("\n\nOutput is : \n\n",e.output, "\n\n Status is : \n\n", e.status)
+            a = Tensor([[1]])
+            print("\n what is a \n", a)
+            inverse_distance = a.div(distance)
             while inverse_distance.status != "computed":
                 pass
             print("\n inverse_distance_first created \n", inverse_distance)
@@ -193,8 +214,8 @@ class KNN(Graph):
             while mean_inverse_distance.status != "computed":
                 pass
 
-            print(mean_inverse_distance, "\n mean_inverse_distance", type(mean_inverse_distance),
-                  "data type of mean_inverse_distance")
+            print("\n mean_inverse_distance", mean_inverse_distance,
+                  "data type of mean_inverse_distance", type(mean_inverse_distance))
 
 
             mean_inverse_distance = Tensor(mean_inverse_distance, name="mean_inverse_distance")
@@ -205,22 +226,22 @@ class KNN(Graph):
             for i , row in enumerate(mean_inverse_distance.output):
 
                 row_pred = self.y_train[neighbour_index.output[i]]
-                print(row_pred, "\n row_pred", type(row_pred), "data type")
+                print("\n row_pred \n", row_pred, " \n data type \n", type(row_pred))
 
                 for k in range(self.n_classes):
                     indices = np.where((Tensor(row_pred, name = "row_pred").equal(k)).output)
                     while indices.status !="computed":
                         pass
-                    print(indices, "\n indices", type(indices), "data type")
+                    print("\n indices \n", indices, " \n data type \n", type(indices))
                     prob_ind = sum(row[indices])
-                    print(prob_ind, "\n prob_ind", type(prob_ind), "data type")
+                    print("\n prob_ind", prob_ind, "\n data type \n", type(prob_ind))
                     proba.append(Tensor(prob_ind, name = "prob_ind").output)
                     print(proba, "proba")
 
             predict_proba = Tensor(proba, name = "proba").reshape(Scalar(X_test.shape[0]), self.n_classes)
-            print(predict_proba, "predict_proba", type(predict_proba), "data type")
+            print("\n predict_proba \n", predict_proba, "\n data type \n", type(predict_proba))
             y_pred = Tensor([argmax(Scalar(item)) for item in predict_proba.output], name = "y_pred")
-            print(y_pred, "y_pred", type(y_pred), "data type")
+            print("\n y_pred \n", y_pred, "\n data type \n", type(y_pred))
             
             return y_pred
 
@@ -236,10 +257,14 @@ class KNN(Graph):
         Output:
                 Returns the Score Value
         """
-        X_test = Tensor(X_test, name = "X_test")
+        # X_test = Tensor(X_test, name = "X_test")
         y_test = y_test.reshape(len(y_test), 1)
         y_test = Tensor(y_test, name = "y_test")
         print("\n Shape of y_test \n", y_test.shape)
         y_pred = Tensor(self.predict(X_test), name = "y_pred")
         
         return float(Scalar(sum(y_pred.equal(y_test)))) / float(Scalar(len(y_test)))
+
+
+    def __str__(self):
+        return "KNN:Graph Id:{}\n".format(self.id)
