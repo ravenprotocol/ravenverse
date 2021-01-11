@@ -78,7 +78,7 @@ class KNN(Graph):
                 Scalar Value for Distance between the two points.
         
         """
-        a = Tensor(a, name = "a")
+        # a = Tensor(a, name = "a")
         sq_cal = square_root(((a.sub(b)).pow(Scalar(2))).sum(axis=1))
         while sq_cal.status != "computed":
             pass
@@ -88,7 +88,7 @@ class KNN(Graph):
         # e = c.add(d)
         # print("\n\nOutput is : \n\n",e.output, "\n\n Status is : \n\n", e.status)
         # a = Tensor([[1]])
-        # b = Tensor([[2.724]])
+        # b = [[2.724]]
         # print("\n what is a \n", a)
         # distance = Tensor(b, name = "d_check")
         # inverse_distance = a.div(distance)
