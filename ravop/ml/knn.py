@@ -78,7 +78,7 @@ class KNN(Graph):
                 Scalar Value for Distance between the two points.
         
         """
-        # a = Tensor(a, name = "a")
+        a = Tensor(a, name = "a")
         sq_cal = square_root(((a.sub(b)).pow(Scalar(2))).sum(axis=1))
         while sq_cal.status != "computed":
             pass
@@ -122,6 +122,18 @@ class KNN(Graph):
         point_distance = [self.euclidean_distance(x_test, self.X_train) for x_test in X_test.output]
         print("\n point-distance list \n", point_distance, "data type", type(point_distance))
         # N-d list
+        # c = Scalar(2)
+        # d = Scalar(4)
+        # e = c.add(d)
+        # print("\n\nOutput is : \n\n",e.output, "\n\n Status is : \n\n", e.status)
+        # a = Tensor([[1]])
+        # b = [[2.724]]
+        # print("\n what is a \n", a)
+        # distance = Tensor(b, name = "d_check")
+        # inverse_distance = a.div(distance)
+        # while inverse_distance.status != "computed":
+        #     pass
+        # print("\n inverse_distance_first created \n", inverse_distance)
 
         # each row has a list distance value between test point 1 and all the individual training data points.
 
