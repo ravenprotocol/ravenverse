@@ -139,7 +139,6 @@ def f1_score(y_true, y_pred, average='macro'):
 
 
 def accuracy(y_true, y_pred):
-    n = y_pred.shape[0]
     if not isinstance(y_true, R.Tensor):
         y_true = R.Tensor(y_true)
     if not isinstance(y_pred, R.Tensor):
@@ -148,6 +147,7 @@ def accuracy(y_true, y_pred):
     while True:
 
         if y_pred.status == 'computed' and y_true.status == 'computed':
+            n = y_pred.output.shape[0]
             break
 
         else:
@@ -291,50 +291,62 @@ def precision(y_true, y_pred, per_label=True):
 
 
 def aucroc(y_true, y_pred):
-    """
-
-    :param y_true: numpy.ndarray
-    :param y_pred: numpy.ndarray
-    :return: incomplete
-    """
-
-    confusion = []
-
     if not isinstance(y_true, R.Tensor):
         y_true = R.Tensor(y_true)
     if not isinstance(y_pred, R.Tensor):
         y_pred = R.Tensor(y_pred)
 
+    l = []
+    """
+    
+    Usage:
+        y_true = np.array([0, 1, 0])
+        y_pred = np.array([0.05, 0.95, 0.0])
+        loss = aucroc(y_true , y_pred)
+    """
+
     while True:
 
-        if y_pred.status == 'computed':
+        if y_pred.status == 'computed' and y_true.status == 'computed':
             break
 
         else:
             pass
 
-    if y_true.status == 'computed':
-        a = y_true.output
+    partitions = 100
 
-        for i in sorted(set(a)):
-            i = R.Tensor(i)
-            TP = R.sum(R.logical_and(y_pred.equal(i), y_true.equal(i)))
-            TN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.not_equal(i)))
-            FP = R.sum(R.logical_and(y_pred.equal(i), y_true.not_equal(i)))
-            FN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.equal(i)))
-            confusion.append([TP, TN, FP, FN])
+    for j in range(partitions + 1):
+        y_pred = R.mul(y_pred.greater_equal(R.div(R.Tensor(j), R.Tensor(partitions))), R.Tensor(1))
 
-    TP = R.Scalar(0)
-    TN = R.Scalar(0)
-    FP = R.Scalar(0)
-    FN = R.Scalar(0)
+        confusion = []
 
-    for i in confusion:
-        TP = R.add(TP, i[0])
-        TN = R.add(FN, i[1])
-        FP = R.add(FP, i[2])
-        FN = R.add(FN, i[3])
+        if y_true.status == 'computed':
+            a = y_true.output
 
-    tpr = R.div(TP, R.add(TP, FN))
-    fpr = R.div(FP, R.add(TN, FP))
-    return
+            for i in sorted(set(a)):
+                i = R.Tensor(i)
+                TP = R.sum(R.logical_and(y_pred.equal(i), y_true.equal(i)))
+                TN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.not_equal(i)))
+                FP = R.sum(R.logical_and(y_pred.equal(i), y_true.not_equal(i)))
+                FN = R.sum(R.logical_and(y_pred.not_equal(i), y_true.equal(i)))
+                confusion.append([TP, TN, FP, FN])
+
+        TP = R.Scalar(0)
+        TN = R.Scalar(0)
+        FP = R.Scalar(0)
+        FN = R.Scalar(0)
+
+        for i in confusion:
+            TP = R.add(TP, i[0])
+            TN = R.add(FN, i[1])
+            FP = R.add(FP, i[2])
+            FN = R.add(FN, i[3])
+
+        tpr = R.div(TP, R.add(TP, FN))
+        fpr = R.div(FP, R.add(TN, FP))
+        l.append([tpr, fpr])
+        
+    rectangle_roc = R.Tensor(0)
+    for k in range(partitions):
+        rectangle_roc = R.add(rectangle_roc, R.mul(R.sub(l[k][1], l[k + 1][1]), l[k][0]))
+    return rectangle_roc
