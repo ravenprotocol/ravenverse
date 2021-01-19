@@ -59,6 +59,7 @@ class Operators(Enum):
     UNIQUE = "unique"
     ARGMAX = "argmax"
     EXPAND_DIMS = "expand_dims"
+    INVERSE = "inv"
 
     # Comparison Operators
     GREATER = "greater"

@@ -385,6 +385,15 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "inv":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.inv(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "greater":
                 try {
                     x = tf.tensor(payload.values[0]);
