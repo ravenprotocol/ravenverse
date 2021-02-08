@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Clients - Raven Distribution Framework UI</title>
+    <title>Raven Distribution Framework UI</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -34,11 +34,11 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
                 <li class="nav-item active">
-                    <a class="nav-link" href="/clients">Clients  <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/clients">Clients</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/graphs">Graphs</a>
@@ -50,41 +50,27 @@
         </div>
     </div>
 </nav>
-
 <div class="container">
-    <hr/>
-    <h3 class="text-center">Clients</h3>
-    <h6 class="text-right">Total:{{ clients|length }}</h6>
     <div class="row">
-        <table class="table table-bordered">
-            <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Client ID</th>
-                <th scope="col">Client IP</th>
-                <th scope="col">Status</th>
-                <th scope="col">Client Type</th>
-                <th scope="col">Connected At</th>
-                <th scope="col">Disconnected At</th>
-                <th scope="col">Created At</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for client in clients %}
-                <tr>
-                    <th scope="row">{{ client.id }}</th>
-                    <td>{{ client.client_id }}</td>
-                    <td>{{ client.client_ip }}</td>
-                    <td>{{ client.status }}</td>
-                    <td>{{ client.type }}</td>
-                    <td>{{ client.connected_at }}</td>
-                    <td>{{ client.disconnected_at }}</td>
-                    <td>{{ client.created_at }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    Graph Details
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Graph Id:{{ graph.id }}</h5>
+                    <div class="card-text">
+                        <div>
+                            Status: {{ graph.status | title }}
+                        </div>
+                        <div>
+                            Created At: {{ graph.created_at }}
+                        </div>
+                        <a href="/graph/ops/{{ graph.id }}/">Graph Ops</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 </body>

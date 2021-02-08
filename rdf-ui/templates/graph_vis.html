@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Raven Distribution Framework UI</title>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+    <!--     Fonts and icons     -->
+    <link href="https://fonts.googleapis.com/css?family=Nanum Gothic:400,700,200" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css"/>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+          integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+          crossorigin="anonymous">
+
+    <style>
+        * {
+            font-family: 'Nanum Gothic', serif;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">RDF-UI</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/clients">Clients</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/graphs">Graphs</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ops">Ops</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container" style="background-color: red;border: 2px solid gray;">
+    <div class="row">
+        <div id="my_dataviz"></div>
+    </div>
+</div>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script>
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 40},
+        width = 400 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_network.json", function (data) {
+        console.log(data);
+        // Initialize the links
+        var link = svg
+            .selectAll("line")
+            .data(data.links)
+            .enter()
+            .append("line")
+            .style("stroke", "#aaa")
+
+        // Initialize the nodes
+        var node = svg
+            .selectAll("circle")
+            .data(data.nodes)
+            .enter()
+            .append("circle")
+            .attr("r", 20)
+            .style("fill", "#69b3a2")
+
+        // Let's list the force we wanna apply on the network
+        var simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
+            .force("link", d3.forceLink()                               // This force provides links between nodes
+                .id(function (d) {
+                    return d.id;
+                })                     // This provide  the id of a node
+                .links(data.links)                                    // and this the list of links
+            )
+            .force("charge", d3.forceManyBody().strength(-400))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+            .force("center", d3.forceCenter(width / 2, height / 2))     // This force attracts nodes to the center of the svg area
+            .on("end", ticked);
+
+        // This function is run at each iteration of the force algorithm, updating the nodes position.
+        function ticked() {
+            link
+                .attr("x1", function (d) {
+                    return d.source.x;
+                })
+                .attr("y1", function (d) {
+                    return d.source.y;
+                })
+                .attr("x2", function (d) {
+                    return d.target.x;
+                })
+                .attr("y2", function (d) {
+                    return d.target.y;
+                });
+
+            node
+                .attr("cx", function (d) {
+                    return d.x + 6;
+                })
+                .attr("cy", function (d) {
+                    return d.y - 6;
+                });
+        }
+
+    });
+</script>
+</body>
+</html>
