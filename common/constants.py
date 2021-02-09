@@ -12,4 +12,4 @@ MYSQL_HOST = "localhost"
 MYSQL_PORT = "3306"
 MYSQL_USER = os.environ.get("MYSQL_USER")
 MYSQL_PASSWORD = os.environ.get("MYSQL_PASSWORD")
-MYSQL_DATABASE = "ravenwebdemo"
+MYSQL_DATABASE = "rdf"

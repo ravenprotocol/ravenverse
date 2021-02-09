@@ -180,6 +180,9 @@ class Op(object):
     def expand_dims(self, **kwargs):
         return expand_dims(self, **kwargs)
 
+    def inv(self, **kwargs):
+        return inv(self, **kwargs)
+
     # Comparison Ops
     def greater(self, op1, **kwargs):
         return greater(self, op1, **kwargs)
@@ -244,13 +247,14 @@ class Op(object):
         return sign(self, **kwargs)
 
     def to_tensor(self):
-        self._op_db = db.refresh(self._op_db)
-        if self._op_db.outputs is None or self._op_db.outputs == "null":
-            return None
-
-        data_id = json.loads(self._op_db.outputs)[0]
-        data = Data(id=data_id)
-        return Tensor(data.value)
+        return Tensor(id=self.id)
+        # self._op_db = db.refresh(self._op_db)
+        # if self._op_db.outputs is None or self._op_db.outputs == "null":
+        #     return None
+        #
+        # data_id = json.loads(self._op_db.outputs)[0]
+        # data = Data(id=data_id)
+        # return Tensor(data.value)
 
     def to_scalar(self):
         self._op_db = db.refresh(self._op_db)
@@ -649,6 +653,10 @@ def argmax(op1, **kwargs):
 
 def expand_dims(op, **kwargs):
     return __create_math_op2(op, Operators.EXPAND_DIMS.value, **kwargs)
+
+
+def inv(op, **kwargs):
+    return __create_math_op2(op, Operators.INVERSE.value, **kwargs)
 
 
 # Comparison

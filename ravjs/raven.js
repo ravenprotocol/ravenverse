@@ -385,6 +385,15 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "inv":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = math.inv(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "greater":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -487,7 +496,20 @@
             case "mean":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.mean().arraySync();
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.mean(axis).arraySync();
+                        if (x.shape.length === 2) {
+                            if (axis === 0) {
+                                result = tf.tensor2d(result, [1, result.length]).arraySync();
+                            } else if (axis === 1) {
+                                result = tf.tensor2d(result, [result.length, 1]).arraySync();
+                            }
+                        }
+                    } else {
+                        result = x.mean().arraySync();
+                    }
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -496,7 +518,12 @@
             case "average":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = x.mean().arraySync();
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.mean(axis).arraySync();
+                    } else {
+                        result = x.mean().arraySync();
+                    }
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -505,7 +532,26 @@
             case "mode":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = math.mode(x.arraySync());
+                    if (x.shape.length === 1) {
+                        result = math.mode(x.arraySync());
+                    } else if (x.shape.length === 2) {
+                        let params = payload.params;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = math.mode(x.arraySync(), axis);
+
+                            if (x.shape.length === 2) {
+                                if (axis === 0) {
+                                    result = tf.tensor2d(result, [1, result.length]).arraySync();
+                                } else if (axis === 1) {
+                                    result = tf.tensor2d(result, [result.length, 1]).arraySync();
+                                }
+                            }
+                        } else {
+                            result = math.mode(x.arraySync());
+                        }
+                    }
+                    console.log(result);
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -514,7 +560,26 @@
             case "median":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = math.median(x.arraySync());
+                    if (x.shape.length === 1) {
+                        result = math.median(x.arraySync());
+                    } else if (x.shape.length === 2) {
+                        let params = payload.params;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = math.median(x.arraySync(), axis);
+
+                            if (x.shape.length === 2) {
+                                if (axis === 0) {
+                                    result = tf.tensor2d(result, [1, result.length]).arraySync();
+                                } else if (axis === 1) {
+                                    result = tf.tensor2d(result, [result.length, 1]).arraySync();
+                                }
+                            }
+                        } else {
+                            result = math.median(x.arraySync());
+                        }
+                    }
+                    console.log(result);
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -523,7 +588,26 @@
             case "variance":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = math.variance(x.arraySync());
+                    if (x.shape.length === 1) {
+                        result = math.variance(x.arraySync());
+                    } else if (x.shape.length === 2) {
+                        let params = payload.params;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = math.variance(x.arraySync(), axis);
+
+                            if (x.shape.length === 2) {
+                                if (axis === 0) {
+                                    result = tf.tensor2d(result, [1, result.length]).arraySync();
+                                } else if (axis === 1) {
+                                    result = tf.tensor2d(result, [result.length, 1]).arraySync();
+                                }
+                            }
+                        } else {
+                            result = math.variance(x.arraySync());
+                        }
+                    }
+                    console.log(result);
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);
@@ -532,7 +616,26 @@
             case "standard_deviation":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    result = math.std(x.arraySync());
+                    if (x.shape.length === 1) {
+                        result = math.std(x.arraySync(), "uncorrected");
+                    } else if (x.shape.length === 2) {
+                        let params = payload.params;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = math.std(x.arraySync(), axis, "uncorrected");
+
+                            if (x.shape.length === 2) {
+                                if (axis === 0) {
+                                    result = tf.tensor2d(result, [1, result.length]).arraySync();
+                                } else if (axis === 1) {
+                                    result = tf.tensor2d(result, [result.length, 1]).arraySync();
+                                }
+                            }
+                        } else {
+                            result = math.std(x.arraySync(), "uncorrected");
+                        }
+                    }
+                    console.log(result);
                     emit_result(payload, result);
                 } catch (error) {
                     emit_error(payload, error);

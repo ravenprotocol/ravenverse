@@ -53,6 +53,7 @@
 <div class="container">
     <hr/>
     <h3 class="text-center">Graphs</h3>
+    <h6 class="text-right">Total:{{ graphs|length }}</h6>
     <div class="row">
         <table class="table table-bordered">
             <thead>
@@ -60,15 +61,17 @@
                 <th scope="col">ID</th>
                 <th scope="col">Status</th>
                 <th scope="col">Progress</th>
+                <th scope="col">Ops</th>
                 <th scope="col">Created At</th>
             </tr>
             </thead>
             <tbody>
             {% for graph in graphs %}
                 <tr>
-                    <th scope="row">{{ graph.id }}</th>
-                    <td>{{ graph.status }}</td>
-                    <td>{{ graph.progress }}</td>
+                    <th scope="row"><a href="/graph/{{ graph.id }}/">Graph({{ graph.id }})</a></th>
+                    <td>{{ graph.status|title }}</td>
+                    <td>{{ graph.progress }}%</td>
+                    <td><a href="/graph/ops/{{ graph.id }}/">View Ops</a></td>
                     <td>{{ graph.created_at }}</td>
                 </tr>
             {% endfor %}

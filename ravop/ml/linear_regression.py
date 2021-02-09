@@ -68,10 +68,12 @@ class LinearRegression(Graph):
 
     def __compute_cost(self, y, y_pred, no_samples, name="cost"):
         """Cost function"""
-        a = y_pred.sub(y)
-        b = a.multiply(a).sum()
-        cost = Scalar(1).div(Scalar(2).multiply(no_samples)).multiply(b, name=name)
-        return cost
+        return R.multiply(R.Scalar(1.0/(2.0*no_samples.output)), R.sum(R.square(R.sub(y_pred, y))), name=name)
+        # a = y_pred.sub(y)
+        # b = R.square(a).sum()
+        # R.one()
+        # cost = R.one().div(Scalar(2).multiply(no_samples)).multiply(b, name=name)
+        # return cost
 
     @property
     def weights(self):
@@ -91,6 +93,11 @@ class LinearRegression(Graph):
 
     def score(self, X, y, name="r2"):
         g.graph_id = None
+        if not isinstance(X, R.Tensor):
+            X = R.Tensor(X)
+        if not isinstance(y, R.Tensor):
+            y = R.Tensor(y)
+
         y_pred = self.predict(X)
         y_true = y
 

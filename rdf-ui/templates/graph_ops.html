@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Graphs - Raven Distribution Framework UI</title>
+    <title>Raven Distribution Framework UI</title>
 
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -34,8 +34,8 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/clients">Clients</a>
@@ -43,8 +43,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/graphs">Graphs</a>
                 </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="/ops">Ops <span class="sr-only">(current)</span></a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/ops">Ops</a>
                 </li>
             </ul>
         </div>
@@ -52,14 +52,14 @@
 </nav>
 <div class="container">
     <hr/>
-    <h3 class="text-center">All Ops</h3>
+    <h3 class="text-center">Graph Ops</h3>
     <h6 class="text-right">Total:{{ ops|length }}</h6>
     <div class="row">
         <table class="table table-bordered">
             <thead>
             <tr>
                 <th scope="col">ID</th>
-                <th scope="col">Graph Id</th>
+                 <th scope="col">Graph Id</th>
                 <th scope="col">Name</th>
                 <th scope="col">Status</th>
                 <th scope="col">Operator</th>
@@ -71,6 +71,7 @@
                 <th scope="col">Message</th>
                 <th scope="col">Created At</th>
                 <th scope="col">Options</th>
+
             </tr>
             </thead>
             <tbody>
