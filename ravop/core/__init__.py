@@ -177,11 +177,17 @@ class Op(object):
     def argmax(self, **kwargs):
         return argmax(self, **kwargs)
 
+    def argmin(self, **kwargs):
+        return argmin(self, **kwargs)
+
     def expand_dims(self, **kwargs):
         return expand_dims(self, **kwargs)
 
     def inv(self, **kwargs):
         return inv(self, **kwargs)
+
+    def slice(self, **kwargs):
+        return slice(self, **kwargs)
 
     # Comparison Ops
     def greater(self, op1, **kwargs):
@@ -236,6 +242,9 @@ class Op(object):
 
     def percentile(self, **kwargs):
         return percentile(self, **kwargs)
+
+    def random(self, **kwargs):
+        return random(self, **kwargs)
 
     def to_tensor(self):
         return Tensor(id=self.id)
@@ -642,12 +651,20 @@ def argmax(op1, **kwargs):
     return __create_math_op2(op1, Operators.ARGMAX.value, **kwargs)
 
 
+def argmin(op1, **kwargs):
+    return __create_math_op2(op1, Operators.ARGMIN.value, **kwargs)
+
+
 def expand_dims(op, **kwargs):
     return __create_math_op2(op, Operators.EXPAND_DIMS.value, **kwargs)
 
 
 def inv(op, **kwargs):
     return __create_math_op2(op, Operators.INVERSE.value, **kwargs)
+
+
+def slice(op, **kwargs):
+    return __create_math_op2(op, Operators.SLICE.value, **kwargs)
 
 
 # Comparison
@@ -718,6 +735,11 @@ def std(op1, **kwargs):
 
 def percentile(op1, **kwargs):
     return __create_math_op2(op1, Operators.PERCENTILE.value, **kwargs)
+
+
+def random(op1, **kwargs):
+    return __create_math_op2(op1, Operators.RANDOM.value, **kwargs)
+
 
 
 def __create_math_op(op1, op2, operator, **kwargs):

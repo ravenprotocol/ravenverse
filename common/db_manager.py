@@ -58,8 +58,10 @@ class Operators(Enum):
     MAX = "max"
     UNIQUE = "unique"
     ARGMAX = "argmax"
+    ARGMIN = "argmin"
     EXPAND_DIMS = "expand_dims"
     INVERSE = "inv"
+    SLICE = "slice"
 
     # Comparison Operators
     GREATER = "greater"
@@ -83,6 +85,7 @@ class Operators(Enum):
     MEDIAN = "median"
     STANDARD_DEVIATION = "standard_deviation"
     PERCENTILE = "percentile"
+    RANDOM = "random"
 
 
 class OpStatus(Enum):

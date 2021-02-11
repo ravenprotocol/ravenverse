@@ -370,6 +370,21 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "argmin":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.argMin(axis).arraySync();
+                    } else {
+                        result = x.argMin().arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "expand_dims":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -390,6 +405,26 @@
                     x = tf.tensor(payload.values[0]);
                     result = math.inv(x.arraySync());
                     emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "slice":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('begin' in params) {
+                        let begin = params.begin;
+                        if ('size' in params){
+                            let size = params.size;
+                            result = x.slice(begin, size).arraySync();
+                        }else{
+                            result = x.slice(begin).arraySync();
+                        }
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'begin' is missing"});
+                    }
                 } catch (error) {
                     emit_error(payload, error);
                 }
@@ -656,6 +691,21 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "random":
+                try {
+                    let x = payload.values[0];
+                    let params = payload.params;
+                    if ('size' in params) {
+                        size = params.size;
+                        result = getRandom(x, size);
+                    }else{
+                        result = getRandom(x, undefined);
+                    }
+                    emit_result(payload, result)
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
         }
     }
 
@@ -687,6 +737,18 @@
             "op_id": payload.op_id,
             "status": "failure"
         }));
+    }
+
+    function getRandom(x, size) {
+        if(size === undefined){
+            return x[Math.floor(Math.random() * x.length)];
+        }else{
+            let result = [];
+            for(let i=0;i<size;i++){
+                result[i] = x.splice(Math.floor(Math.random() * x.length), 1)
+            }
+            return result;
+        }
     }
 
     function compute_operation(payload) {
