@@ -75,7 +75,12 @@ def ops():
 def graph_vis(graph_id):
     graph = db_manager.get_graph(graph_id=graph_id)
     ops = db_manager.get_ops(graph_id=graph_id)
-    return render_template('graph_vis.html',  graph=graph.__dict__, ops=ops)
+    ops_list = []
+    for op in ops:
+        op_dict = op.__dict__
+        op_dict = parse_op_inputs_outputs(op_dict)
+        ops_list.append(op_dict)
+    return render_template('graph_viz.html',  graph=graph.__dict__, ops=ops_list)
 
 
 @app.route('/graph/ops/<graph_id>/')
@@ -121,6 +126,7 @@ def graph_viewer(graph_id):
 def parse_op_inputs_outputs(op_dict):
     print(op_dict['inputs'])
     if op_dict.get("inputs") is not None and op_dict.get("inputs") != "null":
+        print(op_dict)
         inputs = ast.literal_eval(op_dict['inputs'])
         inputs_list = []
         for op_id in inputs:
