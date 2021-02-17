@@ -1,7 +1,10 @@
 import ast
+import json
+import datetime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, Response
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import inspect
 
 from common import RavQueue
 from common.constants import MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
@@ -77,10 +80,26 @@ def graph_vis(graph_id):
     ops = db_manager.get_ops(graph_id=graph_id)
     ops_list = []
     for op in ops:
-        op_dict = op.__dict__
+        op_dict = object_as_dict(op)
         op_dict = parse_op_inputs_outputs(op_dict)
+        # op_dict = datetime_encoder(op_dict)
         ops_list.append(op_dict)
-    return render_template('graph_viz.html',  graph=graph.__dict__, ops=ops_list)
+    return render_template('graph_viz.html', graph=object_as_dict(graph), ops=ops_list)
+
+
+@app.route('/graph/ops/<graph_id>/json/', methods=['GET'])
+def graph_ops_json(graph_id):
+    ops = db_manager.get_ops(graph_id=graph_id)
+    ops_list = []
+    for op in ops:
+        # op = op.serialize()
+        print(op)
+        op_dict = object_as_dict(op)
+        # op_dict = parse_op_inputs_outputs(op_dict)
+        op_dict = datetime_encoder(op_dict)
+        # print(op_dict)
+        ops_list.append(op_dict)
+    return jsonify(ops_list)
 
 
 @app.route('/graph/ops/<graph_id>/')
@@ -108,7 +127,7 @@ def data_viewer(data_id):
     data_dict = data.__dict__
     op = Op(id=data_dict["id"])
     print(type(op.output).__name__)
-    if type(op.output).__name__ == 'float':
+    if type(op.output).__name__ == 'float' or type(op.output).__name__ == "int":
         data_dict['output'] = op.output
         data_dict['shape'] = 1
     else:
@@ -124,13 +143,15 @@ def graph_viewer(graph_id):
 
 
 def parse_op_inputs_outputs(op_dict):
-    print(op_dict['inputs'])
+    # print(op_dict['inputs'])
     if op_dict.get("inputs") is not None and op_dict.get("inputs") != "null":
-        print(op_dict)
+        # print(op_dict)
         inputs = ast.literal_eval(op_dict['inputs'])
         inputs_list = []
         for op_id in inputs:
-            inputs_list.append(db_manager.get_op(op_id=op_id).__dict__)
+            op_dict = object_as_dict(db_manager.get_op(op_id=op_id))
+            # op_dict = datetime_encoder(op_dict)
+            inputs_list.append(op_dict)
         op_dict['inputs'] = inputs_list
     else:
         op_dict["inputs"] = []
@@ -139,12 +160,31 @@ def parse_op_inputs_outputs(op_dict):
         outputs = ast.literal_eval(op_dict['outputs'])
         outputs_list = []
         for data_id in outputs:
-            outputs_list.append(db_manager.get_data(data_id=data_id).__dict__)
+            data_dict = object_as_dict(db_manager.get_data(data_id=data_id))
+            # data_dict = datetime_encoder(data_dict)
+            outputs_list.append(data_dict)
         op_dict['outputs'] = outputs_list
     else:
         op_dict['outputs'] = []
 
     return op_dict
+
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key)
+            for c in inspect(obj).mapper.column_attrs}
+
+
+def datetime_encoder(obj):
+    result = {}
+    for key, value in obj.items():
+        if isinstance(value, (datetime.date, datetime.datetime)):
+            print(key, value)
+            result[key] = str(value)
+        else:
+            result[key] = value
+
+    return result
 
 
 if __name__ == '__main__':

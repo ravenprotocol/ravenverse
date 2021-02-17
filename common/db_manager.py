@@ -5,7 +5,7 @@ from enum import Enum
 
 import numpy as np
 import sqlalchemy as db
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, or_, func
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, or_, func, inspect
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 
@@ -185,6 +185,10 @@ class Op(Base):
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+    def serialize(self):
+        d = Serializer.serialize(self)
+        return d
+
 
 class ClientOpMapping(Base):
     __tablename__ = "client_op_mapping"
@@ -198,6 +202,15 @@ class ClientOpMapping(Base):
     status = Column(String(10), default="computing")
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class Serializer(object):
+    def serialize(self):
+        return {c: getattr(self, c) for c in inspect(self).attrs.keys()}
+
+    @staticmethod
+    def serialize_list(l):
+        return [m.serialize() for m in l]
 
 
 @Singleton
