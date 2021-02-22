@@ -61,6 +61,10 @@ class Operators(Enum):
     ARGMIN = "argmin"
     EXPAND_DIMS = "expand_dims"
     INVERSE = "inv"
+    GATHER = "gather"
+    REVERSE = "reverse"
+    STACK = "stack"
+    TILE = "tile"
     SLICE = "slice"
 
     # Comparison Operators

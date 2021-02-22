@@ -186,6 +186,18 @@ class Op(object):
     def inv(self, **kwargs):
         return inv(self, **kwargs)
 
+    def gather(self, **kwargs):
+        return gather(self, **kwargs)
+
+    def reverse(self, **kwargs):
+        return reverse(self, **kwargs)
+
+    def stack(self, **kwargs):
+        return stack(self, **kwargs)
+
+    def tile(self, **kwargs):
+        return tile(self, **kwargs)
+
     def slice(self, **kwargs):
         return slice(self, **kwargs)
 
@@ -672,6 +684,22 @@ def inv(op, **kwargs):
     return __create_math_op2(op, Operators.INVERSE.value, **kwargs)
 
 
+def gather(op, **kwargs):
+    return __create_math_op2(op, Operators.GATHER.value, **kwargs)
+
+
+def reverse(op, **kwargs):
+    return __create_math_op2(op, Operators.REVERSE.value, **kwargs)
+
+
+def stack(op, **kwargs):
+    return __create_math_op2(op, Operators.STACK.value, **kwargs)
+
+
+def tile(op, **kwargs):
+    return __create_math_op2(op, Operators.TILE.value, **kwargs)
+
+
 def slice(op, **kwargs):
     return __create_math_op2(op, Operators.SLICE.value, **kwargs)
 
@@ -699,6 +727,7 @@ def equal(op1, op2, **kwargs):
 
 def not_equal(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.NOT_EQUAL.value, **kwargs)
+
 
 # Logical
 def logical_and(op1, op2, **kwargs):

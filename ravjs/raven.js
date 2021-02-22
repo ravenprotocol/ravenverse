@@ -409,6 +409,74 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "gather":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('indices' in params) {
+                        let indices = params.indices;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = x.gather(indices, axis).arraySync();
+                        } else {
+                            result = x.gather(indices).arraySync();
+                        }
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'indices' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "reverse":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.reverse(axis).arraySync();
+                    } else {
+                        result = x.reverse().arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "stack":
+                try {
+                    let x = [];
+                    for (let i = 0; i < payload.values.length; i++) {
+                        x[i] = tf.tensor(payload.values[i])
+                    }
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = tf.stack(x, axis).arraySync();
+                    } else {
+                        result = tf.stack(x).arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "tile":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('reps' in params) {
+                        let reps = params.reps;
+                        result = x.tile(reps).arraySync();
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'reps' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "slice":
                 try {
                     x = tf.tensor(payload.values[0]);
