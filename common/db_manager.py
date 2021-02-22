@@ -87,6 +87,10 @@ class Operators(Enum):
     PERCENTILE = "percentile"
     RANDOM = "random"
 
+    BINCOUNT = "bincount"
+    WHERE = "where"
+    SIGN = "sign"
+
 
 class OpStatus(Enum):
     PENDING = "pending"
