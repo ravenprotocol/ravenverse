@@ -68,6 +68,7 @@ class Operators(Enum):
     TILE = "tile"
     SLICE = "slice"
     FIND_INDICES = "find_indices"
+    VALUE_AT_INDICES = "value_at_indices"
 
     # Comparison Operators
     GREATER = "greater"

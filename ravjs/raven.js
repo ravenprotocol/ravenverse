@@ -534,6 +534,21 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "value_at_indices":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let indices = payload.indices;
+                    if ('indices' in params) {
+                        let indices = params.indices;
+                        result = getValueAtIndices(x, indices);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "greater":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -877,6 +892,17 @@
         }
 
         return indices;
+    }
+
+    /**
+     * Get values at a particular indices
+     * @param x
+     * @param indices
+     * @returns {*}
+     */
+    function getValueAtIndices(x, indices) {
+        let x1 = x.bufferSync();
+        return x1.get(indices)
     }
 
     function emit_result(payload, result) {

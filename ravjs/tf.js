@@ -12903,9 +12903,11 @@
 	  ;
 
 	  _proto.get = function get() {
-	    for (var _len2 = arguments.length, locs = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-	      locs[_key2] = arguments[_key2];
-	    }
+	    // for (var _len2 = arguments.length, locs = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+	    //   locs[_key2] = arguments[_key2];
+	    // }
+
+	    let locs = arguments[0];
 
 	    if (locs.length === 0) {
 	      locs = [0];

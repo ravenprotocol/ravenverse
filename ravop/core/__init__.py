@@ -207,6 +207,9 @@ class Op(object):
     def find_indices(self, **kwargs):
         return find_indices(self, **kwargs)
 
+    def value_at_indices(self, **kwargs):
+        return value_at_indices(self, **kwargs)
+
     # Comparison Ops
     def greater(self, op1, **kwargs):
         return greater(self, op1, **kwargs)
@@ -716,6 +719,10 @@ def slice(op, **kwargs):
 
 def find_indices(op, **kwargs):
     return __create_math_op2(op, Operators.FIND_INDICES.value, **kwargs)
+
+
+def value_at_indices(op, **kwargs):
+    return __create_math_op2(op, Operators.VALUE_AT_INDICES.value, **kwargs)
 
 
 # Comparison
