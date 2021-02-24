@@ -189,6 +189,9 @@ class Op(object):
     def gather(self, **kwargs):
         return gather(self, **kwargs)
 
+    def index_of(self, **kwargs):
+        return index_of(self, **kwargs)
+
     def reverse(self, **kwargs):
         return reverse(self, **kwargs)
 
@@ -200,6 +203,9 @@ class Op(object):
 
     def slice(self, **kwargs):
         return slice(self, **kwargs)
+
+    def find_indices(self, **kwargs):
+        return find_indices(self, **kwargs)
 
     # Comparison Ops
     def greater(self, op1, **kwargs):
@@ -688,6 +694,10 @@ def gather(op, **kwargs):
     return __create_math_op2(op, Operators.GATHER.value, **kwargs)
 
 
+def index_of(op, **kwargs):
+    return __create_math_op2(op, Operators.INDEX_OF.value, **kwargs)
+
+
 def reverse(op, **kwargs):
     return __create_math_op2(op, Operators.REVERSE.value, **kwargs)
 
@@ -702,6 +712,10 @@ def tile(op, **kwargs):
 
 def slice(op, **kwargs):
     return __create_math_op2(op, Operators.SLICE.value, **kwargs)
+
+
+def find_indices(op, **kwargs):
+    return __create_math_op2(op, Operators.FIND_INDICES.value, **kwargs)
 
 
 # Comparison

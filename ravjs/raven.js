@@ -429,6 +429,28 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "index_of":
+
+
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('values' in params) {
+                        let values = params.values;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = x.gather(indices, axis).arraySync();
+                        } else {
+                            result = x.gather(indices).arraySync();
+                        }
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "reverse":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -492,6 +514,21 @@
                         emit_result(payload, result);
                     } else {
                         emit_error(payload, {message: "The parameter 'begin' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "find_indices":
+                try {
+                    x = tf.data.array(payload.values[0]);
+                    let values = payload.values;
+                    if ('values' in params) {
+                        let values = params.values;
+                        result = finsIndices(x, values);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
                     }
                 } catch (error) {
                     emit_error(payload, error);
@@ -817,6 +854,29 @@
                 }
                 break;
         }
+    }
+
+    /**
+     * To find indices of values in a particular array
+     * @param x
+     * @param values
+     * @returns {{}}
+     */
+    function finsIndices(x, values) {
+        let indices = {};
+        for (let i = 0; i < values.length; i++) {
+            let localIndices = [];
+            let index = 0;
+            x.forEachAsync(function (a) {
+                if (a === values[i]) {
+                    localIndices.push(index);
+                }
+                index += 1;
+            });
+            indices[values[i]] = localIndices;
+        }
+
+        return indices;
     }
 
     function emit_result(payload, result) {

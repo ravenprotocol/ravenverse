@@ -62,10 +62,12 @@ class Operators(Enum):
     EXPAND_DIMS = "expand_dims"
     INVERSE = "inv"
     GATHER = "gather"
+    INDEX_OF = "index_of"
     REVERSE = "reverse"
     STACK = "stack"
     TILE = "tile"
     SLICE = "slice"
+    FIND_INDICES = "find_indices"
 
     # Comparison Operators
     GREATER = "greater"
