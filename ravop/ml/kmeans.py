@@ -11,9 +11,10 @@ class Kmeans():
 
     def initialize_centroids(self):
         cen=R.random(self.points, size=self.k)
+        print(cen.output)
         while cen.status!='computed':
             pass
-        cen=cen.reshape(shape= [ self.k,2])
+        cen=cen.reshape(shape= [ self.k,len(self.points.output[0])])
         inform_server()
         print(cen)
         return cen
@@ -24,7 +25,7 @@ class Kmeans():
         while closest.status != 'computed':
             pass
         inform_server()
-
+        #print(closest.output)
 
 
         return closest
@@ -63,9 +64,10 @@ class Kmeans():
         pass
 
 obj = Kmeans()
-x=obj.fit( [[1,2],[3,2],[4,3],[5,4],[7,5],[12,34],[11,31],[7,40],[9,36],[8,33],[1,5],[32,52],[35,51],[32,54],[34,50]], 3)
+#x=obj.fit( [[1,2],[3,2],[4,3],[5,4],[7,5],[12,34],[11,31],[7,40],[9,36],[8,33],[1,5],[32,52],[35,51],[32,54],[34,50]], 3,iter=20)
+x=obj.fit( [[1,2,3],[3,2,4],[4,3,3],[5,4,123],[7,5,544],[12,34,444],[11,31,234],[7,40,412],[9,36,453],[8,33,433],[1,5,10001],[32,52,10003],[35,51,10031],[32,54,1003],[34,50,10031]], 3,iter=100)
 
-
+print(obj.centroids.output)
 print(x)
 #print(obj.initialize_centroids().output)
 #print(obj.closest_centroids() )
