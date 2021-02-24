@@ -409,21 +409,141 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "gather":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('indices' in params) {
+                        let indices = params.indices;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = x.gather(indices, axis).arraySync();
+                        } else {
+                            result = x.gather(indices).arraySync();
+                        }
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'indices' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "index_of":
+
+
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('values' in params) {
+                        let values = params.values;
+                        if ('axis' in params) {
+                            let axis = params.axis;
+                            result = x.gather(indices, axis).arraySync();
+                        } else {
+                            result = x.gather(indices).arraySync();
+                        }
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "reverse":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.reverse(axis).arraySync();
+                    } else {
+                        result = x.reverse().arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "stack":
+                try {
+                    let x = [];
+                    for (let i = 0; i < payload.values.length; i++) {
+                        x[i] = tf.tensor(payload.values[i])
+                    }
+                    let params = payload.params;
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = tf.stack(x, axis).arraySync();
+                    } else {
+                        result = tf.stack(x).arraySync();
+                    }
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "tile":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('reps' in params) {
+                        let reps = params.reps;
+                        result = x.tile(reps).arraySync();
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'reps' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
             case "slice":
                 try {
                     x = tf.tensor(payload.values[0]);
                     let params = payload.params;
                     if ('begin' in params) {
                         let begin = params.begin;
-                        if ('size' in params){
+                        if ('size' in params) {
                             let size = params.size;
                             result = x.slice(begin, size).arraySync();
-                        }else{
+                        } else {
                             result = x.slice(begin).arraySync();
                         }
                         emit_result(payload, result);
                     } else {
                         emit_error(payload, {message: "The parameter 'begin' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "find_indices":
+                try {
+                    x = tf.data.array(payload.values[0]);
+                    let values = payload.values;
+                    if ('values' in params) {
+                        let values = params.values;
+                        result = finsIndices(x, values);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "value_at_indices":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    let indices = payload.indices;
+                    if ('indices' in params) {
+                        let indices = params.indices;
+                        result = getValueAtIndices(x, indices);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, {message: "The parameter 'values' is missing"});
                     }
                 } catch (error) {
                     emit_error(payload, error);
@@ -698,7 +818,7 @@
                     if ('size' in params) {
                         size = params.size;
                         result = getRandom(x, size);
-                    }else{
+                    } else {
                         result = getRandom(x, undefined);
                     }
                     emit_result(payload, result)
@@ -706,7 +826,83 @@
                     emit_error(payload, error);
                 }
                 break;
+
+            case "bincount":
+                try {
+                    let x = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    let weights = params.weights;
+                    let minlength = params.minlength;
+                    if ('weights' in params && 'minlength' in params) {
+                        let result = tf.bincount(x.arraySync(), weights, minlength);
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, "Parameter 'weights' or 'minlength is missing");
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "where":
+                try {
+                    let a = tf.tensor(payload.values[0]);
+                    let b = tf.tensor(payload.values[0]);
+                    let params = payload.params;
+                    if ('condition' in params) {
+                        let condition = params.condition;
+                        let result = tf.bincount(condition, a.arraySync(), b.arraySync());
+                        emit_result(payload, result);
+                    } else {
+                        emit_error(payload, "Parameter 'condition' is missing");
+                    }
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
+            case "sign":
+                try {
+                    x = tf.tensor(payload.values[0]);
+                    result = tf.sign(x.arraySync());
+                    emit_result(payload, result);
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
         }
+    }
+
+    /**
+     * To find indices of values in a particular array
+     * @param x
+     * @param values
+     * @returns {{}}
+     */
+    function finsIndices(x, values) {
+        let indices = {};
+        for (let i = 0; i < values.length; i++) {
+            let localIndices = [];
+            let index = 0;
+            x.forEachAsync(function (a) {
+                if (a === values[i]) {
+                    localIndices.push(index);
+                }
+                index += 1;
+            });
+            indices[values[i]] = localIndices;
+        }
+
+        return indices;
+    }
+
+    /**
+     * Get values at a particular indices
+     * @param x
+     * @param indices
+     * @returns {*}
+     */
+    function getValueAtIndices(x, indices) {
+        let x1 = x.bufferSync();
+        return x1.get(indices)
     }
 
     function emit_result(payload, result) {
@@ -740,329 +936,14 @@
     }
 
     function getRandom(x, size) {
-        if(size === undefined){
+        if (size === undefined) {
             return x[Math.floor(Math.random() * x.length)];
-        }else{
+        } else {
             let result = [];
-            for(let i=0;i<size;i++){
+            for (let i = 0; i < size; i++) {
                 result[i] = x.splice(Math.floor(Math.random() * x.length), 1)
             }
             return result;
-        }
-    }
-
-    function compute_operation(payload) {
-        switch (payload.operator) {
-
-            // Arithmetic
-            case "linear":
-                try {
-                    console.log("Computing linear");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': payload.values[0],
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "addition":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.add(y);
-                    console.log("Computing addition");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "subtraction":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.sub(y);
-                    console.log("Computing subtraction");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-
-                }
-                break;
-
-            case "multiplication":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.mul(y);
-                    console.log("Computing " + payload.operator);
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-
-                }
-                break;
-
-            case "matrix_multiplication":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.matMul(y);
-                    console.log("Computing matrix multiplication");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "negation":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    console.log("Computing negation");
-                    result = x.neg();
-                    console.log("Result:" + result);
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "division":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.div(y);
-                    console.log("Computing division");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "exponential":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    result = x.exp();
-                    console.log("Computing exponential");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "transpose":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    result = x.transpose();
-                    console.log("Computing transpose");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "natural_log":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    result = x.log();
-                    console.log("Computing natural log");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
-
-            case "element_wise_multiplication":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    y = tf.tensor(payload.values[1]);
-                    result = x.mul(y);
-                    console.log("Computing element wise multiplication");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-
-                }
-                break;
-
-
-            case "matrix_sum":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    result = x.sum();
-                    console.log("Computing matrix_sum");
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': result.arraySync(),
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "success"
-                    }));
-                } catch (error) {
-                    socket.emit("op_completed", JSON.stringify({
-                        'op_type': payload.op_type,
-                        'result': error.message,
-                        'values': payload.values,
-                        'operator': payload.operator,
-                        "op_id": payload.op_id,
-                        "status": "failure"
-                    }));
-                }
-                break;
         }
     }
 

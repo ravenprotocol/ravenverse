@@ -71,11 +71,9 @@ def ops():
     return render_template('ops.html', ops=ops_list)
 
 
-@app.route('/graph/viz/<graph_id>/')
-def graph_vis(graph_id):
-    graph = db_manager.get_graph(graph_id=graph_id)
-    ops = db_manager.get_ops(graph_id=graph_id)
-    return render_template('graph_vis.html',  graph=graph.__dict__, ops=ops)
+@app.route('/graph/vis')
+def graph_vis():
+    return render_template('graph_vis.html')
 
 
 @app.route('/graph/ops/<graph_id>/')

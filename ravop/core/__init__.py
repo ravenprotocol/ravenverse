@@ -186,8 +186,29 @@ class Op(object):
     def inv(self, **kwargs):
         return inv(self, **kwargs)
 
+    def gather(self, **kwargs):
+        return gather(self, **kwargs)
+
+    def index_of(self, **kwargs):
+        return index_of(self, **kwargs)
+
+    def reverse(self, **kwargs):
+        return reverse(self, **kwargs)
+
+    def stack(self, **kwargs):
+        return stack(self, **kwargs)
+
+    def tile(self, **kwargs):
+        return tile(self, **kwargs)
+
     def slice(self, **kwargs):
         return slice(self, **kwargs)
+
+    def find_indices(self, **kwargs):
+        return find_indices(self, **kwargs)
+
+    def value_at_indices(self, **kwargs):
+        return value_at_indices(self, **kwargs)
 
     # Comparison Ops
     def greater(self, op1, **kwargs):
@@ -245,6 +266,15 @@ class Op(object):
 
     def random(self, **kwargs):
         return random(self, **kwargs)
+
+    def bincount(self, **kwargs):
+        return bincount(self, **kwargs)
+
+    def where(self, op1, **kwargs):
+        return where(self, op1, **kwargs)
+
+    def sign(self, **kwargs):
+        return sign(self, **kwargs)
 
     def to_tensor(self):
         return Tensor(id=self.id)
@@ -663,8 +693,36 @@ def inv(op, **kwargs):
     return __create_math_op2(op, Operators.INVERSE.value, **kwargs)
 
 
+def gather(op, **kwargs):
+    return __create_math_op2(op, Operators.GATHER.value, **kwargs)
+
+
+def index_of(op, **kwargs):
+    return __create_math_op2(op, Operators.INDEX_OF.value, **kwargs)
+
+
+def reverse(op, **kwargs):
+    return __create_math_op2(op, Operators.REVERSE.value, **kwargs)
+
+
+def stack(op, **kwargs):
+    return __create_math_op2(op, Operators.STACK.value, **kwargs)
+
+
+def tile(op, **kwargs):
+    return __create_math_op2(op, Operators.TILE.value, **kwargs)
+
+
 def slice(op, **kwargs):
     return __create_math_op2(op, Operators.SLICE.value, **kwargs)
+
+
+def find_indices(op, **kwargs):
+    return __create_math_op2(op, Operators.FIND_INDICES.value, **kwargs)
+
+
+def value_at_indices(op, **kwargs):
+    return __create_math_op2(op, Operators.VALUE_AT_INDICES.value, **kwargs)
 
 
 # Comparison
@@ -690,6 +748,7 @@ def equal(op1, op2, **kwargs):
 
 def not_equal(op1, op2, **kwargs):
     return __create_math_op(op1, op2, Operators.NOT_EQUAL.value, **kwargs)
+
 
 # Logical
 def logical_and(op1, op2, **kwargs):
@@ -740,6 +799,17 @@ def percentile(op1, **kwargs):
 def random(op1, **kwargs):
     return __create_math_op2(op1, Operators.RANDOM.value, **kwargs)
 
+
+def bincount(op1, **kwargs):
+    return __create_math_op2(op1, Operators.BINCOUNT.value, **kwargs)
+
+
+def where(op1, op2, **kwargs):
+    return __create_math_op(op1, op2, Operators.WHERE.value, **kwargs)
+
+
+def sign(op1, **kwargs):
+    return __create_math_op2(op1, Operators.SIGN.value, **kwargs)
 
 
 def __create_math_op(op1, op2, operator, **kwargs):
