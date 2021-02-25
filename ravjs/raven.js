@@ -429,28 +429,6 @@
                     emit_error(payload, error);
                 }
                 break;
-            case "index_of":
-
-
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    let params = payload.params;
-                    if ('values' in params) {
-                        let values = params.values;
-                        if ('axis' in params) {
-                            let axis = params.axis;
-                            result = x.gather(indices, axis).arraySync();
-                        } else {
-                            result = x.gather(indices).arraySync();
-                        }
-                        emit_result(payload, result);
-                    } else {
-                        emit_error(payload, {message: "The parameter 'values' is missing"});
-                    }
-                } catch (error) {
-                    emit_error(payload, error);
-                }
-                break;
             case "reverse":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -522,7 +500,7 @@
             case "find_indices":
                 try {
                     x = tf.data.array(payload.values[0]);
-                    let values = payload.values;
+                    let params = payload.params;
                     if ('values' in params) {
                         let values = params.values;
                         result = finsIndices(x, values);
@@ -537,7 +515,7 @@
             case "value_at_indices":
                 try {
                     x = tf.tensor(payload.values[0]);
-                    let indices = payload.indices;
+                    let params = payload.params;
                     if ('indices' in params) {
                         let indices = params.indices;
                         result = getValueAtIndices(x, indices);

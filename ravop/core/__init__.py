@@ -5,12 +5,14 @@ import numpy as np
 
 from common import db, RavQueue
 from common.constants import DATA_FILES_PATH
-from common.db_manager import NodeTypes, OpTypes, Operators, OpStatus
+from .enums import *
 from ravop import globals as g
 
 QUEUE_HIGH_PRIORITY = "queue:high_priority"
 QUEUE_LOW_PRIORITY = "queue:low_priority"
 QUEUE_COMPUTING = "queue:computing"
+
+
 
 
 def epsilon():
@@ -188,9 +190,6 @@ class Op(object):
 
     def gather(self, **kwargs):
         return gather(self, **kwargs)
-
-    def index_of(self, **kwargs):
-        return index_of(self, **kwargs)
 
     def reverse(self, **kwargs):
         return reverse(self, **kwargs)
@@ -695,10 +694,6 @@ def inv(op, **kwargs):
 
 def gather(op, **kwargs):
     return __create_math_op2(op, Operators.GATHER.value, **kwargs)
-
-
-def index_of(op, **kwargs):
-    return __create_math_op2(op, Operators.INDEX_OF.value, **kwargs)
 
 
 def reverse(op, **kwargs):
