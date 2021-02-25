@@ -191,9 +191,6 @@ class Op(object):
     def gather(self, **kwargs):
         return gather(self, **kwargs)
 
-    def index_of(self, **kwargs):
-        return index_of(self, **kwargs)
-
     def reverse(self, **kwargs):
         return reverse(self, **kwargs)
 
@@ -697,10 +694,6 @@ def inv(op, **kwargs):
 
 def gather(op, **kwargs):
     return __create_math_op2(op, Operators.GATHER.value, **kwargs)
-
-
-def index_of(op, **kwargs):
-    return __create_math_op2(op, Operators.INDEX_OF.value, **kwargs)
 
 
 def reverse(op, **kwargs):
