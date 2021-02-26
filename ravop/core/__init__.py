@@ -206,6 +206,9 @@ class Op(object):
     def find_indices(self, **kwargs):
         return find_indices(self, **kwargs)
 
+    def find_indices(self, op, **kwargs):
+        return find_indices(self, op, **kwargs)
+
     def value_at_indices(self, **kwargs):
         return value_at_indices(self, **kwargs)
 
@@ -274,6 +277,9 @@ class Op(object):
 
     def sign(self, **kwargs):
         return sign(self, **kwargs)
+
+    def foreach(self, **kwargs):
+        return foreach(self, **kwargs)
 
     def to_tensor(self):
         return Tensor(id=self.id)
@@ -805,6 +811,10 @@ def where(op1, op2, **kwargs):
 
 def sign(op1, **kwargs):
     return __create_math_op2(op1, Operators.SIGN.value, **kwargs)
+
+
+def foreach(op, **kwargs):
+    return __create_math_op2(op, Operators.FOREACH.value, **kwargs)
 
 
 def __create_math_op(op1, op2, operator, **kwargs):

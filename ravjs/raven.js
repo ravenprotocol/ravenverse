@@ -499,11 +499,11 @@
                 break;
             case "find_indices":
                 try {
-                    x = tf.data.array(payload.values[0]);
+                    x = payload.values[0];
                     let params = payload.params;
                     if ('values' in params) {
                         let values = params.values;
-                        result = finsIndices(x, values);
+                        result = tf.findIndices(x, values);
                         emit_result(payload, result);
                     } else {
                         emit_error(payload, {message: "The parameter 'values' is missing"});
@@ -516,10 +516,18 @@
                 try {
                     x = tf.tensor(payload.values[0]);
                     let params = payload.params;
-                    if ('indices' in params) {
-                        let indices = params.indices;
-                        result = getValueAtIndices(x, indices);
-                        emit_result(payload, result);
+                    if ('indices_list' in params) {
+                        let outputs = []
+                        let indices_list = params.indices_list;
+                        indices_list = tf.data.array(indices_list);
+                        indices_list.forEachAsync(function (a) {
+                            values = tf.getValueAtIndices(x, a);
+                            outputs.push(values);
+                            //TODO: fix this logic
+                            if(outputs.length === indices_list.size){
+                                 emit_result(payload, outputs);
+                            }
+                        });
                     } else {
                         emit_error(payload, {message: "The parameter 'values' is missing"});
                     }
@@ -846,6 +854,39 @@
                     emit_error(payload, error);
                 }
                 break;
+            case "foreach":
+                try {
+                    x = tf.data.array(payload.values[0]);
+                    let params = payload.params;
+                    if ('operation' in params) {
+                        let operation = params.operation;
+                        let outputs = [];
+                        x.forEachAsync(function (a) {
+                            let params1 = params;
+                            delete params1.operation;
+                            let paramsNames = Object.keys(params1);
+                            let paramsString = "";
+                            for (let i = 0; i < paramsNames.length; i++) {
+                                paramsString = paramsString + "," + params1[paramsNames[i]];
+                            }
+                            console.log(paramsString, a, "tf." + operation + "(" + JSON.stringify(a) + paramsString + ").arraySync()");
+                            output = eval("tf." + operation + "(" + JSON.stringify(a) + paramsString + ").arraySync()");
+                            console.log(output);
+                            outputs.push(output);
+
+                            // TODO: fix the logic
+                            if(outputs.length === x.size){
+                                emit_result(payload, outputs);
+                            }
+                        });
+                    } else {
+                        emit_error(payload, "Parameter 'operation' is missing");
+                    }
+
+                } catch (error) {
+                    emit_error(payload, error);
+                }
+                break;
         }
     }
 
@@ -855,38 +896,51 @@
      * @param values
      * @returns {{}}
      */
-    function finsIndices(x, values) {
-        let indices = {};
+    tf.findIndices = function (x, values) {
+        let indices = [];
+        console.log("values:", values);
         for (let i = 0; i < values.length; i++) {
             let localIndices = [];
-            let index = 0;
-            x.forEachAsync(function (a) {
-                if (a === values[i]) {
-                    localIndices.push(index);
+            for (let j = 0; j < x.length; j++) {
+                if (values[i] === x[j]) {
+                    localIndices.push([j]);
                 }
-                index += 1;
-            });
-            indices[values[i]] = localIndices;
+            }
+            indices.push(localIndices);
         }
-
+        console.log("before:", indices);
         return indices;
-    }
+    };
 
     /**
      * Get values at a particular indices
      * @param x
-     * @param indices
+     * @param indices_list
      * @returns {*}
      */
-    function getValueAtIndices(x, indices) {
+    tf.getValueAtIndices = function (x, indices_list) {
+        let output = [];
         let x1 = x.bufferSync();
-        return x1.get(indices)
-    }
+        for (let i = 0; i < indices_list.length; i++) {
+            let output1 = [];
+            console.log(indices_list, indices_list[i]);
+            output1[i] = x1.get(indices_list[i]);
+            output.push(output1);
+        }
+        return output;
+    };
 
     function emit_result(payload, result) {
         console.log("Emit Success");
         console.log(payload);
-        console.log(result);
+        console.log(result, JSON.stringify({
+            'op_type': payload.op_type,
+            'result': result,
+            'values': payload.values,
+            'operator': payload.operator,
+            "op_id": payload.op_id,
+            "status": "success"
+        }));
 
         socket.emit("op_completed", JSON.stringify({
             'op_type': payload.op_type,
@@ -919,7 +973,7 @@
         } else {
             let result = [];
             for (let i = 0; i < size; i++) {
-                result[i] = x.splice(Math.floor(Math.random() * x.length), 1)
+                result[i] = x.splice(Math.floor(Math.random() * x.length), 1)[0]
             }
             return result;
         }
