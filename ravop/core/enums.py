@@ -82,6 +82,7 @@ class Operators(Enum):
     BINCOUNT = "bincount"
     WHERE = "where"
     SIGN = "sign"
+    FOREACH = "foreach"
 
 
 class TFJSOperators(Enum):
