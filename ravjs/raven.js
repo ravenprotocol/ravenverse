@@ -512,29 +512,6 @@
                     emit_error(payload, error);
                 }
                 break;
-            case "value_at_indices":
-                try {
-                    x = tf.tensor(payload.values[0]);
-                    let params = payload.params;
-                    if ('indices_list' in params) {
-                        let outputs = []
-                        let indices_list = params.indices_list;
-                        indices_list = tf.data.array(indices_list);
-                        indices_list.forEachAsync(function (a) {
-                            values = tf.getValueAtIndices(x, a);
-                            outputs.push(values);
-                            //TODO: fix this logic
-                            if(outputs.length === indices_list.size){
-                                 emit_result(payload, outputs);
-                            }
-                        });
-                    } else {
-                        emit_error(payload, {message: "The parameter 'values' is missing"});
-                    }
-                } catch (error) {
-                    emit_error(payload, error);
-                }
-                break;
             case "greater":
                 try {
                     x = tf.tensor(payload.values[0]);
@@ -910,24 +887,6 @@
         }
         console.log("before:", indices);
         return indices;
-    };
-
-    /**
-     * Get values at a particular indices
-     * @param x
-     * @param indices_list
-     * @returns {*}
-     */
-    tf.getValueAtIndices = function (x, indices_list) {
-        let output = [];
-        let x1 = x.bufferSync();
-        for (let i = 0; i < indices_list.length; i++) {
-            let output1 = [];
-            console.log(indices_list, indices_list[i]);
-            output1[i] = x1.get(indices_list[i]);
-            output.push(output1);
-        }
-        return output;
     };
 
     function emit_result(payload, result) {
