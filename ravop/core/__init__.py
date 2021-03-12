@@ -188,8 +188,8 @@ class Op(object):
     def inv(self, **kwargs):
         return inv(self, **kwargs)
 
-    def gather(self, **kwargs):
-        return gather(self, **kwargs)
+    def gather(self, op, **kwargs):
+        return gather(self, op, **kwargs)
 
     def reverse(self, **kwargs):
         return reverse(self, **kwargs)
@@ -692,8 +692,8 @@ def inv(op, **kwargs):
     return __create_math_op2(op, Operators.INVERSE.value, **kwargs)
 
 
-def gather(op, **kwargs):
-    return __create_math_op2(op, Operators.GATHER.value, **kwargs)
+def gather(op, op2, **kwargs):
+    return __create_math_op(op, op2, Operators.GATHER.value, **kwargs)
 
 
 def reverse(op, **kwargs):

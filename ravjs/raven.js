@@ -412,19 +412,16 @@
             case "gather":
                 try {
                     x = tf.tensor(payload.values[0]);
+                    indices = payload.values[1];
                     let params = payload.params;
-                    if ('indices' in params) {
-                        let indices = params.indices;
-                        if ('axis' in params) {
-                            let axis = params.axis;
-                            result = x.gather(indices, axis).arraySync();
-                        } else {
-                            result = x.gather(indices).arraySync();
-                        }
-                        emit_result(payload, result);
+                    if ('axis' in params) {
+                        let axis = params.axis;
+                        result = x.gather(indices, axis).arraySync();
                     } else {
-                        emit_error(payload, {message: "The parameter 'indices' is missing"});
+                        result = x.gather(indices).arraySync();
                     }
+                    emit_result(payload, result);
+
                 } catch (error) {
                     emit_error(payload, error);
                 }
