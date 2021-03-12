@@ -138,7 +138,5 @@ class MiniBatchKmeans(object):
 
 if __name__ == '__main__':
     pass
-
-    k.plot()
     #k.fit(X, k=3,iter=300)
     #k.plot()
