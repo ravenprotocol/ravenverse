@@ -138,11 +138,6 @@ class MiniBatchKmeans(object):
 
 if __name__ == '__main__':
     pass
-    from sklearn.datasets.samples_generator import make_blobs
-
-    k=Kmeans()
-    X, y = make_blobs(n_samples=300, centers=5, n_features=2, random_state=1)
-    k.fit(X, k=5,iter=100)
 
     k.plot()
     #k.fit(X, k=3,iter=300)
