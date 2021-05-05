@@ -4,5 +4,5 @@ from aiohttp import web
 from ravsock.socketio_server import app
 
 if __name__ == '__main__':
-    print("")
+    print("Starting server...")
     web.run_app(app, port=9999)
