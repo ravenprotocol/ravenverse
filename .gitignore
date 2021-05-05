@@ -1,11 +1,3 @@
-raven_db.db
-files
 __pycache__
 .idea
-logs.out
-db.sqlite3
-venv
 *.pyc
-ravop_log.log
-ravsock_log.log
-app/migrations/00*

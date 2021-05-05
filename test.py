@@ -1,12 +1,24 @@
+import time
+
 import ravop.core as R
+from ravcom import inform_server
 
-a = R.Scalar(10)
-b = R.Scalar(12)
+a = R.Tensor([1, 2, 3, 4, 5, 6, 7, 8, 9, 0])
+b = R.Scalar(10)
 
-c = a.add(b)
+c = R.add(a, b)
+d = R.sub(a, b)
+e = R.multiply(a, b)
+f = R.mean(a)
+g = R.median(a)
 
-d = a.greater(b)
+inform_server()
 
-e = a.less(b)
+# Wait for 10 seconds
+time.sleep(10)
 
-print(c.output, d.output, e.output)
+print(c())
+print(d())
+print(e())
+print(f())
+print(g())
