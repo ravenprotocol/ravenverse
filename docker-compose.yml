@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.9'
 services:
   db:
     image: mysql:5.7
@@ -15,7 +15,7 @@ services:
     volumes:
       - my-db:/var/lib/mysql
   socket_server:
-    image: python:3.7
+    image: python:3.9
     build: .
     ports:
       - "9999:9999"

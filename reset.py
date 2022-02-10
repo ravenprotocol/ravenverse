@@ -1,2 +1,3 @@
-from ravcom import reset
+from ravsock.utils import reset
+
 reset()
