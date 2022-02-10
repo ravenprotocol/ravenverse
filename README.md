@@ -14,20 +14,23 @@ The foundation for any Machine Learning or Deep Learning Framework. Simply put, 
 ### Setup 
     
     # Create a virutal environment before you install RDF libraries
+    # Set up everything and install dependencies
     sh setup.sh
     
     
-### Start the socket server
+### Start ravsock
 
-    python3 run_socket_server.py
+    python3 run_ravsock.py
    
+### Create a federated analytics graph and create federated ops
+
+    Kindly visit TEST_FEDERATED_ANALYTICS.md for this
+    python3 federated_test.py
    
-### Start workers
+### Start a federated client
 
-    python3 open_worker.py   # worker 1
-    python3 open_worker.py   # worker 2
-    python3 open_worker.py   # worker 3
-
+    # Pass client id and federated graph id to join
+    python3 run_client.py --action participate --cid 111 --federated_id 1
 
 ### How to contribute:
 
