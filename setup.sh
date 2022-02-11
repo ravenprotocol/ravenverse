@@ -1,6 +1,8 @@
 rm -rf ravsock
 rm -rf ravpy
 rm -rf ravftp
+rm -rf ravjs
+rm -rf ravop
 
 rm -rf repos
 mkdir repos
@@ -28,7 +30,7 @@ rm -rf ravpy
 
 git clone https://github.com/ravenprotocol/ravftp.git
 pip install -r ravftp/requirements.txt
-cp -R ravftp/ravftp ../
+cp -R ravftp ../
 rm -rf ravftp
 
 
