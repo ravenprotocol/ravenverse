@@ -10,7 +10,6 @@ cd repos
 
 git clone https://github.com/ravenprotocol/ravop.git
 pip install -r ravop/requirements.txt
-python ravop/setup.py install
 cp -R ravop/ravop ../
 rm -rf ravop
 
