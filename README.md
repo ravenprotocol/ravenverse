@@ -3,7 +3,6 @@
 <h1> Raven Distribution Framework(RDF) </h1>
 </div>
 
-
 ## What is [Raven Distribution Framework](https://www.ravenprotocol.com)?
 The foundation for any Machine Learning or Deep Learning Framework. Simply put, it is more like a decentralized calculator, comparable to a decentralized version of the IBM machines that were used to launch the Apollo astronauts. Apart from building ML/DL frameworks, a lot more can be done on it, such as maximizing yield on your favorite DeFi protocols like Compound and more!
 
@@ -12,12 +11,36 @@ The foundation for any Machine Learning or Deep Learning Framework. Simply put, 
 ## Features
  -->
 
+The Raven Distribution Framework (RDF) is a community-developed implementation of the decentralized computing model outlined by [Raven Protocol](https://www.ravenprotocol.com/). Within the Raven ecosystem today, there are two main actors: 
+
+* **[Developers](Developers):** Create models that need to be trained
+* **[Clients](Clients):** Provide computational power to train the models
+
+For [Developers](Developers), there are three core libraries that drive the main function for computation distribution ([RavOP](RavOp), [RavSock](RavSock), and [RavFTP](RavFTP)), along with a growing list of libraries that extend the core to be more developer-friendly to use.
+
+For [Clients](Clients), there are two libraries, [Ravpy](ravpy) is the python client for federated and distributed computing and the javascript library [RavJS](RavJS) enables anyone with a browser to contribute processing power. Additional clients are in consideration, such as Go and Rust (looking for community devs!).
+
+### Core libraries
+
+* [RavOP](RavOp): Core operations models for distributed computation
+* [RavSock](RavSock): Socket server to moderate client connections
+* [RavFTP](RavFTP): FTP server to facilitate transfer of files
+
+### Libraries built on top of core libraries
+* [RavML](RavML): Machine learning specific library
+* RavDL (Coming soon): Deep learning specific library
+* [RavViz](RavViz): A dashboard to visualize operations and client connections
+
+### Client libraries
+* [Ravpy](Ravpy): Python client for federated and distributed computing
+* [RavJS](RavJS): Javascript library to retrieve and calculate operations
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
 
-
 ## Setup 
     
+### Installation 
+   
 #### Create a virutal environment with Python 3.8 before you install RDF libraries
     conda create -n <env_name> python=3.8
 
@@ -29,7 +52,7 @@ The foundation for any Machine Learning or Deep Learning Framework. Simply put, 
 ### Configure Paths
 Navigate to ```ravsock/config.py``` and set the ```FTP_ENVIRON_DIR``` variable to the ```bin``` folder of your python virtual environment. For instance: 
     
-    FTP_ENVIRON_DIR = "/opt/homebrew/Caskroom/miniforge/base/envs/<env_name>/bin"
+    FTP_ENVIRON_DIR = "~/miniconda/envs/<env_name>/bin"
 
 Note: Set ```ENCRYPTION = True``` in the same file if a layer of homomorphic encryption needs to be added for Federated Analytics.
 
@@ -43,9 +66,7 @@ Create database with tables required for the project.
 
 The server is now configured correctly and ready to be fired up.
 
-![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/solar.png)
-
-## Start Ravsock Server
+### Start Ravsock Server
 
 Ravsock is a crucial component of RDF that facilitates both federated and distributed functionalities of the framework. 
 
