@@ -46,8 +46,16 @@ For Clients, there are two libraries, ravpy is the python client for federated a
 
 #### Clone the Repository
     git clone https://github.com/ravenprotocol/raven-distribution-framework.git
-#### Set up everything and install dependencies
+
+### Set up everything and install dependencies
+
+For the latest build
+
     sh setup.sh
+
+For the stable build
+
+    sh setup_stable.sh
 
 ### Configure Paths
 Navigate to ```ravsock/config.py``` and set the ```FTP_ENVIRON_DIR``` variable to the ```bin``` folder of your python virtual environment. For instance: 
@@ -93,13 +101,7 @@ Kindly visit [DISTRIBUTED_COMPUTING.md](DISTRIBUTED_COMPUTING.md) for more on cr
 
 ## How to contribute:
 
-Contributions are what make the open source community such a wonderful place to learn, be inspired, and create. You may contribute to our individual [Repositories](https://github.com/ravenprotocol). 
-
-- Fork
-
-- Write your code
-
-- Create a pull request
+Contributions are what make the open source community such a wonderful place to learn, be inspired, and create. You may contribute to our individual [Repositories](https://github.com/ravenprotocol). Please read our [contributor guide](CONTRIBUTING.md). 
 
 Any help you can give is much appreciated.
 
