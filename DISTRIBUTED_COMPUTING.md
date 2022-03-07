@@ -32,6 +32,10 @@ The proper way of wrapping up ops in a graph is by calling ```graph.end()``` at 
 
 A slightly more complex implementation can be found in ```distributed_test.py```
 
+You can also test out a sample Linear Regression Algorithm by running:
+
+    python linear_regression.py
+
 ### 3. Client Side
 
 As of this release, distributed computing is supported only by [RavJs](https://github.com/ravenprotocol/ravjs) Clients. The ravjs repository gets automatically cloned during RDF configuration.
