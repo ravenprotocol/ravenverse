@@ -34,6 +34,7 @@ cp -R ravftp ../
 rm -rf ravftp
 
 git clone https://github.com/ravenprotocol/ravdl.git
+pip install -r ravdl/requirements.txt
 cp -R ravdl ../
 rm -rf ravdl
 
