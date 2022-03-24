@@ -3,6 +3,7 @@ rm -rf ravpy
 rm -rf ravftp
 rm -rf ravjs
 rm -rf ravop
+rm -rf ravdl
 
 rm -rf repos
 mkdir repos
@@ -32,6 +33,10 @@ pip install -r ravftp/requirements.txt
 cp -R ravftp ../
 rm -rf ravftp
 
+git clone https://github.com/ravenprotocol/ravdl.git
+pip install -r ravdl/requirements.txt
+cp -R ravdl ../
+rm -rf ravdl
 
 cd ../
 rm -rf repos
