@@ -1,6 +1,7 @@
 import ravop as R
 import time
 
+R.initialize("distributed_test")
 algo = R.Graph(name='lin_reg', algorithm='linear_regression', approach='distributed')
 
 a = R.t([1, 2, 3]*10)
