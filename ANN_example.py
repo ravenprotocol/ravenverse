@@ -13,6 +13,7 @@ from sklearn.metrics import accuracy_score
 
 import ravop as R
 
+R.initialize('ann_test')
 algo = R.Graph(name='ann', algorithm='neural_network', approach='distributed')
 
 data = datasets.load_iris()
@@ -47,7 +48,7 @@ model.summary()
 
 print('\nTraining...')
 
-train_err = model.fit(X, y, n_epochs=2, batch_size=25)
+train_err = model.fit(X, y, n_epochs=5, batch_size=25)
 
 print('\nTesting...')
 
