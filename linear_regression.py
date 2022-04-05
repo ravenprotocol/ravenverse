@@ -3,6 +3,7 @@ import ravop as R
 import numpy as np
 import pathlib
 
+R.initialize('linear_regression')
 algo = R.Graph(name='lin_reg', algorithm='linear_regression', approach='distributed')
 
 class LinearRegression():
@@ -58,7 +59,7 @@ x,y,theta = preprocess(data)
 model = LinearRegression(x,y,theta)
 model.compute_cost()            # initial cost with coefficients at zero
 optimal_theta, inter, slope = model.gradient_descent(alpha, iterations)
-print(optimal_theta, inter, slope)
+# print(optimal_theta(), inter, slope)
 res_file_path = str(pathlib.Path().resolve()) + '/result.png'
 print(res_file_path)
 model.plot_graph(optimal_theta, res_file_path)
