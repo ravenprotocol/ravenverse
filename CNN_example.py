@@ -15,7 +15,7 @@ from sklearn.model_selection import train_test_split
 
 import ravop as R
 
-R.initialize('cnn_test')
+R.initialize(ravenverse_token='<ravenverse_token>',username='cnn_test')
 algo = R.Graph(name='cnn', algorithm='convolutional_neural_network', approach='distributed')
 
 def to_categorical(x, n_col=None):
@@ -49,16 +49,16 @@ clf = NeuralNetwork(optimizer=optimizer,
                     loss=CrossEntropy,
                     validation_data=(X_test, y_test))
 
-clf.add(Conv2D(n_filters=8, filter_shape=(4,4), stride=3, input_shape=(1,8,8), padding='same'))
+clf.add(Conv2D(n_filters=16, filter_shape=(3,3), stride=1, input_shape=(1,8,8), padding='same'))
 clf.add(Activation('relu'))
 clf.add(Dropout(0.25))
 clf.add(BatchNormalization())
-clf.add(Conv2D(n_filters=16, filter_shape=(4,4), stride=3, padding='same'))
+clf.add(Conv2D(n_filters=32, filter_shape=(3,3), stride=1, padding='same'))
 clf.add(Activation('relu'))
 clf.add(Dropout(0.25))
 clf.add(BatchNormalization())
 clf.add(Flatten())
-clf.add(Dense(16))
+clf.add(Dense(256))
 clf.add(Activation('relu'))
 clf.add(Dropout(0.4))
 clf.add(BatchNormalization())

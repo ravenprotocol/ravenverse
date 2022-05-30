@@ -13,7 +13,7 @@ from sklearn.metrics import accuracy_score
 
 import ravop as R
 
-R.initialize('ann_test')
+R.initialize(ravenverse_token='<ravenverse_token>',username='ann_test')
 algo = R.Graph(name='ann', algorithm='neural_network', approach='distributed')
 
 data = datasets.load_iris()
