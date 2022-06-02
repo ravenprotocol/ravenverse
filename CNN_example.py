@@ -13,9 +13,9 @@ from ravdl.neural_networks.loss_functions import CrossEntropy
 
 from sklearn.model_selection import train_test_split
 
-import ravop as R
+import ravop.ravop as R
 
-R.initialize(ravenverse_token='<ravenverse_token>',username='cnn_test')
+R.initialize(ravenverse_token='YOUR_TOKEN')
 algo = R.Graph(name='cnn', algorithm='convolutional_neural_network', approach='distributed')
 
 def to_categorical(x, n_col=None):

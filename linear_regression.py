@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
-import ravop as R
+import ravop.ravop as R
 import numpy as np
 import pathlib
 
-R.initialize('linear_regression')
+R.initialize(ravenverse_token='YOUR_TOKEN')
 algo = R.Graph(name='lin_reg', algorithm='linear_regression', approach='distributed')
 
 class LinearRegression():
