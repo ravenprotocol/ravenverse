@@ -11,9 +11,9 @@ from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 
-import ravop as R
+import ravop.ravop as R
 
-R.initialize(ravenverse_token='<ravenverse_token>',username='ann_test')
+R.initialize(ravenverse_token='YOUR_TOKEN')
 algo = R.Graph(name='ann', algorithm='neural_network', approach='distributed')
 
 data = datasets.load_iris()
@@ -48,7 +48,7 @@ model.summary()
 
 print('\nTraining...')
 
-train_err = model.fit(X, y, n_epochs=5, batch_size=25)
+train_err = model.fit(X, y, n_epochs=1, batch_size=25)
 
 print('\nTesting...')
 
