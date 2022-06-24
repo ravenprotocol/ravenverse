@@ -13,10 +13,12 @@ from ravdl.neural_networks.loss_functions import CrossEntropy
 
 from sklearn.model_selection import train_test_split
 
-import ravop.ravop as R
+import ravop as R
 
 R.initialize(ravenverse_token='YOUR_TOKEN')
-algo = R.Graph(name='cnn', algorithm='convolutional_neural_network', approach='distributed')
+R.flush()
+R.Graph(name='cnn', algorithm='convolutional_neural_network', approach='distributed')
+
 
 def to_categorical(x, n_col=None):
     if not n_col:
@@ -67,7 +69,7 @@ clf.add(Activation('softmax'))
 
 clf.summary()
 
-train_err, val_err = clf.fit(X_train, y_train, n_epochs=5, batch_size=256)
+clf.fit(X_train, y_train, n_epochs=1, batch_size=256)
 
 # # Training and validation error plot
 # n = len(train_err)
@@ -88,4 +90,4 @@ train_err, val_err = clf.fit(X_train, y_train, n_epochs=5, batch_size=256)
 # # Reduce dimension to 2D using PCA and plot the results
 # Plot().plot_in_2d(X_test, y_pred, title="Convolutional Neural Network", accuracy=accuracy, legend_labels=range(10))
 
-algo.end()
+R.activate()
