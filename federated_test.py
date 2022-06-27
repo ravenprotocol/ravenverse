@@ -1,6 +1,6 @@
 import json
 
-import ravop.ravop as R
+import ravop as R
 
 R.initialize(ravenverse_token='YOUR_TOKEN')
 # Create a graph to calculate mean, variance and standard deviation using federated learning approach
