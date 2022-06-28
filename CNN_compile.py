@@ -1,19 +1,18 @@
-
 from __future__ import print_function
-from sklearn import datasets
-import matplotlib.pyplot as plt
-import math
-import numpy as np
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+import numpy as np
+import ravop as R
 # Import helper functions
 from ravdl.neural_networks import NeuralNetwork
 from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten
-from ravdl.neural_networks.optimizers import Adam
 from ravdl.neural_networks.loss_functions import CrossEntropy
-
+from ravdl.neural_networks.optimizers import Adam
+from sklearn import datasets
 from sklearn.model_selection import train_test_split
-
-import ravop as R
 
 R.initialize(ravenverse_token='YOUR_TOKEN')
 R.flush()

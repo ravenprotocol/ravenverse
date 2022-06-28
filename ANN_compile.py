@@ -1,3 +1,8 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from sklearn import datasets
 import numpy as np
@@ -9,19 +14,19 @@ from ravdl.neural_networks.loss_functions import SquareLoss
 
 from sklearn.preprocessing import normalize
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 
 import ravop as R
 
-R.initialize(ravenverse_token='YOUR_TOKEN')
+R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 R.flush()
 R.Graph(name='ann', algorithm='neural_network', approach='distributed')
 
 data = datasets.load_iris()
 X = data.data
 y = data.target
-X= normalize(X,axis=0)
-X, X_test, y , y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+X = normalize(X, axis=0)
+X, X_test, y, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
 
 def to_categorical(x, n_col=None):
     if not n_col:
@@ -30,13 +35,14 @@ def to_categorical(x, n_col=None):
     one_hot[np.arange(x.shape[0]), x] = 1
     return one_hot
 
+
 y = to_categorical(y.astype("int"))
 n_samples, n_features = X.shape
 n_hidden = 15
 
 optimizer = RMSprop()
 
-model = NeuralNetwork(optimizer=optimizer,loss=SquareLoss)
+model = NeuralNetwork(optimizer=optimizer, loss=SquareLoss)
 model.add(Dense(n_hidden, input_shape=(n_features,)))
 model.add(BatchNormalization())
 model.add(Dense(30))
@@ -48,7 +54,7 @@ model.summary()
 
 print('\nTraining...')
 
-model.fit(X, y, n_epochs=6, batch_size=25)
+model.fit(X, y, n_epochs=1, batch_size=25)
 
 print('\nTesting...')
 

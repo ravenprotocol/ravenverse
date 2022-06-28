@@ -1,3 +1,9 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import numpy as np
 from sklearn import datasets
 from sklearn.preprocessing import normalize
@@ -6,7 +12,7 @@ from sklearn.metrics import accuracy_score
 
 import ravop as R
 
-R.initialize(ravenverse_token='YOUR_TOKEN')
+R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 
 R.execute()
 R.track_progress()
