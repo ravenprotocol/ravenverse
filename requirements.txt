@@ -1,2 +1,4 @@
 python-dotenv
 scikit-learn
+onnx
+onnxruntime

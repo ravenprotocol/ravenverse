@@ -6,6 +6,7 @@ load_dotenv()
 
 from sklearn import datasets
 import numpy as np
+import pickle as pkl
 
 from ravdl.neural_networks import NeuralNetwork
 from ravdl.neural_networks.layers import Dense, Dropout, BatchNormalization, Activation
@@ -54,7 +55,8 @@ model.summary()
 
 print('\nTraining...')
 
-model.fit(X, y, n_epochs=1, batch_size=25)
+model.fit(X, y, n_epochs=5, batch_size=25, save_model=True)
+pkl.dump(model, open("model.pkl", "wb"))
 
 print('\nTesting...')
 
