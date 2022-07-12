@@ -1,4 +1,6 @@
 from __future__ import print_function
+import pickle as pkl
+import os
 
 from dotenv import load_dotenv
 
@@ -8,13 +10,13 @@ import numpy as np
 import ravop as R
 # Import helper functions
 from ravdl.neural_networks import NeuralNetwork
-from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten
+from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten, MaxPooling2D
 from ravdl.neural_networks.loss_functions import CrossEntropy
 from ravdl.neural_networks.optimizers import Adam
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
-R.initialize(ravenverse_token='YOUR_TOKEN')
+R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 R.flush()
 R.Graph(name='cnn', algorithm='convolutional_neural_network', approach='distributed')
 
@@ -52,10 +54,13 @@ clf = NeuralNetwork(optimizer=optimizer,
 
 clf.add(Conv2D(n_filters=16, filter_shape=(3,3), stride=1, input_shape=(1,8,8), padding='same'))
 clf.add(Activation('relu'))
+clf.add(MaxPooling2D(pool_shape=(2,2), stride=2))
 clf.add(Dropout(0.25))
 clf.add(BatchNormalization())
+clf.add(MaxPooling2D(stride=2,padding="same"))
 clf.add(Conv2D(n_filters=32, filter_shape=(3,3), stride=1, padding='same'))
 clf.add(Activation('relu'))
+clf.add(MaxPooling2D(pool_shape=(2,2), stride=2))
 clf.add(Dropout(0.25))
 clf.add(BatchNormalization())
 clf.add(Flatten())
@@ -68,7 +73,10 @@ clf.add(Activation('softmax'))
 
 clf.summary()
 
-clf.fit(X_train, y_train, n_epochs=1, batch_size=256)
+clf.fit(X_train, y_train, n_epochs=1, batch_size=256, save_model=True)
+
+pkl.dump(clf, open("cnn_model.pkl", "wb"))
+
 
 # # Training and validation error plot
 # n = len(train_err)

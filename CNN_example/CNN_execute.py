@@ -1,6 +1,10 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+import os
 import ravop as R
 
-R.initialize(ravenverse_token='YOUR_TOKEN')
+R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 
 R.execute()
 R.track_progress()

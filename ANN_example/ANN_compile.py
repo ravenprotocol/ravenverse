@@ -6,6 +6,7 @@ load_dotenv()
 
 from sklearn import datasets
 import numpy as np
+import pickle as pkl
 
 from ravdl.neural_networks import NeuralNetwork
 from ravdl.neural_networks.layers import Dense, Dropout, BatchNormalization, Activation
@@ -44,9 +45,9 @@ optimizer = RMSprop()
 
 model = NeuralNetwork(optimizer=optimizer, loss=SquareLoss)
 model.add(Dense(n_hidden, input_shape=(n_features,)))
-model.add(BatchNormalization())
+# model.add(BatchNormalization())
 model.add(Dense(30))
-model.add(Dropout(0.9))
+# model.add(Dropout(0.9))
 model.add(Dense(3))
 model.add(Activation('softmax'))
 
@@ -54,7 +55,8 @@ model.summary()
 
 print('\nTraining...')
 
-model.fit(X, y, n_epochs=1, batch_size=25)
+model.fit(X, y, n_epochs=5, batch_size=25, save_model=True)
+pkl.dump(model, open("model.pkl", "wb"))
 
 print('\nTesting...')
 
