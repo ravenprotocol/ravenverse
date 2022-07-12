@@ -45,9 +45,9 @@ optimizer = RMSprop()
 
 model = NeuralNetwork(optimizer=optimizer, loss=SquareLoss)
 model.add(Dense(n_hidden, input_shape=(n_features,)))
-# model.add(BatchNormalization())
+model.add(BatchNormalization())
 model.add(Dense(30))
-# model.add(Dropout(0.9))
+model.add(Dropout(0.9))
 model.add(Dense(3))
 model.add(Activation('softmax'))
 
