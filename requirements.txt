@@ -2,3 +2,6 @@ python-dotenv
 scikit-learn
 onnx
 onnxruntime
+ravop
+ravpy
+ravdl

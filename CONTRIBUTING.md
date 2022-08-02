@@ -1,4 +1,4 @@
-# Contribute to Raven Distribution Framework
+# Contribute to Ravenverse
 
 ### 1. Open an issue
 We recommend opening an issue (if one doesn't already exist) and discussing your intended changes before making any changes. We'll be able to provide you feedback and confirm the planned modifications this way.
@@ -11,4 +11,3 @@ Once the change is complete, submit a pull request to the master branch from you
 
 ### 4. Merging
 We will review the code changes and merge the pull request. 
-
