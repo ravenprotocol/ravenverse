@@ -48,10 +48,11 @@ def create_model(n_hidden, n_features):
     return model
 
 
-def train(model, X, y):
+def train(model, X, y, n_epochs=5):
     print('\nTraining...')
-    model.fit(X, y, n_epochs=5, batch_size=25, save_model=True)
+    model.fit(X, y, n_epochs=n_epochs, batch_size=25, save_model=True)
     pkl.dump(model, open("model.pkl", "wb"))
+    return model
 
 
 def test(model, X_test):
