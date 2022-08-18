@@ -1,11 +1,8 @@
-import os
-
 from dotenv import load_dotenv
-
 load_dotenv()
 
+import os
 import ravop as R
-
 from examples import ann
 
 # Initialize and create graph
@@ -20,7 +17,7 @@ X, X_test, y, y_test, n_hidden, n_features = ann.get_dataset()
 model = ann.create_model(n_hidden, n_features)
 
 # start training
-ann.train(model, X, y)
+model = ann.train(model, X, y, n_epochs=1)
 
 # test the model
 ann.test(model, X_test)
