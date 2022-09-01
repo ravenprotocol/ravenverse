@@ -5,3 +5,5 @@ onnxruntime
 ravop
 ravpy
 ravdl
+websocket-client
+matplotlib
