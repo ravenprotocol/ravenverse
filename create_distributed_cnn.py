@@ -3,6 +3,7 @@ load_dotenv()
 
 import os
 import ravop as R
+
 from examples import cnn
 
 # Initialize and create graph
@@ -17,8 +18,14 @@ X_train, X_test, y_train, y_test = cnn.get_dataset()
 model = cnn.create_model(X_test=X_test, y_test=y_test)
 
 # start training
-cnn.train(model, X_train, y_train)
+model = cnn.train(model, X_train, y_train)
+
+cnn.test(model, X_test, y_test)
 
 # compile it and start the execution
 cnn.compile()
 cnn.execute()
+
+loss, acc = cnn.get_score()
+print("Loss: ", loss)
+print("Accuracy: ", acc)

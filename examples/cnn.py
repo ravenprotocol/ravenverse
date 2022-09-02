@@ -4,10 +4,17 @@ import pickle as pkl
 
 import numpy as np
 import ravop as R
-from ravdl.neural_networks import NeuralNetwork
-from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten, MaxPooling2D
-from ravdl.neural_networks.loss_functions import CrossEntropy
-from ravdl.neural_networks.optimizers import Adam
+
+# from ravdl.neural_networks import NeuralNetwork
+# from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten, MaxPooling2D
+# from ravdl.neural_networks.loss_functions import CrossEntropy
+# from ravdl.neural_networks.optimizers import Adam
+
+from DLOps.layers import Activation, Dense, BatchNormalization, Dropout, Conv2D, Flatten, MaxPooling2D
+from DLOps.optimizers import Adam, RMSprop
+from DLOps.loss_functions import CrossEntropy
+from DLOps.NeuralNetwork import NeuralNetwork
+
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
@@ -28,7 +35,7 @@ def get_dataset():
     # Convert to one-hot encoding
     y = to_categorical(y.astype("int"))
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=1)
 
     # Reshape X to (n_samples, channels, height, width)
     X_train = X_train.reshape((-1, 1, 8, 8))
@@ -38,7 +45,8 @@ def get_dataset():
 
 
 def create_model(X_test, y_test):
-    optimizer = Adam()
+    optimizer = RMSprop()
+    # optimizer = Adam()
 
     model = NeuralNetwork(optimizer=optimizer,
                           loss=CrossEntropy,
@@ -68,9 +76,15 @@ def create_model(X_test, y_test):
 
 
 def train(model, X_train, y_train):
-    model.fit(X_train, y_train, n_epochs=1, batch_size=256, save_model=True)
+    model.fit(X_train, y_train, n_epochs=10, batch_size=256, save_model=True)
     pkl.dump(model, open("cnn_model.pkl", "wb"))
+    return model
 
+def test(model, X_test, y_test):
+    print('\nTesting...')
+    loss, acc = model.test_on_batch(R.t(X_test), R.t(y_test))
+    loss.persist_op(name='cnn_test_loss')
+    acc.persist_op(name='cnn_test_acc')
 
 def compile():
     R.activate()
@@ -79,3 +93,8 @@ def compile():
 def execute():
     R.execute()
     R.track_progress()
+
+def get_score():
+    loss = R.fetch_persisting_op('cnn_test_loss')
+    acc = R.fetch_persisting_op('cnn_test_acc')
+    return loss, acc
