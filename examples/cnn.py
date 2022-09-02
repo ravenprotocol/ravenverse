@@ -10,10 +10,10 @@ import ravop as R
 # from ravdl.neural_networks.loss_functions import CrossEntropy
 # from ravdl.neural_networks.optimizers import Adam
 
-from DLOps.layers import Activation, Dense, BatchNormalization, Dropout, Conv2D, Flatten, MaxPooling2D
-from DLOps.optimizers import Adam, RMSprop
-from DLOps.loss_functions import CrossEntropy
-from DLOps.NeuralNetwork import NeuralNetwork
+from ravdl.DLOps.layers import Activation, Dense, BatchNormalization, Dropout, Conv2D, Flatten, MaxPooling2D
+from ravdl.DLOps.optimizers import Adam, RMSprop
+from ravdl.DLOps.loss_functions import CrossEntropy
+from ravdl.DLOps.NeuralNetwork import NeuralNetwork
 
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
