@@ -18,7 +18,7 @@ X_train, X_test, y_train, y_test = cnn.get_dataset()
 model = cnn.create_model(X_test=X_test, y_test=y_test)
 
 # start training
-model = cnn.train(model, X_train, y_train)
+model = cnn.train(model, X_train, y_train, n_epochs=10)
 
 cnn.test(model, X_test, y_test)
 

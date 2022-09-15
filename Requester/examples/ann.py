@@ -2,10 +2,10 @@ import pickle as pkl
 
 import numpy as np
 import ravop as R
-from ravdl.neural_networks import NeuralNetwork
-from ravdl.neural_networks.layers import Dense, Dropout, BatchNormalization, Activation
-from ravdl.neural_networks.loss_functions import SquareLoss
-from ravdl.neural_networks.optimizers import RMSprop
+from ravdl.v1 import NeuralNetwork
+from ravdl.v1.layers import Dense, Dropout, BatchNormalization, Activation
+from ravdl.v1.loss_functions import SquareLoss
+from ravdl.v1.optimizers import RMSprop
 from sklearn import datasets
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
