@@ -5,15 +5,15 @@ import pickle as pkl
 import numpy as np
 import ravop as R
 
-# from ravdl.neural_networks import NeuralNetwork
-# from ravdl.neural_networks.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten, MaxPooling2D
-# from ravdl.neural_networks.loss_functions import CrossEntropy
-# from ravdl.neural_networks.optimizers import Adam
+# from ravdl.v1 import NeuralNetwork
+# from ravdl.v1.layers import Conv2D, Dense, Dropout, BatchNormalization, Activation, Flatten, MaxPooling2D
+# from ravdl.v1.loss_functions import CrossEntropy
+# from ravdl.v1.optimizers import Adam
 
-from ravdl.DLOps.layers import Activation, Dense, BatchNormalization, Dropout, Conv2D, Flatten, MaxPooling2D
-from ravdl.DLOps.optimizers import Adam, RMSprop
-from ravdl.DLOps.loss_functions import CrossEntropy
-from ravdl.DLOps.NeuralNetwork import NeuralNetwork
+from ravdl.v2 import NeuralNetwork
+from ravdl.v2.layers import Activation, Dense, BatchNormalization, Dropout, Conv2D, Flatten, MaxPooling2D
+from ravdl.v2.optimizers import Adam, RMSprop
+from ravdl.v2.loss_functions import CrossEntropy
 
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
@@ -75,8 +75,9 @@ def create_model(X_test, y_test):
     return model
 
 
-def train(model, X_train, y_train):
-    model.fit(X_train, y_train, n_epochs=10, batch_size=256, save_model=True)
+def train(model, X_train, y_train, n_epochs=10):
+    model.fit(X_train, y_train, n_epochs=n_epochs, batch_size=256, persist_weights=True) #v2
+    # model.fit(X_train, y_train, n_epochs=n_epochs, batch_size=256, save_model=True) #v1
     pkl.dump(model, open("cnn_model.pkl", "wb"))
     return model
 
