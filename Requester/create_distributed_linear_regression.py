@@ -3,7 +3,7 @@ load_dotenv()
 
 import os
 import ravop as R
-from examples import linear_regression
+from .examples import linear_regression
 
 # Initialize and create graph
 R.initialize(ravenverse_token=os.environ.get("TOKEN"))
