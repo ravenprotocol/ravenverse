@@ -1,20 +1,23 @@
 from dotenv import load_dotenv
 load_dotenv()
+
 import os
-
-from ravdl.v2.optimizers import Adam
-from ravdl.v2.load_onnx_model import load_onnx
 import ravop as R
-from examples import ann
+from utils import ann, onnx
 
+# Initialize and create graph
 R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 R.flush()
 R.Graph(name='ann', algorithm='neural_network', approach='distributed')
 
-model = load_onnx(model_file_path="ann.onnx", optimizer=Adam(), loss='CrossEntropy')
-model.summary()
-
+# dataset
 X, X_test, y, y_test, n_hidden, n_features = ann.get_dataset()
+
+# create ann model
+model = ann.create_model(n_hidden, n_features)
+
+# start training
+model = ann.train(model, X, y, n_epochs=100)
 
 # test the model
 ann.test(model, X_test)
@@ -22,6 +25,10 @@ ann.test(model, X_test)
 # compile it and start the execution
 ann.compile()
 ann.execute()
+
+# # download onnx model and test it
+# onnx.download_onnx_model('model.pkl','ann')
+# onnx.test_onnx_model('ann.onnx')
 
 # accuracy score
 accuracy = ann.score(y_test)

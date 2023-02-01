@@ -3,7 +3,7 @@ load_dotenv()
 
 import os
 import ravop as R
-from examples import knn
+from utils import knn
 
 # Initialize and create graph
 R.initialize(ravenverse_token=os.environ.get("TOKEN"))
