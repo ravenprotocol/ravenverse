@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from ravpy.distributed.participate import participate
+from ravpy import participate
 from ravpy.initialize import initialize
 
 if __name__ == '__main__':
