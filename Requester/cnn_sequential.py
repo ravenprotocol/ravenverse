@@ -24,7 +24,7 @@ cnn.test(model, X_test)
 
 # compile it and start the execution
 cnn.compile()
-cnn.execute()
+cnn.execute(participants=1)
 
 # # download onnx model and test it
 # onnx.download_onnx_model('model.pkl','cnn')

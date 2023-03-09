@@ -25,7 +25,7 @@ knn.test(model, X_test, y_test)
 
 # compile it and start the execution
 knn.compile()
-knn.execute()
+knn.execute(participants=1)
 
 # test_prediction and score
 test_prediction = R.fetch_persisting_op(op_name="test_prediction")

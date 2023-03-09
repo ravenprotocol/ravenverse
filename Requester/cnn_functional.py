@@ -84,7 +84,7 @@ out = model._forward_pass(R.t(X_test), training=False)
 out.persist_op(name="prediction")
 
 R.activate()
-R.execute()
+R.execute(participants=1)
 R.track_progress()
 
 prediction = R.fetch_persisting_op(op_name="prediction")
