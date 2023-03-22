@@ -24,7 +24,7 @@ ann.test(model, X_test)
 
 # compile it and start the execution
 ann.compile()
-ann.execute()
+ann.execute(participants=1)
 
 # # download onnx model and test it
 # onnx.download_onnx_model('model.pkl','ann')

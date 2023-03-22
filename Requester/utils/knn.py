@@ -114,7 +114,7 @@ def test(model, X_test, y_test):
 def compile():
     R.activate()
 
-def execute():
-    R.execute()
+def execute(participants=1):
+    R.execute(participants=participants)
     R.track_progress()
 

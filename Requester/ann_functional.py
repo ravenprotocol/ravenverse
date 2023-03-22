@@ -15,7 +15,7 @@ from utils import ann
 # Initialize and create graph
 R.initialize(ravenverse_token=os.environ.get("TOKEN"))
 R.flush()
-R.Graph(name='ann', algorithm='neural_network', approach='distributed')
+R.Graph(name = 'ann', algorithm = 'neural_network', approach = 'distributed')
 
 X, X_test, y, y_test, n_hidden, n_features = ann.get_dataset()
 
@@ -75,7 +75,7 @@ out = model._forward_pass(R.t(X_test), training=False)
 out.persist_op(name="prediction")
 
 R.activate()
-R.execute()
+R.execute(participants=1)
 R.track_progress()
 
 prediction = R.fetch_persisting_op(op_name="prediction")
