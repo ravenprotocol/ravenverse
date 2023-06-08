@@ -90,7 +90,7 @@ output = generate(test_input, 6)
 
 
 R.activate()
-R.execute(participants=1)
+R.execute()
 R.track_progress()
 
 output = R.fetch_persisting_op('outputs')
