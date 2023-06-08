@@ -82,8 +82,8 @@ def compile():
     R.activate()
 
 
-def execute(participants=1):
-    R.execute(participants=participants)
+def execute():
+    R.execute()
     R.track_progress()
 
 def get_score(y_test):

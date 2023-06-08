@@ -25,7 +25,7 @@ linear_regression.test(model, x, y)
 
 # compile it and start the execution
 linear_regression.compile()
-linear_regression.execute(participants=1)
+linear_regression.execute()
 
 # test_prediction and optimized theta
 optimal_theta = R.fetch_persisting_op(op_name="theta")

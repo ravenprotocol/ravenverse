@@ -43,7 +43,7 @@ input = R.t(X_test.astype(np.float32))
 output = model._forward_pass(input, training=False)
 output.persist_op("output")
 R.activate()
-R.execute(participants=1)
+R.execute()
 R.track_progress()
 
 prediction = R.fetch_persisting_op(op_name="output")
